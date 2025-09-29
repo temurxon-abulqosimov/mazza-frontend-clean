@@ -1,0 +1,44 @@
+﻿  createOrder: async (data: any) => {
+    try {
+      const response = await api.post('/orders', data);
+      return response;
+    } catch (error: any) {
+      console.log('Backend not available, simulating order creation for demo');
+      const orderCode = 'UZ' + Math.random().toString(36).substr(2, 9).toUpperCase();
+      return { 
+        data: { 
+          id: Math.floor(Math.random() * 1000), 
+          code: orderCode,
+          status: 'pending',
+          ...data, 
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        } 
+      };
+    }
+  },
+  updateOrderStatus: async (id: number, status: string) => {
+    try {
+      const response = await api.patch(`/orders/${id}/status`, { status });
+      return response;
+    } catch (error: any) {
+      console.log('Backend not available, simulating order status update for demo');
+      return { 
+        data: { 
+          id, 
+          status, 
+          updatedAt: new Date().toISOString()
+        } 
+      };
+    }
+  },
+  getSellerOrders: async () => {
+    try {
+      const response = await api.get('/orders/seller');
+      return response;
+    } catch (error) {
+      console.log('Backend not available, returning mock data');
+      return { data: [] };
+    }
+  },
+};
