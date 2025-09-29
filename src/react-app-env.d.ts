@@ -1,4 +1,4 @@
-/// <reference types="react-scripts" />
+﻿/// <reference types="react-scripts" />
 
 declare module 'recharts' {
   export const LineChart: any;
@@ -16,3 +16,4 @@ declare module 'recharts' {
   export const Pie: any;
   export const Cell: any;
 }
+
