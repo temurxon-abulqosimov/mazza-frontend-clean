@@ -1,4 +1,4 @@
-﻿// Mock data service to fix API connection issues
+// Mock data service to fix API connection issues
 export const mockSellers = [
   {
     id: 1,
@@ -11,7 +11,7 @@ export const mockSellers = [
     closesAt: 1200, // 8:00 PM
     status: "approved",
     language: "uz",
-    businessImageUrl: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400",
+    businessImageUrl: "https://via.placeholder.com/400x300/FF6B35/FFFFFF?text=Bakery",
     verificationStatus: "verified",
     createdAt: "2024-01-01T00:00:00Z",
     updatedAt: "2024-01-01T00:00:00Z",
@@ -45,7 +45,7 @@ export const mockSellers = [
     closesAt: 1320, // 10:00 PM
     status: "approved",
     language: "uz",
-    businessImageUrl: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400",
+    businessImageUrl: "https://via.placeholder.com/400x300/FF6B35/FFFFFF?text=Pizza",
     verificationStatus: "verified",
     createdAt: "2024-01-01T00:00:00Z",
     updatedAt: "2024-01-01T00:00:00Z",
@@ -79,7 +79,7 @@ export const mockSellers = [
     closesAt: 1140, // 7:00 PM
     status: "approved",
     language: "uz",
-    businessImageUrl: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400",
+    businessImageUrl: "https://via.placeholder.com/400x300/FF6B35/FFFFFF?text=Cafe",
     verificationStatus: "verified",
     createdAt: "2024-01-01T00:00:00Z",
     updatedAt: "2024-01-01T00:00:00Z",
