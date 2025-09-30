@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 const TestComponent: React.FC = () => {
   return (
@@ -29,3 +29,4 @@ const TestComponent: React.FC = () => {
 };
 
 export default TestComponent;
+

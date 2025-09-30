@@ -27,3 +27,4 @@ const RoleBasedRedirect: React.FC = () => {
 };
 
 export default RoleBasedRedirect;
+

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 const NotificationCenter: React.FC = () => {
   return (
@@ -12,3 +12,4 @@ const NotificationCenter: React.FC = () => {
 };
 
 export default NotificationCenter;
+

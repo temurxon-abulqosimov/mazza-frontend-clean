@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { MapPin, Clock, Star, Heart, Phone } from 'lucide-react';
 import { Product } from '../types';
 import { useLocalization } from '../contexts/LocalizationContext';
@@ -150,3 +150,4 @@ const ProductCard: React.FC<ProductCardProps> = ({
 };
 
 export default ProductCard;
+

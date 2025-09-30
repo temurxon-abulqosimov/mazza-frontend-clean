@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Target } from 'lucide-react';
 
 const MissionCard: React.FC = () => {
@@ -32,3 +32,4 @@ const MissionCard: React.FC = () => {
 };
 
 export default MissionCard;
+

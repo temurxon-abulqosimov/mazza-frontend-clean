@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 const AnalyticsDashboard: React.FC = () => {
   return (
@@ -12,3 +12,4 @@ const AnalyticsDashboard: React.FC = () => {
 };
 
 export default AnalyticsDashboard;
+

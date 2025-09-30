@@ -6,3 +6,4 @@ const ProductCreate: React.FC = () => {
 };
 
 export default ProductCreate;
+

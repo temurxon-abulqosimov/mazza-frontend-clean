@@ -76,3 +76,4 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
 };
 
 export default BottomNavigation;
+

@@ -288,3 +288,4 @@ const SellerProfile: React.FC = () => {
 };
 
 export default SellerProfile;
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Store, Star, MapPin, Clock, Package } from 'lucide-react';
 import { sellersApi, productsApi } from '../services/api';
@@ -158,3 +158,4 @@ const SellerDetail: React.FC = () => {
 };
 
 export default SellerDetail;
+

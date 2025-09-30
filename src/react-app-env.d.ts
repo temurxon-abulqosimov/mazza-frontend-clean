@@ -17,3 +17,4 @@ declare module 'recharts' {
   export const Cell: any;
 }
 
+

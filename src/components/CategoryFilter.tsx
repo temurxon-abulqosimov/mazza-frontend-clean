@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { BusinessType } from '../types';
 
 interface CategoryFilterProps {
@@ -39,3 +39,4 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({ selectedCategory, onCat
 };
 
 export default CategoryFilter;
+

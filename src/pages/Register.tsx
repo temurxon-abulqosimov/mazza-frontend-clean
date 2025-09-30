@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, User, Store, Phone, Clock } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
@@ -183,7 +183,7 @@ const Register: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
               >
                 <option value="uz">O'zbek</option>
-                <option value="ru">Русский</option>
+                <option value="ru">Р СѓСЃСЃРєРёР№</option>
               </select>
             </div>
 
@@ -274,3 +274,4 @@ const Register: React.FC = () => {
 };
 
 export default Register;
+
