@@ -3,16 +3,10 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Store,
   Package,
-  ShoppingCart,
   TrendingUp,
-  Users,
-  Eye,
-  Upload,
   Plus,
   Edit,
   Trash2,
-  Clock,
-  MapPin,
   BarChart3,
   Bell,
   Settings,
@@ -45,7 +39,6 @@ const SellerDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [newOrdersCount, setNewOrdersCount] = useState(0);
   
-  const [searchResults, setSearchResults] = useState<any[]>([]);
 
   // Notification state
   const [notification, setNotification] = useState<NotificationProps>({

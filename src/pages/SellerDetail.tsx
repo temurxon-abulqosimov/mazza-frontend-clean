@@ -1,7 +1,7 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Store, Star, MapPin, Clock, Package } from 'lucide-react';
-import { sellersApi, productsApi } from '../services/api';
+import { sellersApi } from '../services/api';
 import BottomNavigation from '../components/BottomNavigation';
 
 const SellerDetail: React.FC = () => {

@@ -10,7 +10,6 @@ import RoleSwitcher from './components/RoleSwitcher';
 import LoadingScreen from './components/LoadingScreen';
 
 // Lazy load all pages for better performance
-const Home = lazy(() => import('./pages/Home'));
 const Search = lazy(() => import('./pages/Search'));
 const Orders = lazy(() => import('./pages/Orders'));
 const Profile = lazy(() => import('./pages/Profile'));

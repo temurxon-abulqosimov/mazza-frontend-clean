@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, CheckCircle, XCircle, MapPin, Phone, ArrowLeft, Package, Calendar, User, Star, ShoppingBag } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, MapPin, Phone, ArrowLeft, Package, User, Star, ShoppingBag } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
 import { ordersApi } from '../services/api';
 import { useTelegram } from '../contexts/TelegramContext';
@@ -138,7 +138,7 @@ const Orders: React.FC = () => {
     };
 
     loadOrders();
-  }, [user]);
+  }, [user, mockOrders]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {

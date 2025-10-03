@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Store, Package, TrendingUp, CheckCircle, XCircle, AlertCircle, Search, Filter } from 'lucide-react';
+import { ArrowLeft, Users, Search, Filter } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
 import { adminApi } from '../services/api';

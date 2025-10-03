@@ -1,4 +1,4 @@
-// Mock data service to fix API connection issues
+﻿// Mock data service to fix API connection issues
 export const mockSellers = [
   {
     id: 1,

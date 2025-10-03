@@ -39,12 +39,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [initData, setInitData] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [webApp, setWebApp] = useState<any>(null);
-  
-  // Load userRole from localStorage on initialization
-  const [userRole, setUserRoleState] = useState<"user" | "seller" | "admin">(() => {
-    const savedRole = localStorage.getItem("userRole") as "user" | "seller" | "admin";
-    return savedRole || "user";
-  });
+  const [userRole, setUserRoleState] = useState<"user" | "seller" | "admin">("user");
 
   const setUserRole = (role: "user" | "seller" | "admin") => {
     setUserRoleState(role);
@@ -71,11 +66,6 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         
         const data = tg.initData;
         setInitData(data);
-        
-        // Store init data in localStorage for API authentication
-        if (data) {
-          localStorage.setItem('telegramInitData', data);
-        }
         
         const userData = tg.initDataUnsafe?.user;
         if (userData) {

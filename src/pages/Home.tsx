@@ -1,15 +1,10 @@
 ﻿import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  ShoppingBag, 
-  Package, 
   Star, 
   MapPin, 
-  Clock,
   Search,
-  Filter,
-  Heart,
-  ShoppingCart
+  Heart
 } from 'lucide-react';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';

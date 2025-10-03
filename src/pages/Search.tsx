@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search as SearchIcon, Filter, MapPin, Star, Clock } from 'lucide-react';
+import { ArrowLeft, Search as SearchIcon, Filter } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
 import ProductCard from '../components/ProductCard';
 import { productsApi } from '../services/api';

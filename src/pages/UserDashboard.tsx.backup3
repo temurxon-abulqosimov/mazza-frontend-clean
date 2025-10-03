@@ -1,11 +1,15 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ShoppingBag, 
+  Package, 
   Star, 
   MapPin, 
+  Clock,
   Search,
-  Heart
+  Filter,
+  Heart,
+  ShoppingCart
 } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
@@ -26,6 +30,12 @@ const UserDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
+  useEffect(() => {
+    if (isReady && user) {
+      loadDashboardData();
+    }
+  }, [isReady, user]);
+
   const loadDashboardData = async () => {
     try {
       setLoading(true);
@@ -43,12 +53,6 @@ const UserDashboard: React.FC = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (isReady && user) {
-      loadDashboardData();
-    }
-  }, [isReady, user, loadDashboardData]);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Clock, DollarSign, Store } from 'lucide-react';
 import { productsApi, sellersApi } from '../services/api';
@@ -13,7 +13,6 @@ interface ProductFormProps {
 const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { user } = useTelegram();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [seller, setSeller] = useState<any>(null);
@@ -37,13 +36,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
     category: ProductCategory.OTHER,
   });
 
-  useEffect(() => {
-    if (mode === 'edit' && id) {
-      loadProduct();
-    }
-    loadSellerData();
-  }, [mode, id]);
-
   const loadSellerData = async () => {
     try {
       const response = await sellersApi.getSellerProfile();
@@ -53,7 +45,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
     }
   };
 
-  const loadProduct = async () => {
+  const loadProduct = useCallback(async () => {
     try {
       const response = await productsApi.getProductById(String(id));
       const product = response.data;
@@ -71,7 +63,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
       console.error('Failed to load product:', error);
       setError('Failed to load product details');
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (mode === 'edit' && id) {
+      loadProduct();
+    }
+    loadSellerData();
+  }, [mode, id, loadProduct]);
 
   const showNotification = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
     setNotification({

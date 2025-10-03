@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Store, Shield, Settings, LogOut, ArrowLeft, MapPin, Clock, Star, Bell, Lock, Globe } from 'lucide-react';
+import { User, Store, Shield, Settings, LogOut, ArrowLeft, Bell } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { useTelegram } from '../contexts/TelegramContext';

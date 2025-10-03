@@ -1,7 +1,7 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ShoppingBag, Star, MapPin, Clock, CheckCircle } from 'lucide-react';
-import { mockProducts } from '../services/mockData';
+import { ArrowLeft, ShoppingBag, Star, MapPin, CheckCircle } from 'lucide-react';
+import { productsApi } from '../services/api';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { useTelegram } from '../contexts/TelegramContext';
 import { ordersApi } from '../services/api';
@@ -27,10 +27,19 @@ const ProductDetail: React.FC = () => {
   });
 
   useEffect(() => {
-    if (id) {
-      const foundProduct = mockProducts.find(p => p.id === parseInt(id));
-      setProduct(foundProduct || null);
-    }
+    const fetchProduct = async () => {
+      if (id) {
+        try {
+          const response = await productsApi.getProductById(id);
+          setProduct(response.data);
+        } catch (error) {
+          console.error('Failed to fetch product:', error);
+          showNotification('error', 'Error', 'Failed to load product. Please try again.');
+          setProduct(null);
+        }
+      }
+    };
+    fetchProduct();
   }, [id]);
 
   const showNotification = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
@@ -284,4 +293,5 @@ const ProductDetail: React.FC = () => {
 };
 
 export default ProductDetail;
+
 
