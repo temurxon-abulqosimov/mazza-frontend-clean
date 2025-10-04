@@ -149,24 +149,24 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           needsPassword: true
         });
       } else {
-        // For development/testing, simulate registered user if we have user data
-        if (user && user.id) {
-          // Check if this is an admin user
-          const isAdminUser = checkIfAdminUser();
-          if (isAdminUser) {
-            // Show admin login form
-            setUserProfileState({
-              id: 0,
-              telegramId: user.id.toString(),
-              firstName: user.first_name,
-              lastName: user.last_name,
-              username: user.username,
-              role: 'admin',
-              isRegistered: false,
-              needsPassword: true
-            });
-          } else {
-            // Simulate a registered user for testing
+        // Authentication failed - check if this is an admin user
+        const isAdminUser = checkIfAdminUser();
+        if (isAdminUser) {
+          // Show admin login form
+          setUserProfileState({
+            id: 0,
+            telegramId: user?.id.toString() || '',
+            firstName: user?.first_name || '',
+            lastName: user?.last_name,
+            username: user?.username,
+            role: 'admin',
+            isRegistered: false,
+            needsPassword: true
+          });
+        } else {
+          // For production, if we have user data from Telegram, assume they're registered
+          if (user && user.id) {
+            // In production, if we have Telegram user data, assume they're registered
             setUserProfileState({
               id: user.id,
               telegramId: user.id.toString(),
@@ -177,18 +177,18 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               isRegistered: true
             });
             setUserRole('user');
+          } else {
+            // No user data, they need to register
+            setUserProfileState({
+              id: 0,
+              telegramId: user?.id.toString() || '',
+              firstName: user?.first_name || '',
+              lastName: user?.last_name,
+              username: user?.username,
+              role: 'user',
+              isRegistered: false
+            });
           }
-        } else {
-          // Regular user needs to register in bot first
-          setUserProfileState({
-            id: 0,
-            telegramId: user?.id.toString() || '',
-            firstName: user?.first_name || '',
-            lastName: user?.last_name,
-            username: user?.username,
-            role: 'user',
-            isRegistered: false
-          });
         }
       }
     } finally {
@@ -302,19 +302,30 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (data) {
           await login();
         } else {
-          // No init data, but we have Telegram WebApp (development mode)
-          // Simulate a registered user for development
-          if (process.env.NODE_ENV === 'development') {
+          // No init data, but we have Telegram WebApp
+          // If we have user data from Telegram, assume they're registered
+          if (user && user.id) {
             setUserProfileState({
-              id: user?.id || 123456789,
-              telegramId: user?.id.toString() || "123456789",
-              firstName: user?.first_name || "Test",
-              lastName: user?.last_name || "User",
-              username: user?.username || "testuser",
+              id: user.id,
+              telegramId: user.id.toString(),
+              firstName: user.first_name,
+              lastName: user.last_name,
+              username: user.username,
               role: "user",
               isRegistered: true
             });
             setUserRole("user");
+          } else {
+            // No user data, they need to register
+            setUserProfileState({
+              id: 0,
+              telegramId: user?.id.toString() || '',
+              firstName: user?.first_name || '',
+              lastName: user?.last_name,
+              username: user?.username,
+              role: 'user',
+              isRegistered: false
+            });
           }
           setIsLoading(false);
         }
