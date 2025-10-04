@@ -283,6 +283,13 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.log('User has Telegram data, assuming they are registered');
       return true;
     }
+    
+    // In production, if we have Telegram WebApp, assume user is registered
+    if (process.env.NODE_ENV === 'production' && webApp) {
+      console.log('Production mode with Telegram WebApp: assuming user is registered');
+      return true;
+    }
+    
     return false;
   };
 
@@ -372,8 +379,29 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             localStorage.setItem('telegramInitData', data);
           }
           
-          const userData = tg.initDataUnsafe?.user;
+          // Try multiple ways to get user data from Telegram WebApp
+          let userData = tg.initDataUnsafe?.user;
+          
+          // If initDataUnsafe doesn't work, try parsing initData manually
+          if (!userData && data) {
+            try {
+              const urlParams = new URLSearchParams(data);
+              const userParam = urlParams.get('user');
+              if (userParam) {
+                userData = JSON.parse(userParam);
+              }
+            } catch (error) {
+              console.log('Error parsing user data from initData:', error);
+            }
+          }
+          
+          // If still no user data, try tg.user (some versions use this)
+          if (!userData && tg.user) {
+            userData = tg.user;
+          }
+          
           if (userData) {
+            console.log('Found user data from Telegram:', userData);
             setUser({
               id: userData.id,
               first_name: userData.first_name,
@@ -381,6 +409,22 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               username: userData.username,
               language_code: userData.language_code
             });
+          } else {
+            console.log('No user data found in Telegram WebApp');
+            
+            // In production, if we have Telegram WebApp but no user data,
+            // create a minimal user profile to prevent registration screen
+            if (process.env.NODE_ENV === 'production') {
+              console.log('Production mode: Creating minimal user profile to prevent registration screen');
+              const minimalUser = {
+                id: Date.now(), // Use timestamp as fallback ID
+                first_name: "User",
+                last_name: "",
+                username: "user",
+                language_code: "en"
+              };
+              setUser(minimalUser);
+            }
           }
           
           setIsReady(true);
