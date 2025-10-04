@@ -4,6 +4,7 @@ import { useTelegram } from '../contexts/TelegramContext';
 import RegistrationRequired from './RegistrationRequired';
 import LoadingScreen from './LoadingScreen';
 import BrowserFallback from './BrowserFallback';
+import AdminLogin from './AdminLogin';
 
 const RoleBasedRedirect: React.FC = () => {
   const { userRole, userProfile, isLoading, isReady, webApp } = useTelegram();
@@ -13,12 +14,19 @@ const RoleBasedRedirect: React.FC = () => {
     userProfile: userProfile ? { ...userProfile, isRegistered: userProfile.isRegistered } : null,
     isLoading,
     isReady,
-    hasWebApp: !!webApp
+    hasWebApp: !!webApp,
+    timestamp: new Date().toISOString()
   });
 
   // Show loading while initializing
   if (!isReady || isLoading) {
-    console.log('RoleBasedRedirect: Showing loading screen');
+    console.log('RoleBasedRedirect: Showing loading screen - isReady:', isReady, 'isLoading:', isLoading);
+    return <LoadingScreen />;
+  }
+
+  // Additional safety check: if we're ready but no userProfile yet, show loading
+  if (isReady && !userProfile) {
+    console.log('RoleBasedRedirect: Ready but no userProfile yet - showing loading');
     return <LoadingScreen />;
   }
 
@@ -26,6 +34,12 @@ const RoleBasedRedirect: React.FC = () => {
   if (!webApp && process.env.NODE_ENV === 'production') {
     console.log('RoleBasedRedirect: No Telegram WebApp in production - showing browser fallback');
     return <BrowserFallback />;
+  }
+
+  // Show admin login if admin needs password
+  if (userProfile && userProfile.role === 'admin' && userProfile.needsPassword) {
+    console.log('RoleBasedRedirect: Admin needs password - showing admin login');
+    return <AdminLogin />;
   }
 
   // Show registration required if user is not registered

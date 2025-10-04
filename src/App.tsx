@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { TelegramProvider } from './contexts/TelegramContext';
 import { LocalizationProvider } from './contexts/LocalizationContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
 // Components (imported first)
@@ -9,16 +10,18 @@ import RoleBasedRedirect from './components/RoleBasedRedirect';
 import RoleSwitcher from './components/RoleSwitcher';
 import LoadingScreen from './components/LoadingScreen';
 
-// Lazy load all pages for better performance
+// Import main dashboard components directly to prevent Suspense issues
+import UserDashboard from './pages/UserDashboard';
+import SellerDashboard from './pages/SellerDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+
+// Lazy load other pages for better performance
 const Search = lazy(() => import('./pages/Search'));
 const Orders = lazy(() => import('./pages/Orders'));
 const Profile = lazy(() => import('./pages/Profile'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
 const SellerDetail = lazy(() => import('./pages/SellerDetail'));
 const AccountSettings = lazy(() => import('./pages/AccountSettings'));
-const UserDashboard = lazy(() => import('./pages/UserDashboard'));
-const SellerDashboard = lazy(() => import('./pages/SellerDashboard'));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/AdminUsers'));
 const AdminSellers = lazy(() => import('./pages/AdminSellers'));
 const AdminAnalytics = lazy(() => import('./pages/AdminAnalytics'));
@@ -28,18 +31,27 @@ const ProductEdit = lazy(() => import('./pages/ProductEdit'));
 
 // Development components
 const TestComponent = lazy(() => import('./TestComponent'));
+const AuthDebug = lazy(() => import('./components/AuthDebug'));
 
 // Loading component for Suspense fallback
-const PageLoader = () => <LoadingScreen />;
+const PageLoader = () => (
+  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+      <p className="text-gray-600">Loading...</p>
+    </div>
+  </div>
+);
 
 function App() {
   return (
-    <TelegramProvider>
-      <LocalizationProvider>
-        <Router>
-          <div className="App">
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
+    <ErrorBoundary>
+      <TelegramProvider>
+        <LocalizationProvider>
+          <Router>
+            <div className="App">
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
                 {/* Role-based redirect with registration check */}
                 <Route path="/" element={<RoleBasedRedirect />} />
                 
@@ -85,10 +97,14 @@ function App() {
             
             {/* Development role switcher - only in development */}
             {process.env.NODE_ENV === 'development' && <RoleSwitcher />}
+            
+            {/* Development auth debug - only in development */}
+            {process.env.NODE_ENV === 'development' && <AuthDebug />}
           </div>
         </Router>
       </LocalizationProvider>
     </TelegramProvider>
+    </ErrorBoundary>
   );
 }
 

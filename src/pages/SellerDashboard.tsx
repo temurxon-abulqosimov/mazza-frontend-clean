@@ -21,10 +21,12 @@ import {
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
-import { miniAppApi, dashboardApi, productsApi, sellersApi, ordersApi } from '../services/api';
+import { mockApi } from '../services/mockApi';
 import { Product, Seller } from '../types';
 import ImageUpload from '../components/ImageUpload';
 import Notification, { NotificationProps } from '../components/Notification';
+
+const { dashboardApi, productsApi, ordersApi, sellersApi } = mockApi;
 
 const SellerDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -75,6 +77,7 @@ const SellerDashboard: React.FC = () => {
 
   useEffect(() => {
     if (isReady && user) {
+      // Load data in background, don't block the main flow
       loadSellerData();
     }
   }, [isReady, user]);

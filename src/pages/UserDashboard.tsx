@@ -10,8 +10,10 @@ import {
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
-import { productsApi, sellersApi, ordersApi } from '../services/api';
+import { mockApi } from '../services/mockApi';
 import { Product, Seller } from '../types';
+
+const { productsApi, ordersApi } = mockApi;
 
 const UserDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -46,9 +48,10 @@ const UserDashboard: React.FC = () => {
 
   useEffect(() => {
     if (isReady && user) {
+      // Load data in background, don't block the main flow
       loadDashboardData();
     }
-  }, [isReady, user, loadDashboardData]);
+  }, [isReady, user]);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;

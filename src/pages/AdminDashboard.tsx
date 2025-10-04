@@ -4,7 +4,8 @@ import { Shield, Users, Store, Package, TrendingUp, CheckCircle, XCircle, AlertC
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
-import { adminApi } from '../services/api';
+import { mockApi } from '../services/mockApi';
+const { adminApi } = mockApi;
 
 interface AdminStats {
   totalUsers: number;
@@ -25,6 +26,7 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     if (isReady && user) {
+      // Load data in background, don't block the main flow
       loadDashboardData();
     }
   }, [isReady, user]);
