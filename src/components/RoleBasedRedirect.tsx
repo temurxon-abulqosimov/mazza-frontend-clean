@@ -4,53 +4,49 @@ import { useTelegram } from '../contexts/TelegramContext';
 import RegistrationRequired from './RegistrationRequired';
 import LoadingScreen from './LoadingScreen';
 import BrowserFallback from './BrowserFallback';
-import AdminLogin from './AdminLogin';
 
 const RoleBasedRedirect: React.FC = () => {
   const { userRole, userProfile, isLoading, isReady, webApp } = useTelegram();
 
-  console.log('RoleBasedRedirect: Current userRole:', userRole);
-  console.log('RoleBasedRedirect: userProfile:', userProfile);
-  console.log('RoleBasedRedirect: isLoading:', isLoading);
-  console.log('RoleBasedRedirect: isReady:', isReady);
-  console.log('RoleBasedRedirect: webApp:', webApp);
+  console.log('RoleBasedRedirect: Current state:', {
+    userRole,
+    userProfile: userProfile ? { ...userProfile, isRegistered: userProfile.isRegistered } : null,
+    isLoading,
+    isReady,
+    hasWebApp: !!webApp
+  });
 
   // Show loading while initializing
   if (!isReady || isLoading) {
+    console.log('RoleBasedRedirect: Showing loading screen');
     return <LoadingScreen />;
   }
 
   // Check if we're in a regular browser (not Telegram WebApp)
   if (!webApp && process.env.NODE_ENV === 'production') {
+    console.log('RoleBasedRedirect: No Telegram WebApp in production - showing browser fallback');
     return <BrowserFallback />;
-  }
-
-  // Show admin login if admin user needs password
-  if (userProfile && userProfile.needsPassword && userProfile.role === 'admin') {
-    return <AdminLogin />;
   }
 
   // Show registration required if user is not registered
   if (!userProfile || !userProfile.isRegistered) {
+    console.log('RoleBasedRedirect: User not registered - showing registration screen');
     return <RegistrationRequired />;
   }
 
   // Redirect based on user role
+  console.log('RoleBasedRedirect: User is registered, redirecting based on role:', userRole);
+  
   switch (userRole) {
     case 'user':
-      console.log('RoleBasedRedirect: Redirecting to /user');
       return <Navigate to="/user" replace />;
     case 'seller':
-      console.log('RoleBasedRedirect: Redirecting to /seller');
       return <Navigate to="/seller" replace />;
     case 'admin':
-      console.log('RoleBasedRedirect: Redirecting to /admin');
       return <Navigate to="/admin" replace />;
     default:
-      console.log('RoleBasedRedirect: Default redirect to /user');
       return <Navigate to="/user" replace />;
   }
 };
 
 export default RoleBasedRedirect;
-
