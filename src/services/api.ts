@@ -16,6 +16,20 @@ const api = axios.create({
   timeout: 10000, // Increased timeout for production
 });
 
+// Request interceptor to add authentication headers
+api.interceptors.request.use(
+  (config) => {
+    const initData = localStorage.getItem('telegramInitData');
+    if (initData) {
+      config.headers['X-Telegram-Init-Data'] = initData;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Cache interceptor
 const getCachedData = (key: string) => {
   const cached = cache.get(key);
@@ -55,7 +69,13 @@ export const authApi = {
   login: async (data: any) => {
     const cacheKey = `post:${api.defaults.baseURL}/auth/login`;
     cache.delete(cacheKey); // Invalidate cache on login
-    return api.post('/auth/login', data);
+    try {
+      const response = await api.post('/auth/login', data);
+      return response;
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw error;
+    }
   },
   register: async (data: any) => {
     const cacheKey = `post:${api.defaults.baseURL}/auth/register`;
@@ -76,6 +96,16 @@ export const authApi = {
     } catch (error) {
       console.warn('API call failed, using mock data');
       return Promise.resolve({ data: { role: 'user', id: 1, name: 'Mock User' } });
+    }
+  },
+  // New endpoint for Telegram WebApp authentication
+  authenticate: async (initData: string) => {
+    try {
+      const response = await api.post('/auth/telegram', { initData });
+      return response;
+    } catch (error) {
+      console.error('Telegram authentication failed:', error);
+      throw error;
     }
   }
 };

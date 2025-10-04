@@ -26,6 +26,9 @@ const AdminOrders = lazy(() => import('./pages/AdminOrders'));
 const ProductCreate = lazy(() => import('./pages/ProductCreate'));
 const ProductEdit = lazy(() => import('./pages/ProductEdit'));
 
+// Development components
+const TestComponent = lazy(() => import('./TestComponent'));
+
 // Loading component for Suspense fallback
 const PageLoader = () => <LoadingScreen />;
 
@@ -37,7 +40,7 @@ function App() {
           <div className="App">
             <Suspense fallback={<PageLoader />}>
               <Routes>
-                {/* Role-based redirect - NO registration needed */}
+                {/* Role-based redirect with registration check */}
                 <Route path="/" element={<RoleBasedRedirect />} />
                 
                 {/* User routes - Product discovery and ordering */}
@@ -69,6 +72,11 @@ function App() {
                 <Route path="/search" element={<Search />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/profile" element={<Profile />} />
+                
+                {/* Development routes */}
+                {process.env.NODE_ENV === 'development' && (
+                  <Route path="/test" element={<TestComponent />} />
+                )}
                 
                 {/* Fallback - redirect to role-based home */}
                 <Route path="*" element={<Navigate to="/" replace />} />
