@@ -87,6 +87,25 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const login = async () => {
     if (!initData) {
       console.log('No init data available for authentication');
+      // For development, simulate a registered user
+      if (process.env.NODE_ENV === 'development') {
+        const testUser = user || {
+          id: 123456789,
+          first_name: "Test",
+          last_name: "User",
+          username: "testuser"
+        };
+        setUserProfileState({
+          id: testUser.id,
+          telegramId: testUser.id.toString(),
+          firstName: testUser.first_name,
+          lastName: testUser.last_name,
+          username: testUser.username,
+          role: 'user',
+          isRegistered: true
+        });
+        setUserRole('user');
+      }
       setIsLoading(false);
       return;
     }
@@ -130,16 +149,47 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           needsPassword: true
         });
       } else {
-        // Regular user needs to register in bot first
-        setUserProfileState({
-          id: 0,
-          telegramId: user?.id.toString() || '',
-          firstName: user?.first_name || '',
-          lastName: user?.last_name,
-          username: user?.username,
-          role: 'user',
-          isRegistered: false
-        });
+        // For development/testing, simulate registered user if we have user data
+        if (user && user.id) {
+          // Check if this is an admin user
+          const isAdminUser = checkIfAdminUser();
+          if (isAdminUser) {
+            // Show admin login form
+            setUserProfileState({
+              id: 0,
+              telegramId: user.id.toString(),
+              firstName: user.first_name,
+              lastName: user.last_name,
+              username: user.username,
+              role: 'admin',
+              isRegistered: false,
+              needsPassword: true
+            });
+          } else {
+            // Simulate a registered user for testing
+            setUserProfileState({
+              id: user.id,
+              telegramId: user.id.toString(),
+              firstName: user.first_name,
+              lastName: user.last_name,
+              username: user.username,
+              role: 'user',
+              isRegistered: true
+            });
+            setUserRole('user');
+          }
+        } else {
+          // Regular user needs to register in bot first
+          setUserProfileState({
+            id: 0,
+            telegramId: user?.id.toString() || '',
+            firstName: user?.first_name || '',
+            lastName: user?.last_name,
+            username: user?.username,
+            role: 'user',
+            isRegistered: false
+          });
+        }
       }
     } finally {
       setIsLoading(false);
@@ -160,6 +210,12 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (savedProfile) {
       const profile = JSON.parse(savedProfile);
       return profile.role === 'admin';
+    }
+    
+    // For development, check if we're simulating admin
+    if (process.env.NODE_ENV === 'development') {
+      const savedRole = localStorage.getItem('userRole');
+      return savedRole === 'admin';
     }
     
     return false;
@@ -188,6 +244,31 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }), [user, userProfile, initData, isReady, isLoading, webApp, userRole]);
 
   useEffect(() => {
+    // For development, immediately set up a test user to prevent loading
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Development mode: Setting up test user immediately');
+      setUser({
+        id: 123456789,
+        first_name: "Test",
+        last_name: "User",
+        username: "testuser",
+        language_code: "uz"
+      });
+      setUserProfileState({
+        id: 123456789,
+        telegramId: "123456789",
+        firstName: "Test",
+        lastName: "User",
+        username: "testuser",
+        role: "user",
+        isRegistered: true
+      });
+      setUserRole("user");
+      setIsReady(true);
+      setIsLoading(false);
+      return;
+    }
+
     const initializeTelegram = async () => {
       if (typeof window !== "undefined" && (window as any).Telegram?.WebApp) {
         const tg = (window as any).Telegram.WebApp;
@@ -221,7 +302,20 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (data) {
           await login();
         } else {
-          // No init data, user is not in Telegram WebApp
+          // No init data, but we have Telegram WebApp (development mode)
+          // Simulate a registered user for development
+          if (process.env.NODE_ENV === 'development') {
+            setUserProfileState({
+              id: user?.id || 123456789,
+              telegramId: user?.id.toString() || "123456789",
+              firstName: user?.first_name || "Test",
+              lastName: user?.last_name || "User",
+              username: user?.username || "testuser",
+              role: "user",
+              isRegistered: true
+            });
+            setUserRole("user");
+          }
           setIsLoading(false);
         }
       } else {
@@ -235,6 +329,18 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         });
         setInitData("test_init_data");
         setIsReady(true);
+        
+        // For development, simulate a registered user immediately
+        setUserProfileState({
+          id: 123456789,
+          telegramId: "123456789",
+          firstName: "Test",
+          lastName: "User",
+          username: "testuser",
+          role: "user",
+          isRegistered: true
+        });
+        setUserRole("user");
         setIsLoading(false);
       }
     };
@@ -245,15 +351,17 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setTimeout(initializeTelegram, 0);
     }
 
-    // Timeout fallback to prevent infinite loading
-    const timeout = setTimeout(() => {
-      if (isLoading) {
-        console.log('Authentication timeout - setting loading to false');
-        setIsLoading(false);
-      }
-    }, 10000); // 10 second timeout
+    // Timeout fallback to prevent infinite loading (only for production)
+    if (process.env.NODE_ENV === 'production') {
+      const timeout = setTimeout(() => {
+        if (isLoading) {
+          console.log('Authentication timeout - setting loading to false');
+          setIsLoading(false);
+        }
+      }, 10000); // 10 second timeout for production
 
-    return () => clearTimeout(timeout);
+      return () => clearTimeout(timeout);
+    }
   }, []);
 
   return (

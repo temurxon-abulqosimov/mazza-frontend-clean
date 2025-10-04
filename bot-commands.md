@@ -32,10 +32,6 @@ const mainMenuKeyboard = {
       {
         text: "🛍️ Browse Products",
         callback_data: "browse"
-      },
-      {
-        text: "🏪 Become Seller",
-        callback_data: "become_seller"
       }
     ]
   ]
@@ -56,10 +52,6 @@ bot.on('callback_query', async (query) => {
   const data = query.data;
   
   switch(data) {
-    case 'become_seller':
-      // Start seller registration flow
-      await startSellerRegistration(chatId);
-      break;
     case 'profile':
       // Show user profile
       await showUserProfile(chatId);
@@ -68,43 +60,41 @@ bot.on('callback_query', async (query) => {
       // Open mini app for browsing
       await openMiniApp(chatId);
       break;
+    case 'orders':
+      // Show user orders
+      await showUserOrders(chatId);
+      break;
   }
 });
 ```
 
-### 3. Seller Registration Flow
+### 3. User Registration Flow
 
 ```javascript
-async function startSellerRegistration(chatId) {
-  const registrationKeyboard = {
+// Simple user registration - just assign user role
+async function registerUser(chatId) {
+  // Save user with 'user' role to database
+  await saveUserRole(chatId, 'user');
+  
+  const successMessage = "🎉 Welcome! You're now registered. You can browse and order products in the mini app.";
+  
+  const miniAppKeyboard = {
     inline_keyboard: [
       [
         {
-          text: "📝 Start Registration",
-          callback_data: "start_seller_registration"
+          text: "🚀 Open Mini App",
+          web_app: {
+            url: "https://your-webapp-url.com"
+          }
         }
       ]
     ]
   };
   
-  bot.sendMessage(chatId, 
-    "To become a seller, you need to provide:\n" +
-    "• Business name\n" +
-    "• Business type\n" +
-    "• Location\n" +
-    "• Contact information\n\n" +
-    "Click below to start registration:",
-    { reply_markup: registrationKeyboard }
-  );
+  bot.sendMessage(chatId, successMessage, {
+    reply_markup: miniAppKeyboard
+  });
 }
-
-// Handle seller registration
-bot.on('callback_query', async (query) => {
-  if (query.data === 'start_seller_registration') {
-    // Start conversation flow for seller registration
-    await startSellerConversation(query.message.chat.id);
-  }
-});
 ```
 
 ### 4. User Role Assignment
@@ -115,9 +105,7 @@ async function assignUserRole(chatId, role) {
   // Save user role to database
   await saveUserRole(chatId, role);
   
-  const successMessage = role === 'seller' 
-    ? "🎉 Congratulations! You're now a seller. You can start adding products in the mini app."
-    : "🎉 Welcome! You can now browse and order products in the mini app.";
+  const successMessage = "🎉 Welcome! You can now browse and order products in the mini app.";
     
   const miniAppKeyboard = {
     inline_keyboard: [

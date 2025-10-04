@@ -63,16 +63,16 @@ Your Telegram bot needs these features:
        ],
        [
          { text: "👤 My Profile", callback_data: "profile" },
-         { text: "🛍️ Browse Products", callback_data: "browse" },
-         { text: "🏪 Become Seller", callback_data: "become_seller" }
+         { text: "📋 My Orders", callback_data: "orders" },
+         { text: "🛍️ Browse Products", callback_data: "browse" }
        ]
      ]
    };
    ```
 
 2. **User Registration Flow**
-   - Handle user/seller registration
-   - Assign roles after registration
+   - Simple user registration (no seller registration)
+   - Assign 'user' role after registration
    - Show mini app button after successful registration
 
 3. **Admin Access**
