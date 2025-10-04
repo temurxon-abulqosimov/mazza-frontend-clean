@@ -17,6 +17,7 @@ interface UserProfile {
   username?: string;
   role: "user" | "seller" | "admin";
   isRegistered: boolean;
+  needsPassword?: boolean;
 }
 
 interface TelegramContextType {
@@ -28,6 +29,7 @@ interface TelegramContextType {
   webApp: any;
   userRole: "user" | "seller" | "admin";
   setUserRole: (role: "user" | "seller" | "admin") => void;
+  setUserProfile: (profile: UserProfile | null) => void;
   login: () => Promise<void>;
   logout: () => void;
 }
@@ -41,6 +43,7 @@ const TelegramContext = createContext<TelegramContextType>({
   webApp: null,
   userRole: "user",
   setUserRole: () => {},
+  setUserProfile: () => {},
   login: async () => {},
   logout: () => {},
 });
@@ -72,6 +75,15 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem("userRole", role);
   };
 
+  const setUserProfileState = (profile: UserProfile | null) => {
+    setUserProfile(profile);
+    if (profile) {
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+    } else {
+      localStorage.removeItem('userProfile');
+    }
+  };
+
   const login = async () => {
     if (!initData) {
       console.log('No init data available for authentication');
@@ -88,7 +100,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       
       console.log('Authentication successful:', profile);
       
-      setUserProfile({
+      setUserProfileState({
         id: profile.id,
         telegramId: profile.telegramId,
         firstName: profile.firstName,
@@ -102,23 +114,59 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       localStorage.setItem('userProfile', JSON.stringify(profile));
     } catch (error) {
       console.error('Authentication failed:', error);
-      // User is not registered, they need to register in the bot first
-      setUserProfile({
-        id: 0,
-        telegramId: user?.id.toString() || '',
-        firstName: user?.first_name || '',
-        lastName: user?.last_name,
-        username: user?.username,
-        role: 'user',
-        isRegistered: false
-      });
+      
+      // Check if this is an admin user trying to authenticate
+      const isAdminUser = checkIfAdminUser();
+      if (isAdminUser) {
+        // Show admin login form instead of registration
+        setUserProfileState({
+          id: 0,
+          telegramId: user?.id.toString() || '',
+          firstName: user?.first_name || '',
+          lastName: user?.last_name,
+          username: user?.username,
+          role: 'admin',
+          isRegistered: false,
+          needsPassword: true
+        });
+      } else {
+        // Regular user needs to register in bot first
+        setUserProfileState({
+          id: 0,
+          telegramId: user?.id.toString() || '',
+          firstName: user?.first_name || '',
+          lastName: user?.last_name,
+          username: user?.username,
+          role: 'user',
+          isRegistered: false
+        });
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+  const checkIfAdminUser = () => {
+    // Check if user is in the admin list from environment
+    const adminTelegramId = process.env.REACT_APP_ADMIN_TELEGRAM_ID;
+    const currentUserId = user?.id.toString();
+    
+    if (adminTelegramId && currentUserId === adminTelegramId) {
+      return true;
+    }
+    
+    // Also check if user has admin role in localStorage (for development)
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+      const profile = JSON.parse(savedProfile);
+      return profile.role === 'admin';
+    }
+    
+    return false;
+  };
+
   const logout = () => {
-    setUserProfile(null);
+    setUserProfileState(null);
     setUserRole('user');
     localStorage.removeItem('userProfile');
     localStorage.removeItem('userRole');
@@ -134,6 +182,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     webApp,
     userRole,
     setUserRole,
+    setUserProfile: setUserProfileState,
     login,
     logout
   }), [user, userProfile, initData, isReady, isLoading, webApp, userRole]);

@@ -4,6 +4,7 @@ import { useTelegram } from '../contexts/TelegramContext';
 import RegistrationRequired from './RegistrationRequired';
 import LoadingScreen from './LoadingScreen';
 import BrowserFallback from './BrowserFallback';
+import AdminLogin from './AdminLogin';
 
 const RoleBasedRedirect: React.FC = () => {
   const { userRole, userProfile, isLoading, isReady, webApp } = useTelegram();
@@ -22,6 +23,11 @@ const RoleBasedRedirect: React.FC = () => {
   // Check if we're in a regular browser (not Telegram WebApp)
   if (!webApp && process.env.NODE_ENV === 'production') {
     return <BrowserFallback />;
+  }
+
+  // Show admin login if admin user needs password
+  if (userProfile && userProfile.needsPassword && userProfile.role === 'admin') {
+    return <AdminLogin />;
   }
 
   // Show registration required if user is not registered

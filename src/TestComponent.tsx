@@ -63,7 +63,13 @@ const TestComponent: React.FC = () => {
                 onClick={() => simulateUserState('admin')}
                 className="bg-purple-500 text-white px-3 py-2 rounded text-sm hover:bg-purple-600"
               >
-                Admin
+                Admin (Logged In)
+              </button>
+              <button
+                onClick={() => simulateUserState('admin_unregistered')}
+                className="bg-orange-500 text-white px-3 py-2 rounded text-sm hover:bg-orange-600"
+              >
+                Admin (Password Required)
               </button>
             </div>
             <p className="text-xs text-gray-500 mt-2">

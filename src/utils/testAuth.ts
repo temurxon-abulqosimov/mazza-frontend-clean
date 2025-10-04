@@ -24,7 +24,7 @@ export const testAuthentication = () => {
 };
 
 // Development helper to simulate different user states
-export const simulateUserState = (state: 'unregistered' | 'user' | 'seller' | 'admin') => {
+export const simulateUserState = (state: 'unregistered' | 'user' | 'seller' | 'admin' | 'admin_unregistered') => {
   localStorage.clear();
   
   switch (state) {
@@ -65,6 +65,19 @@ export const simulateUserState = (state: 'unregistered' | 'user' | 'seller' | 'a
         lastName: 'Admin',
         role: 'admin',
         isRegistered: true
+      }));
+      break;
+    case 'admin_unregistered':
+      localStorage.setItem('telegramInitData', 'test_init_data');
+      localStorage.setItem('userRole', 'admin');
+      localStorage.setItem('userProfile', JSON.stringify({
+        id: 0,
+        telegramId: '555666777',
+        firstName: 'Test',
+        lastName: 'Admin',
+        role: 'admin',
+        isRegistered: false,
+        needsPassword: true
       }));
       break;
   }
