@@ -109,16 +109,34 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         // In production, if we have user data from Telegram, assume they're registered
         if (user && user.id) {
           console.log('No init data but user data available in production, assuming registered user');
+          
+          // Try to detect user role from localStorage or default to 'user'
+          let userRole: 'user' | 'seller' | 'admin' = 'user';
+          
+          // Check if we have stored role information
+          const storedProfile = localStorage.getItem('userProfile');
+          if (storedProfile) {
+            try {
+              const profile = JSON.parse(storedProfile);
+              if (profile.role && ['user', 'seller', 'admin'].includes(profile.role)) {
+                userRole = profile.role as 'user' | 'seller' | 'admin';
+                console.log('Using stored role:', userRole);
+              }
+            } catch (error) {
+              console.log('Error parsing stored profile:', error);
+            }
+          }
+          
           setUserProfileState({
             id: user.id,
             telegramId: user.id.toString(),
             firstName: user.first_name,
             lastName: user.last_name,
             username: user.username,
-            role: 'user',
+            role: userRole,
             isRegistered: true
           });
-          setUserRole('user');
+          setUserRole(userRole);
         } else {
           console.log('No user data available, showing registration screen');
           setUserProfileState({
@@ -176,8 +194,8 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         });
       } else {
         // For production, if we have user data from Telegram, assume they're registered
-        if (user && user.id) {
-          console.log('Authentication failed but user data available, assuming registered user');
+        if (checkIfUserIsRegistered()) {
+          console.log('Authentication failed but user is registered, setting up user profile');
           
           // Try to detect user role from localStorage or default to 'user'
           let userRole: 'user' | 'seller' | 'admin' = 'user';
@@ -200,16 +218,20 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           // For now, we'll use stored role or default to 'user'
           
           // In production, if we have Telegram user data, assume they're registered
-          setUserProfileState({
-            id: user.id,
-            telegramId: user.id.toString(),
-            firstName: user.first_name,
-            lastName: user.last_name,
-            username: user.username,
-            role: userRole,
-            isRegistered: true
-          });
-          setUserRole(userRole);
+          if (user) {
+            if (user) {
+              setUserProfileState({
+                id: user.id,
+                telegramId: user.id.toString(),
+                firstName: user.first_name,
+                lastName: user.last_name,
+                username: user.username,
+                role: userRole,
+                isRegistered: true
+              });
+              setUserRole(userRole);
+            }
+          }
         } else {
           // No user data, they need to register
           console.log('No user data available, showing registration screen');
@@ -251,6 +273,16 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return savedRole === 'admin';
     }
     
+    return false;
+  };
+
+  const checkIfUserIsRegistered = () => {
+    // If we have Telegram user data, assume they're registered
+    // This is the key assumption: if they can access the mini app, they're registered
+    if (user && user.id) {
+      console.log('User has Telegram data, assuming they are registered');
+      return true;
+    }
     return false;
   };
 
@@ -300,6 +332,24 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsReady(true);
       setIsLoading(false);
       return;
+    }
+
+    // For production, check if we have stored user profile and set it up immediately
+    const storedProfile = localStorage.getItem('userProfile');
+    if (storedProfile) {
+      try {
+        const profile = JSON.parse(storedProfile);
+        if (profile.telegramId && profile.isRegistered) {
+          console.log('Found stored profile, setting up user immediately');
+          setUserProfileState(profile);
+          setUserRole(profile.role);
+          setIsReady(true);
+          setIsLoading(false);
+          return;
+        }
+      } catch (error) {
+        console.log('Error parsing stored profile:', error);
+      }
     }
 
     const initializeTelegram = async () => {
@@ -367,8 +417,8 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         } else {
           // No init data, but we have Telegram WebApp
           // If we have user data from Telegram, assume they're registered
-          if (user && user.id) {
-            console.log('No init data but user data available, assuming registered user');
+          if (checkIfUserIsRegistered()) {
+            console.log('No init data but user is registered, setting up user profile');
             
             // Try to detect user role from localStorage or default to 'user'
             let userRole: 'user' | 'seller' | 'admin' = 'user';
@@ -387,16 +437,18 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               }
             }
             
-            setUserProfileState({
-              id: user.id,
-              telegramId: user.id.toString(),
-              firstName: user.first_name,
-              lastName: user.last_name,
-              username: user.username,
-              role: userRole,
-              isRegistered: true
-            });
-            setUserRole(userRole);
+            if (user) {
+              setUserProfileState({
+                id: user.id,
+                telegramId: user.id.toString(),
+                firstName: user.first_name,
+                lastName: user.last_name,
+                username: user.username,
+                role: userRole,
+                isRegistered: true
+              });
+              setUserRole(userRole);
+            }
           } else {
             // No user data, they need to register
             console.log('No user data available, showing registration screen');
@@ -415,8 +467,8 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         } catch (error) {
           console.error('Login error:', error);
           // Fallback to registered user if we have Telegram user data
-          if (user && user.id) {
-            console.log('Login error fallback: assuming registered user');
+          if (checkIfUserIsRegistered()) {
+            console.log('Login error fallback: user is registered, setting up profile');
             
             // Try to detect user role from localStorage or default to 'user'
             let userRole: 'user' | 'seller' | 'admin' = 'user';
@@ -435,16 +487,18 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               }
             }
             
-            setUserProfileState({
-              id: user.id,
-              telegramId: user.id.toString(),
-              firstName: user.first_name,
-              lastName: user.last_name,
-              username: user.username,
-              role: userRole,
-              isRegistered: true
-            });
-            setUserRole(userRole);
+            if (user) {
+              setUserProfileState({
+                id: user.id,
+                telegramId: user.id.toString(),
+                firstName: user.first_name,
+                lastName: user.last_name,
+                username: user.username,
+                role: userRole,
+                isRegistered: true
+              });
+              setUserRole(userRole);
+            }
           }
           setIsLoading(false);
         }
