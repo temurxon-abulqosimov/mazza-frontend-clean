@@ -271,39 +271,97 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     const initializeTelegram = async () => {
       if (typeof window !== "undefined" && (window as any).Telegram?.WebApp) {
-        const tg = (window as any).Telegram.WebApp;
-        setWebApp(tg);
+        let data: string | undefined;
         
-        tg.ready();
-        tg.expand();
-        
-        const data = tg.initData;
-        setInitData(data);
-        
-        // Store init data in localStorage for API authentication
-        if (data) {
-          localStorage.setItem('telegramInitData', data);
+        try {
+          const tg = (window as any).Telegram.WebApp;
+          setWebApp(tg);
+          
+          // Initialize Telegram WebApp safely
+          if (tg.ready) tg.ready();
+          if (tg.expand) tg.expand();
+          
+          data = tg.initData;
+          setInitData(data || null);
+          
+          // Store init data in localStorage for API authentication
+          if (data) {
+            localStorage.setItem('telegramInitData', data);
+          }
+          
+          const userData = tg.initDataUnsafe?.user;
+          if (userData) {
+            setUser({
+              id: userData.id,
+              first_name: userData.first_name,
+              last_name: userData.last_name,
+              username: userData.username,
+              language_code: userData.language_code
+            });
+          }
+          
+          setIsReady(true);
+        } catch (error) {
+          console.error('Telegram WebApp initialization error:', error);
+          // Fallback to development mode if Telegram WebApp fails
+          if (process.env.NODE_ENV === 'development') {
+            setUser({
+              id: 123456789,
+              first_name: "Test",
+              last_name: "User",
+              username: "testuser",
+              language_code: "uz"
+            });
+            setUserProfileState({
+              id: 123456789,
+              telegramId: "123456789",
+              firstName: "Test",
+              lastName: "User",
+              username: "testuser",
+              role: "user",
+              isRegistered: true
+            });
+            setUserRole("user");
+            setIsReady(true);
+            setIsLoading(false);
+          }
         }
-        
-        const userData = tg.initDataUnsafe?.user;
-        if (userData) {
-          setUser({
-            id: userData.id,
-            first_name: userData.first_name,
-            last_name: userData.last_name,
-            username: userData.username,
-            language_code: userData.language_code
-          });
-        }
-        
-        setIsReady(true);
         
         // Try to login after initialization
-        if (data) {
-          await login();
-        } else {
-          // No init data, but we have Telegram WebApp
-          // If we have user data from Telegram, assume they're registered
+        try {
+          if (data) {
+            await login();
+          } else {
+            // No init data, but we have Telegram WebApp
+            // If we have user data from Telegram, assume they're registered
+            if (user && user.id) {
+              setUserProfileState({
+                id: user.id,
+                telegramId: user.id.toString(),
+                firstName: user.first_name,
+                lastName: user.last_name,
+                username: user.username,
+                role: "user",
+                isRegistered: true
+              });
+              setUserRole("user");
+            } else {
+              // No user data, they need to register
+              setUserProfileState({
+                id: 0,
+                telegramId: user?.id.toString() || '',
+                firstName: user?.first_name || '',
+                lastName: user?.last_name,
+                username: user?.username,
+                role: 'user',
+                isRegistered: false
+              });
+            }
+            setIsLoading(false);
+          }
+        } catch (error) {
+          console.error('Login error:', error);
+          // Fallback to registered user if we have Telegram user data
           if (user && user.id) {
             setUserProfileState({
               id: user.id,
@@ -315,17 +373,6 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               isRegistered: true
             });
             setUserRole("user");
-          } else {
-            // No user data, they need to register
-            setUserProfileState({
-              id: 0,
-              telegramId: user?.id.toString() || '',
-              firstName: user?.first_name || '',
-              lastName: user?.last_name,
-              username: user?.username,
-              role: 'user',
-              isRegistered: false
-            });
           }
           setIsLoading(false);
         }
