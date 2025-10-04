@@ -338,7 +338,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setTimeout(() => {
         setIsReady(true);
         setIsLoading(false);
-        console.log('TelegramContext: User profile set successfully');
+        console.log('TelegramContext: User profile set successfully with role:', finalRole);
       }, 0);
       
     } else {

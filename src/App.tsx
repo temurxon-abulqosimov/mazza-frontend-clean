@@ -9,11 +9,15 @@ import './App.css';
 import RoleBasedRedirect from './components/RoleBasedRedirect';
 import RoleSwitcher from './components/RoleSwitcher';
 import LoadingScreen from './components/LoadingScreen';
+import AuthDebug from './components/AuthDebug';
 
 // Import main dashboard components directly to prevent Suspense issues
 import UserDashboard from './pages/UserDashboard';
 import SellerDashboard from './pages/SellerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+
+// Development components
+import TestComponent from './TestComponent';
 
 // Lazy load other pages for better performance
 const Search = lazy(() => import('./pages/Search'));
@@ -28,10 +32,6 @@ const AdminAnalytics = lazy(() => import('./pages/AdminAnalytics'));
 const AdminOrders = lazy(() => import('./pages/AdminOrders'));
 const ProductCreate = lazy(() => import('./pages/ProductCreate'));
 const ProductEdit = lazy(() => import('./pages/ProductEdit'));
-
-// Development components
-const TestComponent = lazy(() => import('./TestComponent'));
-const AuthDebug = lazy(() => import('./components/AuthDebug'));
 
 // Loading component for Suspense fallback
 const PageLoader = () => (

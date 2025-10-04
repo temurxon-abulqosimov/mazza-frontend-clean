@@ -51,7 +51,10 @@ const RoleBasedRedirect: React.FC = () => {
   // Redirect based on user role
   console.log('RoleBasedRedirect: User is registered, redirecting based on role:', userRole);
   
-  switch (userRole) {
+  // Use userProfile.role as the source of truth, fallback to userRole
+  const actualRole = userProfile?.role || userRole;
+  
+  switch (actualRole) {
     case 'user':
       return <Navigate to="/user" replace />;
     case 'seller':
