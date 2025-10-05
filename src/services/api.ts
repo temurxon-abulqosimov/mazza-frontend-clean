@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { mockSellers, mockProducts } from './mockData';
+import { devApi } from './devApi';
 
 // Use Railway backend URL
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://ulgur-backend-production-53b2.up.railway.app/webapp';
@@ -156,6 +156,11 @@ export const usersApi = {
 
 export const sellersApi = {
   getSellers: async () => {
+    // Use development API in development mode
+    if (process.env.NODE_ENV === 'development') {
+      return devApi.sellers.getSellers();
+    }
+    
     const cacheKey = `get:${api.defaults.baseURL}/sellers`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
@@ -164,8 +169,8 @@ export const sellersApi = {
       const response = await api.get('/sellers');
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ data: mockSellers });
+      console.error('Failed to fetch sellers:', error);
+      throw error;
     }
   },
   getSellerById: async (id: string) => {
@@ -177,9 +182,8 @@ export const sellersApi = {
       const response = await api.get(`/sellers/${id}`);
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      const mockSeller = mockSellers.find(s => s.id.toString() === id);
-      return Promise.resolve({ data: mockSeller || null });
+      console.error('Failed to fetch seller:', error);
+      throw error;
     }
   },
   getSellerProfile: async () => {
@@ -219,30 +223,39 @@ export const sellersApi = {
 
 export const productsApi = {
   getProducts: async (params?: any) => {
-    const cacheKey = `get:${api.defaults.baseURL}/products${params ? `?${new URLSearchParams(params).toString()}` : ''}`;
+    // Use development API in development mode
+    if (process.env.NODE_ENV === 'development') {
+      return devApi.products.getProducts(params);
+    }
+    
+    const cacheKey = `get:${api.defaults.baseURL}/discovery/products${params ? `?${new URLSearchParams(params).toString()}` : ''}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/products', { params });
+      const response = await api.get('/discovery/products', { params });
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ data: mockProducts });
+      console.error('Failed to fetch products:', error);
+      throw error;
     }
   },
   getProductById: async (id: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/products/${id}`;
+    // Use development API in development mode
+    if (process.env.NODE_ENV === 'development') {
+      return devApi.products.getProductById(id);
+    }
+    
+    const cacheKey = `get:${api.defaults.baseURL}/discovery/products/${id}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get(`/products/${id}`);
+      const response = await api.get(`/discovery/products/${id}`);
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      const mockProduct = mockProducts.find(p => p.id.toString() === id);
-      return Promise.resolve({ data: mockProduct || null });
+      console.error('Failed to fetch product:', error);
+      throw error;
     }
   },
   getSellerProducts: async () => {
@@ -259,21 +272,23 @@ export const productsApi = {
     }
   },
   searchProducts: async (query: string, category?: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/products/search?q=${query}&category=${category || ''}`;
+    // Use development API in development mode
+    if (process.env.NODE_ENV === 'development') {
+      return devApi.products.searchProducts(query, category);
+    }
+    
+    const cacheKey = `get:${api.defaults.baseURL}/discovery/products?q=${query}&category=${category || ''}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/products/search', { 
+      const response = await api.get('/discovery/products', { 
         params: { q: query, category } 
       });
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      const filteredProducts = mockProducts.filter(p => 
-        p.description.toLowerCase().includes(query.toLowerCase())
-      );
-      return Promise.resolve({ data: filteredProducts });
+      console.error('Failed to search products:', error);
+      throw error;
     }
   },
   createProduct: async (data: any) => {
@@ -303,8 +318,8 @@ export const ordersApi = {
       const response = await api.get('/orders');
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ data: [] });
+      console.error('Failed to fetch orders:', error);
+      throw error;
     }
   },
   getOrderById: async (id: string) => {
@@ -316,11 +331,16 @@ export const ordersApi = {
       const response = await api.get(`/orders/${id}`);
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ data: null });
+      console.error('Failed to fetch order:', error);
+      throw error;
     }
   },
   getUserOrders: async (userId: string) => {
+    // Use development API in development mode
+    if (process.env.NODE_ENV === 'development') {
+      return devApi.orders.getUserOrders(userId);
+    }
+    
     const cacheKey = `get:${api.defaults.baseURL}/orders/user/${userId}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
@@ -329,8 +349,8 @@ export const ordersApi = {
       const response = await api.get(`/orders/user/${userId}`);
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ data: [] });
+      console.error('Failed to fetch user orders:', error);
+      throw error;
     }
   },
   createOrder: async (data: any) => {
@@ -396,17 +416,8 @@ export const adminApi = {
       const response = await api.get('/admin/dashboard');
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ 
-        data: {
-          totalUsers: 0, 
-          totalSellers: 0, 
-          totalProducts: 0, 
-          totalOrders: 0,
-          recentOrders: [],
-          topSellers: []
-        }
-      });
+      console.error('Failed to fetch admin dashboard:', error);
+      throw error;
     }
   },
   getUsers: async () => {
@@ -418,8 +429,8 @@ export const adminApi = {
       const response = await api.get('/admin/users');
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ data: [] });
+      console.error('Failed to fetch admin users:', error);
+      throw error;
     }
   },
   getSellers: async () => {
@@ -431,8 +442,8 @@ export const adminApi = {
       const response = await api.get('/admin/sellers');
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ data: [] });
+      console.error('Failed to fetch admin sellers:', error);
+      throw error;
     }
   },
   getOrders: async () => {
@@ -444,8 +455,8 @@ export const adminApi = {
       const response = await api.get('/admin/orders');
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ data: [] });
+      console.error('Failed to fetch admin orders:', error);
+      throw error;
     }
   },
   updateSellerStatus: async (sellerId: string, status: string) => {
@@ -475,8 +486,8 @@ export const dashboardApi = {
       const response = await api.get('/dashboard/orders');
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ data: [] });
+      console.error('Failed to fetch seller orders:', error);
+      throw error;
     }
   },
   getSellerStats: async () => {
@@ -488,52 +499,37 @@ export const dashboardApi = {
       const response = await api.get('/dashboard/stats');
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ 
-        data: {
-          totalOrders: 0, 
-          totalRevenue: 0, 
-          totalProducts: 0,
-          pendingOrders: 0
-        } 
-      });
+      console.error('Failed to fetch seller stats:', error);
+      throw error;
     }
   }
 };
 
 export const miniAppApi = {
   getHomeData: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/mini-app/home`;
+    const cacheKey = `get:${api.defaults.baseURL}/mini-app/entry`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/mini-app/home');
+      const response = await api.get('/mini-app/entry');
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ 
-        data: { 
-          products: mockProducts,
-          sellers: mockSellers
-        } 
-      });
+      console.error('Failed to fetch home data:', error);
+      throw error;
     }
   },
   searchProducts: async (query: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/mini-app/search?q=${query}`;
+    const cacheKey = `get:${api.defaults.baseURL}/discovery/products?q=${query}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/mini-app/search', { params: { q: query } });
+      const response = await api.get('/discovery/products', { params: { q: query } });
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      const filteredProducts = mockProducts.filter(p => 
-        p.description.toLowerCase().includes(query.toLowerCase())
-      );
-      return Promise.resolve({ data: filteredProducts });
+      console.error('Failed to search products:', error);
+      throw error;
     }
   }
 };

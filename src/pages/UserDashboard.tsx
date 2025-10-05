@@ -15,7 +15,7 @@ import { Product, Seller } from '../types';
 
 const UserDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isReady } = useTelegram();
+  const { user, userProfile, isReady } = useTelegram();
   const { t } = useLocalization();
   const [activeTab, setActiveTab] = useState<'home' | 'search' | 'orders' | 'profile'>('home');
   const [products, setProducts] = useState<Product[]>([]);
@@ -31,12 +31,22 @@ const UserDashboard: React.FC = () => {
       setLoading(true);
       setError(null);
       
+      // Get user location for product discovery
+      const userLocation = userProfile?.location || { latitude: 41.2995, longitude: 69.2401 }; // Default to Tashkent
+      
       const [productsResponse, ordersResponse] = await Promise.all([
-        productsApi.getProducts(),
+        productsApi.getProducts({
+          lat: userLocation.latitude,
+          lng: userLocation.longitude,
+          radius: 10,
+          limit: 20
+        }),
         ordersApi.getUserOrders(user?.id?.toString() || '123456789')
       ]);
 
-      setProducts(productsResponse.data || []);
+      // Handle the new data structure from backend
+      const productsData = productsResponse.data?.products || productsResponse.data || [];
+      setProducts(productsData);
       setOrders(ordersResponse.data || []);
     } catch (err) {
       console.error('Failed to load dashboard data:', err);
@@ -58,11 +68,15 @@ const UserDashboard: React.FC = () => {
     
     try {
       setLoading(true);
+      const userLocation = userProfile?.location || { latitude: 41.2995, longitude: 69.2401 };
+      
       const response = await productsApi.searchProducts(searchQuery, selectedCategory);
-      setProducts(response.data || []);
+      // Handle the new data structure from backend
+      const productsData = response.data?.products || response.data || [];
+      setProducts(productsData);
     } catch (err) {
       console.error('Search failed:', err);
-      setError('Search failed');
+      setError('Search failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -182,27 +196,27 @@ const UserDashboard: React.FC = () => {
                   >
                     <div className="flex space-x-3">
                       <img
-                        src={product.imageUrl || product.seller.businessImageUrl || 'https://via.placeholder.com/64x64'}
-                        alt={product.description}
+                        src={product.imageUrl || product.store?.imageUrl || 'https://via.placeholder.com/64x64'}
+                        alt={product.description || product.name}
                         className="w-16 h-16 object-cover rounded-lg"
                       />
                       <div className="flex-1">
-                        <h3 className="font-medium text-gray-900">{product.description}</h3>
-                        <p className="text-sm text-gray-600">{product.seller.businessName}</p>
+                        <h3 className="font-medium text-gray-900">{product.description || product.name}</h3>
+                        <p className="text-sm text-gray-600">{product.store?.businessName || 'Store'}</p>
                         <div className="flex items-center space-x-2 mt-1">
                           <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-sm text-gray-600">{product.seller.averageRating}</span>
+                          <span className="text-sm text-gray-600">{product.stats?.averageRating || 0}</span>
                           <MapPin className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-600">{product.seller.distance} km</span>
+                          <span className="text-sm text-gray-600">{product.store?.distance || 0} km</span>
                         </div>
                         <div className="flex items-center justify-between mt-2">
                           <div className="flex items-center space-x-2">
                             <span className="text-lg font-semibold text-gray-900">
-                              ${product.price}
+                              {product.price} so'm
                             </span>
                             {product.originalPrice && (
                               <span className="text-sm text-gray-500 line-through">
-                                ${product.originalPrice}
+                                {product.originalPrice} so'm
                               </span>
                             )}
                           </div>
@@ -231,27 +245,27 @@ const UserDashboard: React.FC = () => {
                 >
                   <div className="flex space-x-3">
                     <img
-                      src={product.imageUrl || product.seller.businessImageUrl || 'https://via.placeholder.com/64x64'}
-                      alt={product.description}
+                      src={product.imageUrl || product.store?.imageUrl || 'https://via.placeholder.com/64x64'}
+                      alt={product.description || product.name}
                       className="w-16 h-16 object-cover rounded-lg"
                     />
                     <div className="flex-1">
-                      <h3 className="font-medium text-gray-900">{product.description}</h3>
-                      <p className="text-sm text-gray-600">{product.seller.businessName}</p>
+                      <h3 className="font-medium text-gray-900">{product.description || product.name}</h3>
+                      <p className="text-sm text-gray-600">{product.store?.businessName || 'Store'}</p>
                       <div className="flex items-center space-x-2 mt-1">
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="text-sm text-gray-600">{product.seller.averageRating}</span>
+                        <span className="text-sm text-gray-600">{product.stats?.averageRating || 0}</span>
                         <MapPin className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">{product.seller.distance} km</span>
+                        <span className="text-sm text-gray-600">{product.store?.distance || 0} km</span>
                       </div>
                       <div className="flex items-center justify-between mt-2">
                         <div className="flex items-center space-x-2">
                           <span className="text-lg font-semibold text-gray-900">
-                            ${product.price}
+                            {product.price} so'm
                           </span>
                           {product.originalPrice && (
                             <span className="text-sm text-gray-500 line-through">
-                              ${product.originalPrice}
+                              {product.originalPrice} so'm
                             </span>
                           )}
                         </div>

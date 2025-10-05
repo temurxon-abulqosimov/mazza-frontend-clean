@@ -34,6 +34,7 @@ export interface Product {
   price: number;
   originalPrice?: number;
   description?: string;
+  name?: string; // Backend may return 'name' instead of 'description'
   imageUrl?: string;
   availableFrom?: string;
   availableUntil: string;
@@ -45,6 +46,19 @@ export interface Product {
   updatedAt: string;
   seller: Seller;
   ratings?: Rating[];
+  // New properties from backend response
+  store?: {
+    id: number;
+    businessName: string;
+    businessType: string;
+    distance: number;
+    location: Location;
+    imageUrl?: string;
+  };
+  stats?: {
+    averageRating: number;
+    totalRatings: number;
+  };
 }
 
 export interface Seller {

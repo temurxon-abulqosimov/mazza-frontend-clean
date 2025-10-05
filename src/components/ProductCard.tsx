@@ -81,9 +81,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <div className="p-4">
         <div className="flex items-start justify-between mb-2">
           <div>
-            <h3 className="font-semibold text-gray-900">{product.seller?.businessName || 'Unknown Seller'}</h3>
-            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getBusinessTypeColor(product.seller?.businessType || 'other')}`}>
-              {product.seller?.businessType || 'other'}
+            <h3 className="font-semibold text-gray-900">{product.store?.businessName || product.seller?.businessName || 'Unknown Seller'}</h3>
+            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getBusinessTypeColor(product.store?.businessType || product.seller?.businessType || 'other')}`}>
+              {product.store?.businessType || product.seller?.businessType || 'other'}
             </span>
           </div>
         </div>
@@ -91,7 +91,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {/* Product Details */}
         <div className="mb-3">
           <p className="text-sm text-gray-600 mb-1">
-            {product.description || 'Fresh surplus food available'}
+            {product.description || product.name || 'Fresh surplus food available'}
           </p>
           <p className="text-xs text-gray-500">{t('quantity')}: {product.quantity} available</p>
         </div>
@@ -108,7 +108,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
           <div className="flex items-center">
             <Star className="w-4 h-4 mr-1 text-yellow-400" />
-            <span>4.8</span>
+            <span>{product.stats?.averageRating || product.seller?.averageRating || 0}</span>
           </div>
         </div>
 

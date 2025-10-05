@@ -13,7 +13,7 @@ import { Product, Seller } from '../types';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isReady } = useTelegram();
+  const { user, userProfile, isReady } = useTelegram();
   const { t } = useLocalization();
   const [products, setProducts] = useState<Product[]>([]);
   const [sellers, setSellers] = useState<Seller[]>([]);
@@ -47,42 +47,39 @@ const Home: React.FC = () => {
     try {
       setLoading(true);
       
-      // Get user location (mock for now)
-      const userLocation = { lat: 41.3111, lng: 69.2797 };
+      // Get user location from profile or default to Tashkent
+      const userLocation = userProfile?.location || { latitude: 41.3111, longitude: 69.2797 };
       
       // Load data in parallel for better performance
       const [sellersResponse, productsResponse] = await Promise.all([
         sellersApi.getSellers(),
-        productsApi.getProducts()
+        productsApi.getProducts({
+          lat: userLocation.latitude,
+          lng: userLocation.longitude,
+          radius: 10,
+          limit: 20
+        })
       ]);
 
       const fetchedSellers = sellersResponse.data;
-      const fetchedProducts = productsResponse.data;
+      // Handle the new data structure from backend
+      const fetchedProducts = productsResponse.data?.products || productsResponse.data || [];
 
       // Add distance to sellers
       const sellersWithDistance = fetchedSellers.map((seller: Seller) => ({
         ...seller,
-        distance: calculateDistance(userLocation, seller.location)
-      }));
-
-      // Add distance to products
-      const productsWithDistance = fetchedProducts.map((product: Product) => ({
-        ...product,
-        seller: {
-          ...product.seller,
-          distance: calculateDistance(userLocation, product.seller.location)
-        }
+        distance: calculateDistance({ lat: userLocation.latitude, lng: userLocation.longitude }, seller.location)
       }));
 
       setSellers(sellersWithDistance);
-      setProducts(productsWithDistance);
+      setProducts(fetchedProducts);
     } catch (err) {
       console.error('Failed to load home data:', err);
       setError('Failed to load home data');
     } finally {
       setLoading(false);
     }
-  }, [calculateDistance]);
+  }, [calculateDistance, userProfile]);
 
   useEffect(() => {
     if (isReady && user) {
@@ -95,15 +92,19 @@ const Home: React.FC = () => {
     
     try {
       setLoading(true);
+      const userLocation = userProfile?.location || { latitude: 41.3111, longitude: 69.2797 };
+      
       const response = await productsApi.searchProducts(searchQuery, selectedCategory);
-      setProducts(response.data || []);
+      // Handle the new data structure from backend
+      const productsData = response.data?.products || response.data || [];
+      setProducts(productsData);
     } catch (err) {
       console.error('Search failed:', err);
-      setError('Search failed');
+      setError('Search failed. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, userProfile]);
 
   const handleProductClick = useCallback((productId: number) => {
     navigate(`/product/${productId}`);
@@ -213,28 +214,28 @@ const Home: React.FC = () => {
               >
                 <div className="flex space-x-3">
                   <img
-                    src={product.imageUrl || product.seller.businessImageUrl || 'https://via.placeholder.com/64x64'}
-                    alt={product.description}
+                    src={product.imageUrl || product.store?.imageUrl || 'https://via.placeholder.com/64x64'}
+                    alt={product.description || product.name}
                     className="w-16 h-16 object-cover rounded-lg"
                     loading="lazy"
                   />
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{product.description}</h3>
-                    <p className="text-sm text-gray-600">{product.seller.businessName}</p>
+                    <h3 className="font-medium text-gray-900">{product.description || product.name}</h3>
+                    <p className="text-sm text-gray-600">{product.store?.businessName || 'Store'}</p>
                     <div className="flex items-center space-x-2 mt-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm text-gray-600">{product.seller.averageRating}</span>
+                      <span className="text-sm text-gray-600">{product.stats?.averageRating || 0}</span>
                       <MapPin className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{product.seller.distance} km</span>
+                      <span className="text-sm text-gray-600">{product.store?.distance || 0} km</span>
                     </div>
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center space-x-2">
                         <span className="text-lg font-semibold text-gray-900">
-                          ${product.price}
+                          {product.price} so'm
                         </span>
                         {product.originalPrice && (
                           <span className="text-sm text-gray-500 line-through">
-                            ${product.originalPrice}
+                            {product.originalPrice} so'm
                           </span>
                         )}
                       </div>
