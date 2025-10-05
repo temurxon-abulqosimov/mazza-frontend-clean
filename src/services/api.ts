@@ -19,13 +19,62 @@ const api = axios.create({
 // Request interceptor to add authentication headers
 api.interceptors.request.use(
   (config) => {
+    // Get JWT token from localStorage
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    // Also include Telegram init data if available
     const initData = localStorage.getItem('telegramInitData');
     if (initData) {
       config.headers['X-Telegram-Init-Data'] = initData;
     }
+    
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor to handle token refresh
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    const originalRequest = error.config;
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        const refreshToken = localStorage.getItem('refresh_token');
+        if (refreshToken) {
+          // Try to refresh the token
+          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+            refresh_token: refreshToken
+          });
+          
+          const { access_token, refresh_token: newRefreshToken } = response.data;
+          localStorage.setItem('access_token', access_token);
+          localStorage.setItem('refresh_token', newRefreshToken);
+          
+          // Retry the original request with new token
+          originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        // Refresh failed, redirect to login or clear tokens
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('userProfile');
+        localStorage.removeItem('userRole');
+        window.location.reload();
+      }
+    }
+    
     return Promise.reject(error);
   }
 );
@@ -226,6 +275,12 @@ export const productsApi = {
     // Use development API in development mode
     if (process.env.NODE_ENV === 'development') {
       return devApi.products.getProducts(params);
+    }
+    
+    // Check if user is authenticated in production
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      throw new Error('User not authenticated');
     }
     
     const cacheKey = `get:${api.defaults.baseURL}/discovery/products${params ? `?${new URLSearchParams(params).toString()}` : ''}`;
