@@ -4,8 +4,7 @@ import { Shield, Users, Store, Package, TrendingUp, CheckCircle, XCircle, AlertC
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
-import { mockApi } from '../services/mockApi';
-const { adminApi } = mockApi;
+import { adminApi } from '../services/api';
 
 interface AdminStats {
   totalUsers: number;

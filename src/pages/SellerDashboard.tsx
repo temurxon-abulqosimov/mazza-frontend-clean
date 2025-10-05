@@ -21,12 +21,10 @@ import {
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
-import { mockApi } from '../services/mockApi';
+import { dashboardApi, productsApi, ordersApi, sellersApi } from '../services/api';
 import { Product, Seller } from '../types';
 import ImageUpload from '../components/ImageUpload';
 import Notification, { NotificationProps } from '../components/Notification';
-
-const { dashboardApi, productsApi, ordersApi, sellersApi } = mockApi;
 
 const SellerDashboard: React.FC = () => {
   const navigate = useNavigate();

@@ -66,13 +66,19 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [webApp, setWebApp] = useState<any>(null);
-  const [userRole, setUserRole] = useState<"user" | "seller" | "admin">("user");
+  const [userRole, setUserRole] = useState<"user" | "seller" | "admin">(() => {
+    // Initialize from localStorage if available
+    const storedRole = localStorage.getItem('userRole') as "user" | "seller" | "admin";
+    return storedRole || "user";
+  });
   const initialized = useRef(false);
 
   const setUserProfile = (profile: UserProfile | null) => {
     setUserProfileState(profile);
     if (profile) {
       setUserRole(profile.role);
+      // Store the role in localStorage for persistence
+      localStorage.setItem('userRole', profile.role);
     }
   };
 
@@ -263,7 +269,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       };
       
       // Check if this is an admin user based on Telegram ID
-      const isAdminUser = finalUser.id.toString() === config.ADMIN_TELEGRAM_ID;
+      const isAdminUser = config.ADMIN_TELEGRAM_ID && finalUser.id.toString() === config.ADMIN_TELEGRAM_ID;
       
       // Check for existing role in localStorage (for sellers who were previously detected)
       const storedProfile = localStorage.getItem('userProfile');
@@ -298,34 +304,30 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         username: finalUser.username,
         role: finalRole,
         isRegistered: true, // KEY: Always true if Telegram WebApp exists
-        needsPassword: isAdminUser // Admin needs password in production
+        needsPassword: !!isAdminUser // Admin needs password in production
       };
       
-      // Try backend authentication for sellers (non-blocking)
+      // Try backend authentication for role detection (non-blocking for better performance)
       if (finalRole === 'user' && !isAdminUser) {
-        // Try to authenticate with backend to detect seller role
-        try {
-          const initData = tg.initData;
-          if (initData) {
-            localStorage.setItem('telegramInitData', initData);
-            // This is non-blocking - we'll update the role if backend responds
-            authApi.authenticate(initData).then(response => {
-              if (response.data && response.data.role) {
-                const backendRole = response.data.role.toLowerCase();
-                if (backendRole === 'seller') {
-                  console.log('Backend detected seller role, updating...');
-                  const updatedProfile = { ...profile, role: 'seller' as const };
-                  setUserProfileState(updatedProfile);
-                  setUserRole('seller');
-                  localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
-                }
+        const initData = tg.initData;
+        if (initData) {
+          localStorage.setItem('telegramInitData', initData);
+          // Try to authenticate with backend to detect seller role (non-blocking)
+          authApi.authenticate(initData).then(authResponse => {
+            if (authResponse.data && authResponse.data.role) {
+              const backendRole = authResponse.data.role.toLowerCase();
+              if (backendRole === 'seller') {
+                console.log('Backend detected seller role, updating...');
+                const updatedProfile = { ...profile, role: 'seller' as const };
+                setUserProfileState(updatedProfile);
+                setUserRole('seller');
+                localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+                localStorage.setItem('userRole', 'seller');
               }
-            }).catch(error => {
-              console.log('Backend authentication failed, using default role:', error);
-            });
-          }
-        } catch (error) {
-          console.log('Could not attempt backend authentication:', error);
+            }
+          }).catch(error => {
+            console.log('Backend authentication failed, using default role:', error);
+          });
         }
       }
       
@@ -333,6 +335,10 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setUser(finalUser);
       setUserProfileState(profile);
       setUserRole(finalRole);
+      
+      // Store the profile in localStorage for persistence
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+      localStorage.setItem('userRole', finalRole);
       
       // Use setTimeout to ensure state updates are processed
       setTimeout(() => {

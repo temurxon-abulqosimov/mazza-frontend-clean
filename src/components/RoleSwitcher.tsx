@@ -4,13 +4,23 @@ import { useTelegram } from '../contexts/TelegramContext';
 import { User, Store, Shield } from 'lucide-react';
 
 const RoleSwitcher: React.FC = () => {
-  const { userRole, setUserRole } = useTelegram();
+  const { userRole, setUserRole, setUserProfile, userProfile } = useTelegram();
   const navigate = useNavigate();
 
   const handleRoleChange = (role: 'user' | 'seller' | 'admin') => {
     console.log('RoleSwitcher: Button clicked for role:', role);
     console.log('RoleSwitcher: Current userRole before change:', userRole);
+    
+    // Update the user role
     setUserRole(role);
+    
+    // Update the user profile with the new role
+    if (userProfile) {
+      const updatedProfile = { ...userProfile, role };
+      setUserProfile(updatedProfile);
+      localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+    }
+    
     console.log('RoleSwitcher: setUserRole called with:', role);
     
     // Force navigation to root to trigger RoleBasedRedirect

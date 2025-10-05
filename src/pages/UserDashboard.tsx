@@ -10,10 +10,8 @@ import {
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
-import { mockApi } from '../services/mockApi';
+import { productsApi, ordersApi } from '../services/api';
 import { Product, Seller } from '../types';
-
-const { productsApi, ordersApi } = mockApi;
 
 const UserDashboard: React.FC = () => {
   const navigate = useNavigate();
