@@ -29,7 +29,7 @@ import Notification, { NotificationProps } from '../components/Notification';
 const SellerDashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isReady } = useTelegram();
+  const { user, userProfile, isReady } = useTelegram();
   const { t } = useLocalization();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'profile' | 'analytics'>('dashboard');
   const [seller, setSeller] = useState<Seller | null>(null);
@@ -134,6 +134,8 @@ const SellerDashboard: React.FC = () => {
   const loadSellerData = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       const [sellerResponse, productsResponse, ordersResponse] = await Promise.all([
         sellersApi.getSellerProfile(),
         productsApi.getSellerProducts(),
@@ -145,7 +147,7 @@ const SellerDashboard: React.FC = () => {
       setOrders(ordersResponse.data || []);
     } catch (err) {
       console.error('Failed to load seller data:', err);
-      setError('Failed to load dashboard data');
+      setError('Failed to load dashboard data. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -230,7 +232,10 @@ const SellerDashboard: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">{t('myStore')}</h1>
-                <p className="text-sm text-gray-600">{seller?.businessName || 'Your Business'}</p>
+                <p className="text-sm text-gray-600">{userProfile?.businessName || seller?.businessName || 'Your Business'}</p>
+                {userProfile?.businessType && (
+                  <p className="text-xs text-gray-500">{userProfile.businessType}</p>
+                )}
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -582,7 +587,7 @@ const SellerDashboard: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Business Name</label>
                   <input
                     type="text"
-                    value={seller?.businessName || ''}
+                    value={userProfile?.businessName || seller?.businessName || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     readOnly
                   />
@@ -591,7 +596,7 @@ const SellerDashboard: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Business Type</label>
                   <input
                     type="text"
-                    value={seller?.businessType || ''}
+                    value={userProfile?.businessType || seller?.businessType || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     readOnly
                   />
@@ -600,11 +605,34 @@ const SellerDashboard: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                   <input
                     type="text"
-                    value={seller?.phoneNumber || ''}
+                    value={userProfile?.phoneNumber || seller?.phoneNumber || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     readOnly
                   />
                 </div>
+                {userProfile?.location && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                    <input
+                      type="text"
+                      value={`${userProfile.location.latitude.toFixed(4)}, ${userProfile.location.longitude.toFixed(4)}`}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      readOnly
+                    />
+                  </div>
+                )}
+                {userProfile?.status && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <div className={`px-3 py-2 rounded-lg ${
+                      userProfile.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
+                      userProfile.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {userProfile.status}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

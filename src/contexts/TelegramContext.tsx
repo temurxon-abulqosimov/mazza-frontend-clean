@@ -19,6 +19,12 @@ interface UserProfile {
   role: "user" | "seller" | "admin";
   isRegistered: boolean;
   needsPassword?: boolean;
+  businessName?: string;
+  phoneNumber?: string;
+  businessType?: string;
+  location?: { latitude: number; longitude: number };
+  language?: string;
+  status?: string;
 }
 
 interface TelegramContextType {
@@ -97,283 +103,231 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   console.log('TelegramProvider: About to call useEffect');
   
-  // IMMEDIATE SETUP: Set up test user immediately if not in production
-  if (process.env.NODE_ENV !== 'production' && !initialized.current) {
-    console.log('TelegramProvider: Immediate setup - setting up test user');
-    initialized.current = true;
-    
-    const testUser = {
-      id: 123456789,
-      first_name: "Test",
-      last_name: "User",
-      username: "testuser",
-      language_code: "uz"
-    };
-    
-    const testProfile = {
-      id: 123456789,
-      telegramId: "123456789",
-      firstName: "Test",
-      lastName: "User",
-      username: "testuser",
-      role: "user" as const,
-      isRegistered: true
-    };
-    
-    // Set state using startTransition to prevent Suspense issues
-    startTransition(() => {
-      setUser(testUser);
-      setUserProfileState(testProfile);
-      setUserRole("user");
-      setWebApp({ ready: () => {}, expand: () => {} });
-      setIsReady(true);
-      setIsLoading(false);
-      console.log('TelegramProvider: Immediate setup completed');
-    });
-  }
-  
   useEffect(() => {
-    console.log('TelegramContext: useEffect is running, initialized.current:', initialized.current);
-    
-    if (initialized.current) {
-      console.log('TelegramContext: Already initialized, skipping');
-      return;
-    }
-    
-    try {
-      console.log('TelegramContext: Starting initialization');
-      initialized.current = true;
-      console.log('TelegramContext: NODE_ENV:', process.env.NODE_ENV);
-      console.log('TelegramContext: Window object:', typeof window);
-      console.log('TelegramContext: Telegram object:', typeof window !== "undefined" ? (window as any).Telegram : 'undefined');
-      console.log('TelegramContext: Current state - isReady:', isReady, 'isLoading:', isLoading);
-    
-    // DEVELOPMENT MODE: Set up test user immediately (always in development)
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('TelegramContext: Development mode - setting up test user immediately');
-      console.log('TelegramContext: Ignoring Telegram WebApp in development mode');
-      const testUser = {
-        id: 123456789,
-        first_name: "Test",
-        last_name: "User",
-        username: "testuser",
-        language_code: "uz"
-      };
+    const initializeContext = async () => {
+      console.log('TelegramContext: useEffect is running, initialized.current:', initialized.current);
       
-      const testProfile = {
-        id: 123456789,
-        telegramId: "123456789",
-        firstName: "Test",
-        lastName: "User",
-        username: "testuser",
-        role: "user" as const,
-        isRegistered: true
-      };
-      
-      // Set all state immediately for development
-      setUser(testUser);
-      setUserProfileState(testProfile);
-      setUserRole("user");
-      setWebApp({ ready: () => {}, expand: () => {} }); // Mock WebApp for development
-      setIsReady(true);
-      setIsLoading(false);
-      
-      console.log('TelegramContext: Development test user set up successfully');
-      return;
-    }
-    
-    // FALLBACK: If we're in development but somehow didn't set up the user, do it now
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('TelegramContext: Development fallback - setting up test user');
-      const testUser = {
-        id: 123456789,
-        first_name: "Test",
-        last_name: "User",
-        username: "testuser",
-        language_code: "uz"
-      };
-      
-      const testProfile = {
-        id: 123456789,
-        telegramId: "123456789",
-        firstName: "Test",
-        lastName: "User",
-        username: "testuser",
-        role: "user" as const,
-        isRegistered: true
-      };
-      
-      setUser(testUser);
-      setUserProfileState(testProfile);
-      setUserRole("user");
-      setWebApp({ ready: () => {}, expand: () => {} });
-      setIsReady(true);
-      setIsLoading(false);
-      return;
-    }
-    
-    // PRODUCTION MODE: Check if we have Telegram WebApp
-    const hasTelegramWebApp = typeof window !== "undefined" && (window as any).Telegram?.WebApp;
-    console.log('TelegramContext: hasTelegramWebApp:', hasTelegramWebApp);
-    
-    if (hasTelegramWebApp) {
-      console.log('Telegram WebApp detected - user is registered');
-      
-      // Get Telegram WebApp instance
-      const tg = (window as any).Telegram.WebApp;
-      setWebApp(tg);
-      
-      // Initialize Telegram WebApp
-      if (tg.ready) tg.ready();
-      if (tg.expand) tg.expand();
-      
-      // Try to get real user data, but don't fail if we can't
-      let telegramUser: TelegramUser | null = null;
+      if (initialized.current) {
+        console.log('TelegramContext: Already initialized, skipping');
+        return;
+      }
       
       try {
-        // Try multiple ways to get user data
-        let userData = tg.initDataUnsafe?.user;
+        console.log('TelegramContext: Starting initialization');
+        initialized.current = true;
+        console.log('TelegramContext: NODE_ENV:', process.env.NODE_ENV);
+        console.log('TelegramContext: Window object:', typeof window);
+        console.log('TelegramContext: Telegram object:', typeof window !== "undefined" ? (window as any).Telegram : 'undefined');
+        console.log('TelegramContext: Current state - isReady:', isReady, 'isLoading:', isLoading);
+      
+      // DEVELOPMENT MODE: Set up test user immediately (always in development)
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('TelegramContext: Development mode - setting up test user immediately');
+        console.log('TelegramContext: Ignoring Telegram WebApp in development mode');
+        const testUser = {
+          id: 123456789,
+          first_name: "Test",
+          last_name: "User",
+          username: "testuser",
+          language_code: "uz"
+        };
         
-        if (!userData && tg.initData) {
-          const urlParams = new URLSearchParams(tg.initData);
-          const userParam = urlParams.get('user');
-          if (userParam) {
-            userData = JSON.parse(userParam);
-          }
-        }
+        const testProfile = {
+          id: 123456789,
+          telegramId: "123456789",
+          firstName: "Test",
+          lastName: "User",
+          username: "testuser",
+          role: "user" as const,
+          isRegistered: true
+        };
         
-        if (!userData && tg.user) {
-          userData = tg.user;
-        }
+        // Set all state immediately for development
+        setUser(testUser);
+        setUserProfileState(testProfile);
+        setUserRole("user");
+        setWebApp({ ready: () => {}, expand: () => {} }); // Mock WebApp for development
+        setIsReady(true);
+        setIsLoading(false);
         
-        if (userData) {
-          telegramUser = {
-            id: userData.id,
-            first_name: userData.first_name,
-            last_name: userData.last_name,
-            username: userData.username,
-            language_code: userData.language_code
-          };
-        }
-      } catch (error) {
-        console.log('Could not get Telegram user data:', error);
+        console.log('TelegramContext: Development test user set up successfully');
+        return;
       }
       
-      // Create user profile - use real data if available, otherwise defaults
-      const finalUser = telegramUser || {
-        id: Date.now(),
-        first_name: "User",
-        last_name: "",
-        username: "user",
-        language_code: "en"
-      };
+      // PRODUCTION MODE: Check if we have Telegram WebApp
+      const hasTelegramWebApp = typeof window !== "undefined" && (window as any).Telegram?.WebApp;
+      console.log('TelegramContext: hasTelegramWebApp:', hasTelegramWebApp);
       
-      // Check if this is an admin user based on Telegram ID
-      const isAdminUser = config.ADMIN_TELEGRAM_ID && finalUser.id.toString() === config.ADMIN_TELEGRAM_ID;
-      
-      // Check for existing role in localStorage (for sellers who were previously detected)
-      const storedProfile = localStorage.getItem('userProfile');
-      let detectedRole: 'user' | 'seller' | 'admin' = 'user';
-      
-      if (storedProfile) {
+      if (hasTelegramWebApp) {
+        console.log('Telegram WebApp detected - user is registered');
+        
+        // Get Telegram WebApp instance
+        const tg = (window as any).Telegram.WebApp;
+        setWebApp(tg);
+        
+        // Initialize Telegram WebApp
+        if (tg.ready) tg.ready();
+        if (tg.expand) tg.expand();
+        
+        // Try to get real user data, but don't fail if we can't
+        let telegramUser: TelegramUser | null = null;
+        
         try {
-          const parsedProfile = JSON.parse(storedProfile);
-          if (parsedProfile.telegramId === finalUser.id.toString()) {
-            detectedRole = parsedProfile.role;
+          // Try multiple ways to get user data
+          let userData = tg.initDataUnsafe?.user;
+          
+          if (!userData && tg.initData) {
+            const urlParams = new URLSearchParams(tg.initData);
+            const userParam = urlParams.get('user');
+            if (userParam) {
+              userData = JSON.parse(userParam);
+            }
+          }
+          
+          if (!userData && tg.user) {
+            userData = tg.user;
+          }
+          
+          if (userData) {
+            telegramUser = {
+              id: userData.id,
+              first_name: userData.first_name,
+              last_name: userData.last_name,
+              username: userData.username,
+              language_code: userData.language_code
+            };
           }
         } catch (error) {
-          console.log('Could not parse stored profile:', error);
+          console.log('Could not get Telegram user data:', error);
         }
-      }
-      
-      // Determine final role: admin takes precedence, then stored role, then user
-      let finalRole: 'user' | 'seller' | 'admin' = 'user';
-      if (isAdminUser) {
-        finalRole = 'admin';
-      } else if (detectedRole === 'seller') {
-        finalRole = 'seller';
-      } else {
-        finalRole = 'user';
-      }
-      
-      const profile: UserProfile = {
-        id: finalUser.id,
-        telegramId: finalUser.id.toString(),
-        firstName: finalUser.first_name,
-        lastName: finalUser.last_name,
-        username: finalUser.username,
-        role: finalRole,
-        isRegistered: true, // KEY: Always true if Telegram WebApp exists
-        needsPassword: !!isAdminUser // Admin needs password in production
-      };
-      
-      // Try backend authentication for role detection (non-blocking for better performance)
-      if (finalRole === 'user' && !isAdminUser) {
+        
+        // Create user profile - use real data if available, otherwise defaults
+        const finalUser = telegramUser || {
+          id: Date.now(),
+          first_name: "User",
+          last_name: "",
+          username: "user",
+          language_code: "en"
+        };
+        
+        // Check if this is an admin user based on Telegram ID
+        const isAdminUser = config.ADMIN_TELEGRAM_ID && finalUser.id.toString() === config.ADMIN_TELEGRAM_ID;
+        
+        // Store initData for backend authentication
         const initData = tg.initData;
         if (initData) {
           localStorage.setItem('telegramInitData', initData);
-          // Try to authenticate with backend to detect seller role (non-blocking)
-          authApi.authenticate(initData).then(authResponse => {
-            if (authResponse.data && authResponse.data.role) {
-              const backendRole = authResponse.data.role.toLowerCase();
-              if (backendRole === 'seller') {
-                console.log('Backend detected seller role, updating...');
-                const updatedProfile = { ...profile, role: 'seller' as const };
-                setUserProfileState(updatedProfile);
-                setUserRole('seller');
-                localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
-                localStorage.setItem('userRole', 'seller');
-              }
-            }
-          }).catch(error => {
-            console.log('Backend authentication failed, using default role:', error);
-          });
+          setInitData(initData);
         }
+        
+        // Try backend authentication to get real user data and role
+        if (initData) {
+          try {
+            console.log('Attempting backend authentication...');
+            const authResponse = await authApi.authenticate(initData);
+            
+            if (authResponse.data && authResponse.data.user) {
+              const backendUser = authResponse.data.user;
+              const backendRole = backendUser.role.toLowerCase() as "user" | "seller" | "admin";
+              
+              console.log('Backend authentication successful:', { role: backendRole, user: backendUser });
+              
+              const profile: UserProfile = {
+                id: backendUser.id,
+                telegramId: backendUser.telegramId,
+                firstName: backendUser.firstName || finalUser.first_name,
+                lastName: backendUser.lastName || finalUser.last_name,
+                username: backendUser.username || finalUser.username,
+                role: backendRole,
+                isRegistered: true,
+                needsPassword: backendRole === 'admin',
+                businessName: backendUser.businessName,
+                phoneNumber: backendUser.phoneNumber,
+                businessType: backendUser.businessType,
+                location: backendUser.location,
+                language: backendUser.language,
+                status: backendUser.status
+              };
+              
+              // Set all state with backend data
+              setUser(finalUser);
+              setUserProfileState(profile);
+              setUserRole(backendRole);
+              
+              // Store the profile in localStorage for persistence
+              localStorage.setItem('userProfile', JSON.stringify(profile));
+              localStorage.setItem('userRole', backendRole);
+              
+              // Use setTimeout to ensure state updates are processed
+              setTimeout(() => {
+                setIsReady(true);
+                setIsLoading(false);
+                console.log('TelegramContext: Backend authentication successful with role:', backendRole);
+              }, 0);
+              
+              return;
+            }
+          } catch (error) {
+            console.error('Backend authentication failed:', error);
+            // Fall through to default user setup
+          }
+        }
+        
+        // Fallback: Set up default user if backend auth fails
+        const profile: UserProfile = {
+          id: finalUser.id,
+          telegramId: finalUser.id.toString(),
+          firstName: finalUser.first_name,
+          lastName: finalUser.last_name,
+          username: finalUser.username,
+          role: isAdminUser ? 'admin' : 'user',
+          isRegistered: true,
+          needsPassword: !!isAdminUser
+        };
+        
+        // Set all state in a single batch to avoid race conditions
+        setUser(finalUser);
+        setUserProfileState(profile);
+        setUserRole(isAdminUser ? 'admin' : 'user');
+        
+        // Store the profile in localStorage for persistence
+        localStorage.setItem('userProfile', JSON.stringify(profile));
+        localStorage.setItem('userRole', isAdminUser ? 'admin' : 'user');
+        
+        // Use setTimeout to ensure state updates are processed
+        setTimeout(() => {
+          setIsReady(true);
+          setIsLoading(false);
+          console.log('TelegramContext: Default user setup with role:', isAdminUser ? 'admin' : 'user');
+        }, 0);
+        
+      } else {
+        console.log('No Telegram WebApp - showing registration screen');
+        
+        // No Telegram WebApp - user needs to register
+        setUserProfileState({
+          id: 0,
+          telegramId: '',
+          firstName: '',
+          lastName: '',
+          username: '',
+          role: 'user',
+          isRegistered: false
+        });
+        
+        // Use setTimeout to ensure state updates are processed
+        setTimeout(() => {
+          setIsReady(true);
+          setIsLoading(false);
+          console.log('TelegramContext: No Telegram WebApp - showing registration');
+        }, 0);
       }
       
-      // Set all state in a single batch to avoid race conditions
-      setUser(finalUser);
-      setUserProfileState(profile);
-      setUserRole(finalRole);
-      
-      // Store the profile in localStorage for persistence
-      localStorage.setItem('userProfile', JSON.stringify(profile));
-      localStorage.setItem('userRole', finalRole);
-      
-      // Use setTimeout to ensure state updates are processed
-      setTimeout(() => {
-        setIsReady(true);
-        setIsLoading(false);
-        console.log('TelegramContext: User profile set successfully with role:', finalRole);
-      }, 0);
-      
-    } else {
-      console.log('No Telegram WebApp - showing registration screen');
-      
-      // No Telegram WebApp - user needs to register
-      setUserProfileState({
-        id: 0,
-        telegramId: '',
-        firstName: '',
-        lastName: '',
-        username: '',
-        role: 'user',
-        isRegistered: false
-      });
-      
-      // Use setTimeout to ensure state updates are processed
-      setTimeout(() => {
-        setIsReady(true);
-        setIsLoading(false);
-        console.log('TelegramContext: No Telegram WebApp - showing registration');
-      }, 0);
-    }
-    
-    // TIMEOUT FALLBACK: If we're still loading after 1 second in development, force setup
-    if (process.env.NODE_ENV !== 'production') {
-      const timeout = setTimeout(() => {
-        if (isLoading) {
-          console.log('TelegramContext: Development timeout fallback - forcing test user setup');
+      } catch (error) {
+        console.error('TelegramContext: Error during initialization:', error);
+        // Fallback: set up test user even if there's an error
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('TelegramContext: Error fallback - setting up test user');
           const testUser = {
             id: 123456789,
             first_name: "Test",
@@ -399,41 +353,10 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           setIsReady(true);
           setIsLoading(false);
         }
-      }, 1000);
-      
-      return () => clearTimeout(timeout);
-    }
-    } catch (error) {
-      console.error('TelegramContext: Error during initialization:', error);
-      // Fallback: set up test user even if there's an error
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('TelegramContext: Error fallback - setting up test user');
-        const testUser = {
-          id: 123456789,
-          first_name: "Test",
-          last_name: "User",
-          username: "testuser",
-          language_code: "uz"
-        };
-        
-        const testProfile = {
-          id: 123456789,
-          telegramId: "123456789",
-          firstName: "Test",
-          lastName: "User",
-          username: "testuser",
-          role: "user" as const,
-          isRegistered: true
-        };
-        
-        setUser(testUser);
-        setUserProfileState(testProfile);
-        setUserRole("user");
-        setWebApp({ ready: () => {}, expand: () => {} });
-        setIsReady(true);
-        setIsLoading(false);
       }
-    }
+    };
+
+    initializeContext();
   }, []);
   
   // TIMEOUT FALLBACK: If still loading after 2 seconds, force setup

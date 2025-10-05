@@ -7,7 +7,7 @@ import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 
 const Profile: React.FC = () => {
-  const { user, isReady, userRole } = useTelegram();
+  const { user, userProfile, isReady, userRole } = useTelegram();
   const { t } = useLocalization();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -76,12 +76,33 @@ const Profile: React.FC = () => {
             </div>
             <div className="flex-1">
               <h2 className="text-xl font-semibold text-gray-900">
-                {user?.first_name} {user?.last_name}
+                {userProfile?.firstName || user?.first_name} {userProfile?.lastName || user?.last_name}
               </h2>
-              <p className="text-gray-600">@{user?.username}</p>
+              <p className="text-gray-600">@{userProfile?.username || user?.username}</p>
+              {userProfile?.businessName && (
+                <p className="text-sm text-blue-600 font-medium">{userProfile.businessName}</p>
+              )}
+              {userProfile?.phoneNumber && (
+                <p className="text-sm text-gray-600">📞 {userProfile.phoneNumber}</p>
+              )}
+              {userProfile?.businessType && (
+                <p className="text-sm text-gray-600">🏪 {userProfile.businessType}</p>
+              )}
+              {userProfile?.location && (
+                <p className="text-sm text-gray-600">📍 Location: {userProfile.location.latitude.toFixed(4)}, {userProfile.location.longitude.toFixed(4)}</p>
+              )}
               <div className="flex items-center mt-2">
                 {getRoleIcon(userRole)}
                 <span className="ml-2 text-sm text-gray-600">{getRoleLabel(userRole)}</span>
+                {userProfile?.status && (
+                  <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
+                    userProfile.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
+                    userProfile.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    {userProfile.status}
+                  </span>
+                )}
               </div>
             </div>
           </div>

@@ -94,8 +94,8 @@ export const authApi = {
       const response = await api.get('/auth/profile');
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ data: { role: 'user', id: 1, name: 'Mock User' } });
+      console.error('Failed to get user profile:', error);
+      throw error;
     }
   },
   // New endpoint for Telegram WebApp authentication
@@ -191,8 +191,8 @@ export const sellersApi = {
       const response = await api.get('/sellers/profile');
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ data: mockSellers[0] });
+      console.error('Failed to get seller profile:', error);
+      throw error;
     }
   },
   createSeller: async (data: any) => {
@@ -254,8 +254,8 @@ export const productsApi = {
       const response = await api.get('/products/seller');
       return response;
     } catch (error) {
-      console.warn('API call failed, using mock data');
-      return Promise.resolve({ data: mockProducts });
+      console.error('Failed to get seller products:', error);
+      throw error;
     }
   },
   searchProducts: async (query: string, category?: string) => {

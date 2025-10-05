@@ -29,6 +29,8 @@ const UserDashboard: React.FC = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       const [productsResponse, ordersResponse] = await Promise.all([
         productsApi.getProducts(),
         ordersApi.getUserOrders(user?.id?.toString() || '123456789')
@@ -38,7 +40,7 @@ const UserDashboard: React.FC = () => {
       setOrders(ordersResponse.data || []);
     } catch (err) {
       console.error('Failed to load dashboard data:', err);
-      setError('Failed to load dashboard data');
+      setError('Failed to load dashboard data. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
