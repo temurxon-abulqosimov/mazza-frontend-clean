@@ -346,19 +346,26 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             
             if (userCheckResponse && userCheckResponse.data && userCheckResponse.data.exists) {
               console.log('✅ User found in database with role:', userCheckResponse.data.role);
+              console.log('✅ User check response data:', userCheckResponse.data);
+              console.log('✅ Backend user data:', userCheckResponse.data.user);
               
               // User exists, now authenticate with their actual role
               const userRole = userCheckResponse.data.role;
               const backendUser = userCheckResponse.data.user;
               
-              console.log(`Authenticating user with their actual role: ${userRole}`);
+              console.log(`🔐 Authenticating user with their actual role: ${userRole}`);
+              console.log(`🔐 Backend user object:`, backendUser);
               
               const loginData = {
                 telegramId: finalUser?.id.toString() || '',
                 role: userRole
               };
               
+              console.log(`🔐 Login data:`, loginData);
               const authResponse = await authApi.login(loginData);
+              console.log('🔐 Auth response received:', authResponse);
+              console.log('🔐 Auth response data:', authResponse.data);
+              console.log('🔐 Access token exists:', !!authResponse.data?.access_token);
               
               if (authResponse.data && authResponse.data.access_token) {
                  // Use backend role directly (already uppercase)
@@ -405,6 +412,10 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 }, 0);
                 
                 return;
+              } else {
+                console.log('❌ Authentication failed - no access token received');
+                console.log('❌ Auth response was:', authResponse);
+                console.log('❌ Auth response data:', authResponse.data);
               }
             } else {
               console.log('❌ User not found in database - showing registration screen');
@@ -445,6 +456,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               url: error.config?.url
             });
             console.error('❌ Full error object:', error);
+            console.error('❌ Error stack:', error.stack);
             // Fall through to default user setup
           }
         }

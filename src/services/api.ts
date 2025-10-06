@@ -4,6 +4,8 @@ import { devApi } from './devApi';
 // Use Railway backend URL
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://ulgur-backend-production-53b2.up.railway.app';
 console.log('🔧 API_BASE_URL:', API_BASE_URL);
+console.log('🔧 NODE_ENV:', process.env.NODE_ENV);
+console.log('🔧 REACT_APP_API_BASE_URL:', process.env.REACT_APP_API_BASE_URL);
 
 // Cache for API responses
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -181,16 +183,30 @@ export const usersApi = {
     console.log('🔍 API URL:', `${api.defaults.baseURL}/webapp/users/admin/telegram/${telegramId}`);
     
     try {
+      // First, let's test if we can reach the backend at all
+      console.log('🔧 Testing backend connectivity...');
+      try {
+        const healthCheck = await api.get('/health');
+        console.log('✅ Backend health check successful:', healthCheck.data);
+      } catch (healthError) {
+        console.log('⚠️ Backend health check failed, but continuing with user check:', healthError.message);
+      }
+      
       // Use the public endpoint you created
       const endpoint = `/webapp/users/admin/telegram/${telegramId}`;
       console.log('🔧 Full endpoint:', endpoint);
       console.log('🔧 Full URL will be:', `${API_BASE_URL}${endpoint}`);
       const response = await api.get(endpoint);
       console.log('✅ API Response:', response.data);
+      console.log('✅ Response status:', response.status);
+      console.log('✅ Response headers:', response.headers);
       
       // The backend returns the user data directly, not wrapped in a "user" field
       if (response.data && response.data.role) {
         console.log('✅ User found in database:', response.data);
+        console.log('✅ User role:', response.data.role);
+        console.log('✅ User ID:', response.data.id);
+        console.log('✅ User telegramId:', response.data.telegramId);
         return {
           data: {
             exists: true,
@@ -199,7 +215,8 @@ export const usersApi = {
           }
         };
       } else {
-        console.log('❌ No user data in response');
+        console.log('❌ No user data in response - response.data:', response.data);
+        console.log('❌ No role found in response');
         return {
           data: {
             exists: false,
