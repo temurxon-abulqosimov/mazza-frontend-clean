@@ -226,12 +226,14 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       
       // Create user profile - use real data if available, otherwise defaults
       const finalUser = telegramUser || {
-        id: Date.now(),
-        first_name: "User",
-        last_name: "",
-        username: "user",
+        id: 123456789, // Use a fixed test ID for browser testing
+        first_name: "Test",
+        last_name: "User",
+        username: "testuser",
         language_code: "en"
       };
+      
+      console.log('🔍 Final user created:', finalUser);
       
       // Check if this is an admin user based on Telegram ID
       const isAdminUser = config.ADMIN_TELEGRAM_ID && finalUser.id.toString() === config.ADMIN_TELEGRAM_ID;
@@ -249,9 +251,10 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             console.log('Checking if user exists in database by Telegram ID...');
             
             // Use your approach: check if user exists first
-            console.log('Checking user with Telegram ID:', finalUser.id.toString());
+            console.log('🔍 Checking user with Telegram ID:', finalUser.id.toString());
+            console.log('🔍 Final user object:', finalUser);
             const userCheckResponse = await usersApi.checkUserExistsByTelegramId(finalUser.id.toString());
-            console.log('User check response:', userCheckResponse);
+            console.log('🔍 User check response:', userCheckResponse);
             
             if (userCheckResponse && userCheckResponse.data && userCheckResponse.data.exists) {
               console.log('✅ User found in database with role:', userCheckResponse.data.role);
@@ -313,7 +316,8 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               }
             } else {
               console.log('❌ User not found in database - showing registration screen');
-              console.log('User check response was:', userCheckResponse);
+              console.log('❌ User check response was:', userCheckResponse);
+              console.log('❌ This means the API call succeeded but user does not exist in database');
               // User is not registered, show registration screen
               const profile: UserProfile = {
                 id: finalUser.id,
