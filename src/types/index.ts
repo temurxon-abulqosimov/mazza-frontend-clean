@@ -112,14 +112,14 @@ export interface Order {
 }
 
 export interface CreateProductDto {
-  description: string;
+  name: string; // Backend requires 'name' field
+  description?: string; // Optional in backend
   price: number;
   originalPrice?: number;
-  quantity: number;
+  quantity?: number; // Optional in backend
   availableUntil: Date;
   availableFrom?: Date;
-  category: ProductCategory;
-  sellerId: number;
+  sellerId?: number; // Backend will set this automatically
 }
 
 export interface UpdateProductDto {

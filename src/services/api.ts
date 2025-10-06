@@ -502,9 +502,23 @@ export const productsApi = {
     }
   },
   createProduct: async (data: any) => {
+    console.log('🔧 Creating product with data:', data);
+    console.log('🔧 API URL:', `${api.defaults.baseURL}/webapp/products`);
+    console.log('🔧 Request headers:', api.defaults.headers);
+    
     const cacheKey = `get:${api.defaults.baseURL}/webapp/products`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.post('/webapp/products', data);
+    
+    try {
+      const response = await api.post('/webapp/products', data);
+      console.log('✅ Product created successfully:', response.data);
+      return response;
+    } catch (error: any) {
+      console.error('❌ Product creation failed:', error);
+      console.error('❌ Error response:', error.response?.data);
+      console.error('❌ Error status:', error.response?.status);
+      throw error;
+    }
   },
   updateProduct: async (id: string, data: any) => {
     const cacheKey = `get:${api.defaults.baseURL}/webapp/products`;

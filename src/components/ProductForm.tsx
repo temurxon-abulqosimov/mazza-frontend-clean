@@ -91,14 +91,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
 
     try {
       const productData: CreateProductDto = {
-        description: formData.description,
+        name: formData.description, // Backend expects 'name' field
+        description: formData.description, // Also send description
         price: parseFloat(formData.price),
         originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : undefined,
         quantity: parseInt(formData.quantity),
         availableUntil: new Date(formData.availableUntil),
         availableFrom: formData.availableFrom ? new Date(formData.availableFrom) : undefined,
-        category: formData.category,
-        sellerId: 0,
+        sellerId: 0, // Backend will set this automatically
       };
 
       console.log('ProductForm: Submitting product data:', productData);
