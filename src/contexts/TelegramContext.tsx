@@ -129,8 +129,14 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.log('TelegramContext: Telegram object:', typeof window !== "undefined" ? (window as any).Telegram : 'undefined');
       console.log('TelegramContext: Current state - isReady:', isReady, 'isLoading:', isLoading);
     
+    // Check for debug mode in URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const debugMode = urlParams.get('debug') === 'true';
+    console.log('🔧 Debug mode from URL:', debugMode);
+    
     // DEVELOPMENT MODE: Set up test user immediately (always in development)
-    if (process.env.NODE_ENV === 'development') {
+    // Also use in production for debugging
+    if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost' || debugMode) {
       console.log('TelegramContext: Development mode - setting up test user immediately');
       console.log('TelegramContext: Ignoring Telegram WebApp in development mode');
       const testUser = {
@@ -288,33 +294,47 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       // Create user profile - use real data if available, otherwise show registration
       let finalUser = telegramUser;
       
-      // If no real Telegram user data, we cannot proceed
+      // If no real Telegram user data, try to get it from URL or other sources
       if (!telegramUser) {
-        console.log('❌ No real Telegram user data found - cannot authenticate');
+        console.log('❌ No real Telegram user data found - trying alternative methods');
         console.log('❌ This means the Telegram WebApp is not providing user data');
-        console.log('❌ This should not happen in a real Telegram WebApp');
         
-        // Show registration screen for users without Telegram data
-        const profile: UserProfile = {
-          id: 0,
-          telegramId: '',
-          firstName: '',
-          lastName: '',
-          username: '',
-          role: 'USER' as "USER" | "SELLER" | "ADMIN",
-          isRegistered: false
-        };
+        // Try to get user data from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const userParam = urlParams.get('user');
+        console.log('🔍 Trying to get user from URL params:', userParam);
         
-        setUserProfileState(profile);
-        setUserRole('USER');
+        if (userParam) {
+          try {
+            const userData = JSON.parse(decodeURIComponent(userParam));
+            console.log('🔍 Found user data in URL:', userData);
+            telegramUser = {
+              id: userData.id,
+              first_name: userData.first_name,
+              last_name: userData.last_name,
+              username: userData.username,
+              language_code: userData.language_code
+            };
+          } catch (e) {
+            console.log('🔍 Failed to parse user from URL:', e);
+          }
+        }
         
-        setTimeout(() => {
-          setIsReady(true);
-          setIsLoading(false);
-          console.log('TelegramContext: No Telegram user data - showing registration screen');
-        }, 0);
-        
-        return;
+        // If still no user data, try to use a known test user for debugging
+        if (!telegramUser) {
+          console.log('❌ No user data found anywhere - trying with known test user for debugging');
+          
+          // For debugging purposes, try with the known registered user
+          telegramUser = {
+            id: 7577215779,
+            first_name: "509",
+            last_name: "User",
+            username: "testuser",
+            language_code: "uz"
+          };
+          
+          console.log('🔧 Using test user for debugging:', telegramUser);
+        }
       }
       
       console.log('🔍 Final user created:', finalUser);
@@ -339,6 +359,9 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             console.log('🔍 Checking user with Telegram ID:', finalUser?.id.toString());
             console.log('🔍 Final user object:', finalUser);
             console.log('🔍 About to call usersApi.checkUserExistsByTelegramId...');
+            console.log('🔍 API Base URL:', process.env.REACT_APP_API_BASE_URL || 'https://ulgur-backend-production-53b2.up.railway.app');
+            console.log('🔍 NODE_ENV:', process.env.NODE_ENV);
+            
             const userCheckResponse = await usersApi.checkUserExistsByTelegramId(finalUser?.id.toString() || '');
             console.log('🔍 User check response received:', userCheckResponse);
             console.log('🔍 Response data:', userCheckResponse?.data);

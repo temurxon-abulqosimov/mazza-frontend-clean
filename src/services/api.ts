@@ -6,6 +6,12 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://ulgur-backen
 console.log('🔧 API_BASE_URL:', API_BASE_URL);
 console.log('🔧 NODE_ENV:', process.env.NODE_ENV);
 console.log('🔧 REACT_APP_API_BASE_URL:', process.env.REACT_APP_API_BASE_URL);
+console.log('🔧 Window location:', window.location.href);
+console.log('🔧 Environment variables:', {
+  NODE_ENV: process.env.NODE_ENV,
+  REACT_APP_API_BASE_URL: process.env.REACT_APP_API_BASE_URL,
+  PUBLIC_URL: process.env.PUBLIC_URL
+});
 
 // Cache for API responses
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -185,11 +191,22 @@ export const usersApi = {
     try {
       // First, let's test if we can reach the backend at all
       console.log('🔧 Testing backend connectivity...');
+      console.log('🔧 Full API base URL:', api.defaults.baseURL);
+      console.log('🔧 Health check URL:', `${api.defaults.baseURL}/health`);
       try {
         const healthCheck = await api.get('/health');
         console.log('✅ Backend health check successful:', healthCheck.data);
+        console.log('✅ Health check status:', healthCheck.status);
+        console.log('✅ Health check headers:', healthCheck.headers);
       } catch (healthError: any) {
         console.log('⚠️ Backend health check failed, but continuing with user check:', healthError.message);
+        console.log('⚠️ Health check error details:', {
+          status: healthError.response?.status,
+          statusText: healthError.response?.statusText,
+          data: healthError.response?.data,
+          url: healthError.config?.url,
+          baseURL: healthError.config?.baseURL
+        });
       }
       
       // Use the public endpoint you created
