@@ -246,15 +246,19 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
         
         // Check if user exists in database by Telegram ID (your approach)
-        if (initData) {
+        // Always try to authenticate, regardless of initData
+        if (true) {
           try {
             console.log('Checking if user exists in database by Telegram ID...');
             
             // Use your approach: check if user exists first
             console.log('🔍 Checking user with Telegram ID:', finalUser.id.toString());
             console.log('🔍 Final user object:', finalUser);
+            console.log('🔍 About to call usersApi.checkUserExistsByTelegramId...');
             const userCheckResponse = await usersApi.checkUserExistsByTelegramId(finalUser.id.toString());
-            console.log('🔍 User check response:', userCheckResponse);
+            console.log('🔍 User check response received:', userCheckResponse);
+            console.log('🔍 Response data:', userCheckResponse?.data);
+            console.log('🔍 Response exists:', userCheckResponse?.data?.exists);
             
             if (userCheckResponse && userCheckResponse.data && userCheckResponse.data.exists) {
               console.log('✅ User found in database with role:', userCheckResponse.data.role);
@@ -350,6 +354,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               data: error.response?.data,
               url: error.config?.url
             });
+            console.error('❌ Full error object:', error);
             // Fall through to default user setup
           }
         }
