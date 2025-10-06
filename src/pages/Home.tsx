@@ -52,13 +52,8 @@ const Home: React.FC = () => {
       
       // Load data in parallel for better performance
       const [sellersResponse, productsResponse] = await Promise.all([
-        sellersApi.getSellers(),
-        productsApi.getProducts({
-          lat: userLocation.latitude,
-          lng: userLocation.longitude,
-          radius: 10,
-          limit: 20
-        })
+        sellersApi.getSellersNearby(userLocation.latitude, userLocation.longitude),
+        productsApi.getProductsNearby(userLocation.latitude, userLocation.longitude)
       ]);
 
       const fetchedSellers = sellersResponse.data;

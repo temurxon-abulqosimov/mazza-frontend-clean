@@ -233,35 +233,59 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (initData) {
           try {
             console.log('Attempting backend authentication...');
-            const authResponse = await authApi.authenticate(initData);
             
-            if (authResponse.data && authResponse.data.user) {
-              const backendUser = authResponse.data.user;
-              const backendRole = backendUser.role.toLowerCase() as "user" | "seller" | "admin";
-              
-              console.log('Backend authentication successful:', { role: backendRole, user: backendUser });
+            // Try different roles to find the user's actual registration
+            const rolesToTry = ["USER", "SELLER", "ADMIN"];
+            let authResponse = null;
+            let backendUser = null;
+            let backendRole = "user";
+            
+            for (const role of rolesToTry) {
+              try {
+                console.log(`Trying to login with role: ${role}`);
+                const loginData = {
+                  telegramId: finalUser.id.toString(),
+                  role: role
+                };
+                
+                authResponse = await authApi.login(loginData);
+                
+                if (authResponse.data && authResponse.data.access_token) {
+                  backendUser = authResponse.data.user;
+                  backendRole = backendUser?.role?.toLowerCase() as "user" | "seller" | "admin" || "user";
+                  console.log(`Backend login successful with role: ${backendRole}`);
+                  break;
+                }
+              } catch (roleError) {
+                console.log(`Login failed for role ${role}, trying next role...`);
+                continue;
+              }
+            }
+            
+            if (authResponse && authResponse.data && authResponse.data.access_token) {
+              console.log('Backend login successful:', { role: backendRole, user: backendUser });
               
               const profile: UserProfile = {
-                id: backendUser.id,
-                telegramId: backendUser.telegramId,
-                firstName: backendUser.firstName || finalUser.first_name,
-                lastName: backendUser.lastName || finalUser.last_name,
-                username: backendUser.username || finalUser.username,
-                role: backendRole,
+                id: backendUser?.id || finalUser.id,
+                telegramId: backendUser?.telegramId || finalUser.id.toString(),
+                firstName: backendUser?.firstName || finalUser.first_name,
+                lastName: backendUser?.lastName || finalUser.last_name,
+                username: backendUser?.username || finalUser.username,
+                role: backendRole as "user" | "seller" | "admin",
                 isRegistered: true,
                 needsPassword: backendRole === 'admin',
-                businessName: backendUser.businessName,
-                phoneNumber: backendUser.phoneNumber,
-                businessType: backendUser.businessType,
-                location: backendUser.location,
-                language: backendUser.language,
-                status: backendUser.status
+                businessName: backendUser?.businessName,
+                phoneNumber: backendUser?.phoneNumber,
+                businessType: backendUser?.businessType,
+                location: backendUser?.location,
+                language: backendUser?.language,
+                status: backendUser?.status
               };
               
               // Set all state with backend data
               setUser(finalUser);
               setUserProfileState(profile);
-              setUserRole(backendRole);
+              setUserRole(backendRole as "user" | "seller" | "admin");
               
               // Store the profile and tokens in localStorage for persistence
               localStorage.setItem('userProfile', JSON.stringify(profile));
@@ -273,7 +297,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               setTimeout(() => {
                 setIsReady(true);
                 setIsLoading(false);
-                console.log('TelegramContext: Backend authentication successful with role:', backendRole);
+                console.log('TelegramContext: Backend login successful with role:', backendRole);
               }, 0);
               
               return;

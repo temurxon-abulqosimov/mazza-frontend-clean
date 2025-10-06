@@ -2,7 +2,7 @@ import axios from 'axios';
 import { devApi } from './devApi';
 
 // Use Railway backend URL
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://ulgur-backend-production-53b2.up.railway.app/webapp';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://ulgur-backend-production-53b2.up.railway.app';
 
 // Cache for API responses
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -52,10 +52,8 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refresh_token');
         if (refreshToken) {
-          // Try to refresh the token
-          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-            refresh_token: refreshToken
-          });
+          // Try to refresh the token using the correct endpoint
+          const response = await axios.post(`${API_BASE_URL}/webapp/auth/refresh?refresh_token=${refreshToken}`);
           
           const { access_token, refresh_token: newRefreshToken } = response.data;
           localStorage.setItem('access_token', access_token);
@@ -116,10 +114,10 @@ api.interceptors.response.use(
 // API endpoints
 export const authApi = {
   login: async (data: any) => {
-    const cacheKey = `post:${api.defaults.baseURL}/auth/login`;
+    const cacheKey = `post:${api.defaults.baseURL}/webapp/auth/login`;
     cache.delete(cacheKey); // Invalidate cache on login
     try {
-      const response = await api.post('/auth/login', data);
+      const response = await api.post('/webapp/auth/login', data);
       return response;
     } catch (error) {
       console.error('Login failed:', error);
@@ -127,20 +125,20 @@ export const authApi = {
     }
   },
   register: async (data: any) => {
-    const cacheKey = `post:${api.defaults.baseURL}/auth/register`;
+    const cacheKey = `post:${api.defaults.baseURL}/webapp/auth/register`;
     cache.delete(cacheKey); // Invalidate cache on register
-    return api.post('/auth/register', data);
+    return api.post('/webapp/auth/register', data);
   },
   logout: async () => {
-    return api.post('/auth/logout');
+    return api.post('/webapp/auth/logout');
   },
   getProfile: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/auth/profile`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/auth/me`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/auth/profile');
+      const response = await api.get('/webapp/auth/me');
       return response;
     } catch (error) {
       console.error('Failed to get user profile:', error);
@@ -150,7 +148,7 @@ export const authApi = {
   // New endpoint for Telegram WebApp authentication
   authenticate: async (initData: string) => {
     try {
-      const response = await api.post('/auth/telegram', { initData });
+      const response = await api.post('/webapp/auth/telegram', { initData });
       return response;
     } catch (error) {
       console.error('Telegram authentication failed:', error);
@@ -161,12 +159,12 @@ export const authApi = {
 
 export const usersApi = {
   getUsers: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/users`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/users`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/users');
+      const response = await api.get('/webapp/users');
       return response;
     } catch (error) {
       console.warn('API call failed, using mock data');
@@ -174,12 +172,25 @@ export const usersApi = {
     }
   },
   getUserById: async (id: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/users/${id}`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/users/${id}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get(`/users/${id}`);
+      const response = await api.get(`/webapp/users/${id}`);
+      return response;
+    } catch (error) {
+      console.warn('API call failed, using mock data');
+      return Promise.resolve({ data: null });
+    }
+  },
+  getMyProfile: async () => {
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/users/me`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) return Promise.resolve({ data: cachedData });
+    
+    try {
+      const response = await api.get('/webapp/users/me');
       return response;
     } catch (error) {
       console.warn('API call failed, using mock data');
@@ -187,19 +198,19 @@ export const usersApi = {
     }
   },
   createUser: async (data: any) => {
-    const cacheKey = `get:${api.defaults.baseURL}/users`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/users`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.post('/users', data);
+    return api.post('/webapp/users', data);
   },
   updateUser: async (id: string, data: any) => {
-    const cacheKey = `get:${api.defaults.baseURL}/users`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/users`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.put(`/users/${id}`, data);
+    return api.put(`/webapp/users/${id}`, data);
   },
   deleteUser: async (id: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/users`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/users`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.delete(`/users/${id}`);
+    return api.delete(`/webapp/users/${id}`);
   }
 };
 
@@ -210,25 +221,43 @@ export const sellersApi = {
       return devApi.sellers.getSellers();
     }
     
-    const cacheKey = `get:${api.defaults.baseURL}/sellers`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/sellers`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/sellers');
+      const response = await api.get('/webapp/sellers');
       return response;
     } catch (error) {
       console.error('Failed to fetch sellers:', error);
       throw error;
     }
   },
-  getSellerById: async (id: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/sellers/${id}`;
+  getSellersNearby: async (lat: number, lng: number) => {
+    // Use development API in development mode
+    if (process.env.NODE_ENV === 'development') {
+      return devApi.sellers.getSellers();
+    }
+    
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/sellers/nearby?lat=${lat}&lng=${lng}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get(`/sellers/${id}`);
+      const response = await api.get('/webapp/sellers/nearby', { params: { lat, lng } });
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch nearby sellers:', error);
+      throw error;
+    }
+  },
+  getSellerById: async (id: string) => {
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/sellers/${id}`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) return Promise.resolve({ data: cachedData });
+    
+    try {
+      const response = await api.get(`/webapp/sellers/${id}`);
       return response;
     } catch (error) {
       console.error('Failed to fetch seller:', error);
@@ -236,12 +265,12 @@ export const sellersApi = {
     }
   },
   getSellerProfile: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/sellers/profile`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/sellers/profile`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/sellers/profile');
+      const response = await api.get('/webapp/sellers/profile');
       return response;
     } catch (error) {
       console.error('Failed to get seller profile:', error);
@@ -249,24 +278,24 @@ export const sellersApi = {
     }
   },
   createSeller: async (data: any) => {
-    const cacheKey = `get:${api.defaults.baseURL}/sellers`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/sellers`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.post('/sellers', data);
+    return api.post('/webapp/sellers', data);
   },
   updateSeller: async (id: string, data: any) => {
-    const cacheKey = `get:${api.defaults.baseURL}/sellers`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/sellers`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.put(`/sellers/${id}`, data);
+    return api.put(`/webapp/sellers/${id}`, data);
   },
   updateSellerProfile: async (data: any) => {
-    const cacheKey = `get:${api.defaults.baseURL}/sellers/profile`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/sellers/profile`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.put('/sellers/profile', data);
+    return api.put('/webapp/sellers/profile', data);
   },
   deleteSeller: async (id: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/sellers`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/sellers`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.delete(`/sellers/${id}`);
+    return api.delete(`/webapp/sellers/${id}`);
   }
 };
 
@@ -277,21 +306,46 @@ export const productsApi = {
       return devApi.products.getProducts(params);
     }
     
-    // Check if user is authenticated in production
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      throw new Error('User not authenticated');
-    }
-    
-    const cacheKey = `get:${api.defaults.baseURL}/discovery/products${params ? `?${new URLSearchParams(params).toString()}` : ''}`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products${params ? `?${new URLSearchParams(params).toString()}` : ''}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/discovery/products', { params });
+      const response = await api.get('/webapp/products', { params });
       return response;
     } catch (error) {
       console.error('Failed to fetch products:', error);
+      throw error;
+    }
+  },
+  getProductsNearby: async (lat: number, lng: number) => {
+    // Use development API in development mode
+    if (process.env.NODE_ENV === 'development') {
+      return devApi.products.getProducts({ lat, lng });
+    }
+    
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products/nearby?lat=${lat}&lng=${lng}`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) return Promise.resolve({ data: cachedData });
+    
+    try {
+      const response = await api.get('/webapp/products/nearby', { params: { lat, lng } });
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch nearby products:', error);
+      throw error;
+    }
+  },
+  getProductsBySeller: async (sellerId: string) => {
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products/seller/${sellerId}`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) return Promise.resolve({ data: cachedData });
+    
+    try {
+      const response = await api.get(`/webapp/products/seller/${sellerId}`);
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch seller products:', error);
       throw error;
     }
   },
@@ -301,12 +355,12 @@ export const productsApi = {
       return devApi.products.getProductById(id);
     }
     
-    const cacheKey = `get:${api.defaults.baseURL}/discovery/products/${id}`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products/${id}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get(`/discovery/products/${id}`);
+      const response = await api.get(`/webapp/products/${id}`);
       return response;
     } catch (error) {
       console.error('Failed to fetch product:', error);
@@ -314,12 +368,12 @@ export const productsApi = {
     }
   },
   getSellerProducts: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/products/seller`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products/seller`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/products/seller');
+      const response = await api.get('/webapp/products/seller');
       return response;
     } catch (error) {
       console.error('Failed to get seller products:', error);
@@ -332,12 +386,12 @@ export const productsApi = {
       return devApi.products.searchProducts(query, category);
     }
     
-    const cacheKey = `get:${api.defaults.baseURL}/discovery/products?q=${query}&category=${category || ''}`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products?q=${query}&category=${category || ''}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/discovery/products', { 
+      const response = await api.get('/webapp/products', { 
         params: { q: query, category } 
       });
       return response;
@@ -347,30 +401,30 @@ export const productsApi = {
     }
   },
   createProduct: async (data: any) => {
-    const cacheKey = `get:${api.defaults.baseURL}/products`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.post('/products', data);
+    return api.post('/webapp/products', data);
   },
   updateProduct: async (id: string, data: any) => {
-    const cacheKey = `get:${api.defaults.baseURL}/products`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.put(`/products/${id}`, data);
+    return api.put(`/webapp/products/${id}`, data);
   },
   deleteProduct: async (id: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/products`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.delete(`/products/${id}`);
+    return api.delete(`/webapp/products/${id}`);
   }
 };
 
 export const ordersApi = {
   getOrders: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/orders`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/orders`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/orders');
+      const response = await api.get('/webapp/orders');
       return response;
     } catch (error) {
       console.error('Failed to fetch orders:', error);
@@ -378,15 +432,46 @@ export const ordersApi = {
     }
   },
   getOrderById: async (id: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/orders/${id}`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/orders/${id}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get(`/orders/${id}`);
+      const response = await api.get(`/webapp/orders/${id}`);
       return response;
     } catch (error) {
       console.error('Failed to fetch order:', error);
+      throw error;
+    }
+  },
+  getOrderByCode: async (code: string) => {
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/orders/code/${code}`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) return Promise.resolve({ data: cachedData });
+    
+    try {
+      const response = await api.get(`/webapp/orders/code/${code}`);
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch order by code:', error);
+      throw error;
+    }
+  },
+  getMyOrders: async () => {
+    // Use development API in development mode
+    if (process.env.NODE_ENV === 'development') {
+      return devApi.orders.getUserOrders('123456789');
+    }
+    
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/orders/my`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) return Promise.resolve({ data: cachedData });
+    
+    try {
+      const response = await api.get('/webapp/orders/my');
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch my orders:', error);
       throw error;
     }
   },
@@ -396,79 +481,157 @@ export const ordersApi = {
       return devApi.orders.getUserOrders(userId);
     }
     
-    const cacheKey = `get:${api.defaults.baseURL}/orders/user/${userId}`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/orders/user/${userId}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get(`/orders/user/${userId}`);
+      const response = await api.get(`/webapp/orders/user/${userId}`);
       return response;
     } catch (error) {
       console.error('Failed to fetch user orders:', error);
       throw error;
     }
   },
+  getSellerOrders: async () => {
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/orders/seller/my`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) return Promise.resolve({ data: cachedData });
+    
+    try {
+      const response = await api.get('/webapp/orders/seller/my');
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch seller orders:', error);
+      throw error;
+    }
+  },
   createOrder: async (data: any) => {
-    const cacheKey = `get:${api.defaults.baseURL}/orders`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/orders`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.post('/orders', data);
+    return api.post('/webapp/orders', data);
   },
   updateOrder: async (id: string, data: any) => {
-    const cacheKey = `get:${api.defaults.baseURL}/orders`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/orders`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.put(`/orders/${id}`, data);
+    return api.put(`/webapp/orders/${id}`, data);
   },
   updateOrderStatus: async (orderId: string, status: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/orders`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/orders`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.put(`/orders/${orderId}/status`, { status });
+    return api.patch(`/webapp/orders/${orderId}/status`, { status });
   },
   deleteOrder: async (id: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/orders`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/orders`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.delete(`/orders/${id}`);
+    return api.delete(`/webapp/orders/${id}`);
   }
 };
 
 export const ratingsApi = {
   getRatings: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/ratings`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/ratings`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/ratings');
+      const response = await api.get('/webapp/ratings');
       return response;
     } catch (error) {
       console.warn('API call failed, using mock data');
       return Promise.resolve({ data: [] });
     }
   },
+  getMyRatings: async () => {
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/ratings/my`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) return Promise.resolve({ data: cachedData });
+    
+    try {
+      const response = await api.get('/webapp/ratings/my');
+      return response;
+    } catch (error) {
+      console.warn('API call failed, using mock data');
+      return Promise.resolve({ data: [] });
+    }
+  },
+  getRatingsByProduct: async (productId: string) => {
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/ratings/product/${productId}`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) return Promise.resolve({ data: cachedData });
+    
+    try {
+      const response = await api.get(`/webapp/ratings/product/${productId}`);
+      return response;
+    } catch (error) {
+      console.warn('API call failed, using mock data');
+      return Promise.resolve({ data: [] });
+    }
+  },
+  getRatingsBySeller: async (sellerId: string) => {
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/ratings/seller/${sellerId}`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) return Promise.resolve({ data: cachedData });
+    
+    try {
+      const response = await api.get(`/webapp/ratings/seller/${sellerId}`);
+      return response;
+    } catch (error) {
+      console.warn('API call failed, using mock data');
+      return Promise.resolve({ data: [] });
+    }
+  },
+  getAverageRatingByProduct: async (productId: string) => {
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/ratings/product/${productId}/average`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) return Promise.resolve({ data: cachedData });
+    
+    try {
+      const response = await api.get(`/webapp/ratings/product/${productId}/average`);
+      return response;
+    } catch (error) {
+      console.warn('API call failed, using mock data');
+      return Promise.resolve({ data: { average: 0, count: 0 } });
+    }
+  },
+  getAverageRatingBySeller: async (sellerId: string) => {
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/ratings/seller/${sellerId}/average`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) return Promise.resolve({ data: cachedData });
+    
+    try {
+      const response = await api.get(`/webapp/ratings/seller/${sellerId}/average`);
+      return response;
+    } catch (error) {
+      console.warn('API call failed, using mock data');
+      return Promise.resolve({ data: { average: 0, count: 0 } });
+    }
+  },
   createRating: async (data: any) => {
-    const cacheKey = `get:${api.defaults.baseURL}/ratings`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/ratings`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.post('/ratings', data);
+    return api.post('/webapp/ratings', data);
   },
   updateRating: async (id: string, data: any) => {
-    const cacheKey = `get:${api.defaults.baseURL}/ratings`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/ratings`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.put(`/ratings/${id}`, data);
+    return api.put(`/webapp/ratings/${id}`, data);
   },
   deleteRating: async (id: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/ratings`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/ratings`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.delete(`/ratings/${id}`);
+    return api.delete(`/webapp/ratings/${id}`);
   }
 };
 
 export const adminApi = {
   getDashboard: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/admin/dashboard`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/admin/dashboard`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/admin/dashboard');
+      const response = await api.get('/webapp/admin/dashboard');
       return response;
     } catch (error) {
       console.error('Failed to fetch admin dashboard:', error);
@@ -476,12 +639,12 @@ export const adminApi = {
     }
   },
   getUsers: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/admin/users`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/users`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/admin/users');
+      const response = await api.get('/webapp/users');
       return response;
     } catch (error) {
       console.error('Failed to fetch admin users:', error);
@@ -489,12 +652,12 @@ export const adminApi = {
     }
   },
   getSellers: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/admin/sellers`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/sellers`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/admin/sellers');
+      const response = await api.get('/webapp/sellers');
       return response;
     } catch (error) {
       console.error('Failed to fetch admin sellers:', error);
@@ -502,43 +665,69 @@ export const adminApi = {
     }
   },
   getOrders: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/admin/orders`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/orders`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/admin/orders');
+      const response = await api.get('/webapp/orders');
       return response;
     } catch (error) {
       console.error('Failed to fetch admin orders:', error);
       throw error;
     }
   },
+  getOrdersBySeller: async (sellerId: string) => {
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/orders/admin/seller/${sellerId}`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) return Promise.resolve({ data: cachedData });
+    
+    try {
+      const response = await api.get(`/webapp/orders/admin/seller/${sellerId}`);
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch orders by seller:', error);
+      throw error;
+    }
+  },
+  getUserByTelegramId: async (telegramId: string) => {
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/users/admin/telegram/${telegramId}`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) return Promise.resolve({ data: cachedData });
+    
+    try {
+      const response = await api.get(`/webapp/users/admin/telegram/${telegramId}`);
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch user by telegram ID:', error);
+      throw error;
+    }
+  },
   updateSellerStatus: async (sellerId: string, status: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/admin/sellers`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/sellers`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.put(`/admin/sellers/${sellerId}/status`, { status });
+    return api.put(`/webapp/sellers/${sellerId}/status`, { status });
   },
   deleteUser: async (userId: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/admin/users`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/users`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.delete(`/admin/users/${userId}`);
+    return api.delete(`/webapp/users/${userId}`);
   },
   deleteSeller: async (sellerId: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/admin/sellers`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/sellers`;
     cache.delete(cacheKey); // Invalidate cache
-    return api.delete(`/admin/sellers/${sellerId}`);
+    return api.delete(`/webapp/sellers/${sellerId}`);
   }
 };
 
 export const dashboardApi = {
   getSellerOrders: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/dashboard/orders`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/orders/seller/my`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/dashboard/orders');
+      const response = await api.get('/webapp/orders/seller/my');
       return response;
     } catch (error) {
       console.error('Failed to fetch seller orders:', error);
@@ -546,12 +735,12 @@ export const dashboardApi = {
     }
   },
   getSellerStats: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/dashboard/stats`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/dashboard/stats`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/dashboard/stats');
+      const response = await api.get('/webapp/dashboard/stats');
       return response;
     } catch (error) {
       console.error('Failed to fetch seller stats:', error);
@@ -562,12 +751,17 @@ export const dashboardApi = {
 
 export const miniAppApi = {
   getHomeData: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/mini-app/entry`;
+    // Use development API in development mode
+    if (process.env.NODE_ENV === 'development') {
+      return devApi.products.getProducts();
+    }
+    
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/mini-app/entry');
+      const response = await api.get('/webapp/products');
       return response;
     } catch (error) {
       console.error('Failed to fetch home data:', error);
@@ -575,12 +769,17 @@ export const miniAppApi = {
     }
   },
   searchProducts: async (query: string) => {
-    const cacheKey = `get:${api.defaults.baseURL}/discovery/products?q=${query}`;
+    // Use development API in development mode
+    if (process.env.NODE_ENV === 'development') {
+      return devApi.products.searchProducts(query);
+    }
+    
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products?q=${query}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/discovery/products', { params: { q: query } });
+      const response = await api.get('/webapp/products', { params: { q: query } });
       return response;
     } catch (error) {
       console.error('Failed to search products:', error);

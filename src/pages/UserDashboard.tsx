@@ -35,13 +35,8 @@ const UserDashboard: React.FC = () => {
       const userLocation = userProfile?.location || { latitude: 41.2995, longitude: 69.2401 }; // Default to Tashkent
       
       const [productsResponse, ordersResponse] = await Promise.all([
-        productsApi.getProducts({
-          lat: userLocation.latitude,
-          lng: userLocation.longitude,
-          radius: 10,
-          limit: 20
-        }),
-        ordersApi.getUserOrders(user?.id?.toString() || '123456789')
+        productsApi.getProductsNearby(userLocation.latitude, userLocation.longitude),
+        ordersApi.getMyOrders()
       ]);
 
       // Handle the new data structure from backend
