@@ -285,34 +285,36 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         console.log('❌ Could not get Telegram user data:', error);
       }
       
-      // Create user profile - use real data if available, otherwise defaults
-      let finalUser = telegramUser || {
-        id: 123456789, // Use a fixed test ID for browser testing
-        first_name: "Test",
-        last_name: "User",
-        username: "testuser",
-        language_code: "en"
-      };
+      // Create user profile - use real data if available, otherwise show registration
+      let finalUser = telegramUser;
       
-      // For testing: if no real user data, try to use a known registered user ID
+      // If no real Telegram user data, we cannot proceed
       if (!telegramUser) {
-        console.log('⚠️ No real Telegram user data, using test ID for testing');
-        console.log('⚠️ Make sure user with ID 123456789 exists in your database');
+        console.log('❌ No real Telegram user data found - cannot authenticate');
+        console.log('❌ This means the Telegram WebApp is not providing user data');
+        console.log('❌ This should not happen in a real Telegram WebApp');
         
-        // In production, if we can't get Telegram user data, we should still try to authenticate
-        // with a real user ID if available from the URL or other sources
-        const urlParams = new URLSearchParams(window.location.search);
-        const testUserId = urlParams.get('test_user_id');
-        if (testUserId) {
-          finalUser.id = parseInt(testUserId);
-          console.log('🔧 Using test user ID from URL:', testUserId);
-        } else {
-          // Try to use a real registered user ID for testing
-          // You can change this to a real user ID that exists in your database
-          const realTestUserId = 123456789; // Change this to a real user ID
-          finalUser.id = realTestUserId;
-          console.log('🔧 Using real test user ID:', realTestUserId);
-        }
+        // Show registration screen for users without Telegram data
+        const profile: UserProfile = {
+          id: 0,
+          telegramId: '',
+          firstName: '',
+          lastName: '',
+          username: '',
+          role: 'user',
+          isRegistered: false
+        };
+        
+        setUserProfileState(profile);
+        setUserRole('user');
+        
+        setTimeout(() => {
+          setIsReady(true);
+          setIsLoading(false);
+          console.log('TelegramContext: No Telegram user data - showing registration screen');
+        }, 0);
+        
+        return;
       }
       
       console.log('🔍 Final user created:', finalUser);
@@ -359,9 +361,13 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               const authResponse = await authApi.login(loginData);
               
               if (authResponse.data && authResponse.data.access_token) {
-                const backendRole = backendUser?.role?.toLowerCase() as "user" | "seller" | "admin" || "user";
+                // Convert backend role to frontend role format
+                const backendRole = userRole?.toLowerCase() as "user" | "seller" | "admin" || "user";
                 
-                console.log('Backend authentication successful:', { role: backendRole, user: backendUser });
+                console.log('🎉 Backend authentication successful!');
+                console.log('🎉 User role from backend:', userRole);
+                console.log('🎉 Final role for frontend:', backendRole);
+                console.log('🎉 Backend user data:', backendUser);
                 
                 const profile: UserProfile = {
                   id: backendUser?.id || finalUser.id,

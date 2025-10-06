@@ -188,7 +188,7 @@ export const usersApi = {
       const response = await api.get(endpoint);
       console.log('✅ API Response:', response.data);
       
-      if (response.data) {
+      if (response.data && response.data.role) {
         console.log('✅ User found in database:', response.data);
         return {
           data: {
@@ -210,6 +210,20 @@ export const usersApi = {
     } catch (error: any) {
       console.log('❌ API Error:', error.response?.status, error.response?.data);
       console.log('❌ Full error:', error);
+      
+      // If user not found (404), that's expected for unregistered users
+      if (error.response?.status === 404) {
+        console.log('✅ User not found (404) - user is not registered');
+        return {
+          data: {
+            exists: false,
+            role: null,
+            user: null
+          }
+        };
+      }
+      
+      // For other errors, still return not found
       return {
         data: {
           exists: false,
