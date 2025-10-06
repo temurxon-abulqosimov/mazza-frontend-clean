@@ -134,17 +134,17 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.log('TelegramContext: Development mode - setting up test user immediately');
       console.log('TelegramContext: Ignoring Telegram WebApp in development mode');
       const testUser = {
-        id: 123456789,
-        first_name: "Test",
+        id: 7577215779,
+        first_name: "509",
         last_name: "User",
         username: "testuser",
         language_code: "uz"
       };
       
       const testProfile = {
-        id: 123456789,
-        telegramId: "123456789",
-        firstName: "Test",
+        id: 7577215779,
+        telegramId: "7577215779",
+        firstName: "509",
         lastName: "User",
         username: "testuser",
         role: "USER" as const,
@@ -518,17 +518,17 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (process.env.NODE_ENV === 'development') {
         console.log('TelegramContext: Error fallback - setting up test user');
         const testUser = {
-          id: 123456789,
-          first_name: "Test",
+          id: 7577215779,
+          first_name: "509",
           last_name: "User",
           username: "testuser",
           language_code: "uz"
         };
         
         const testProfile = {
-          id: 123456789,
-          telegramId: "123456789",
-          firstName: "Test",
+          id: 7577215779,
+          telegramId: "7577215779",
+          firstName: "509",
           lastName: "User",
           username: "testuser",
           role: "USER" as const,
@@ -554,17 +554,17 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (!isReady && process.env.NODE_ENV === 'development') {
         console.log('TelegramContext: Timeout fallback - forcing test user setup');
         const testUser = {
-          id: 123456789,
-          first_name: "Test",
+          id: 7577215779,
+          first_name: "509",
           last_name: "User",
           username: "testuser",
           language_code: "uz"
         };
         
         const testProfile = {
-          id: 123456789,
-          telegramId: "123456789",
-          firstName: "Test",
+          id: 7577215779,
+          telegramId: "7577215779",
+          firstName: "509",
           lastName: "User",
           username: "testuser",
           role: "USER" as const,
