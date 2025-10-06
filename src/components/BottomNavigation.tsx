@@ -16,7 +16,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
 
   // Different navigation items based on user role
   const getNavItems = () => {
-    if (userRole === 'seller') {
+    if (userRole === 'SELLER') {
       // For sellers, use hash fragments to trigger internal tab switching
       return [
         { id: 'dashboard', label: t('home'), icon: Home, path: '/seller#dashboard' },
@@ -25,7 +25,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
         { id: 'analytics', label: t('analytics'), icon: BarChart3, path: '/seller#analytics' },
         { id: 'profile', label: t('profile'), icon: User, path: '/seller#profile' },
       ];
-    } else if (userRole === 'admin') {
+    } else if (userRole === 'ADMIN') {
       return [
         { id: 'home', label: t('home'), icon: Home, path: '/admin' },
         { id: 'analytics', label: t('analytics'), icon: BarChart3, path: '/admin/analytics' },
@@ -51,7 +51,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
         {navItems.map((item) => {
           const Icon = item.icon;
           // For seller/admin roles, check if currentPage matches the tab id
-          const isActive = userRole === 'seller' || userRole === 'admin'
+          const isActive = userRole === 'SELLER' || userRole === 'ADMIN'
             ? currentPage === item.id
             : location.pathname === item.path;
           

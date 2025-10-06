@@ -7,7 +7,7 @@ const RoleSwitcher: React.FC = () => {
   const { userRole, setUserRole, setUserProfile, userProfile } = useTelegram();
   const navigate = useNavigate();
 
-  const handleRoleChange = (role: 'user' | 'seller' | 'admin') => {
+  const handleRoleChange = (role: 'USER' | 'SELLER' | 'ADMIN') => {
     console.log('RoleSwitcher: Button clicked for role:', role);
     console.log('RoleSwitcher: Current userRole before change:', userRole);
     
@@ -39,9 +39,9 @@ const RoleSwitcher: React.FC = () => {
       <div className="text-xs text-gray-500 mb-2">Current: {userRole}</div>
       <div className="space-y-2">
         <button
-          onClick={() => handleRoleChange('user')}
+          onClick={() => handleRoleChange('USER')}
           className={`w-full flex items-center px-3 py-2 rounded-lg text-sm ${
-            userRole === 'user' 
+            userRole === 'USER' 
               ? 'bg-blue-100 text-blue-700' 
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
@@ -50,9 +50,9 @@ const RoleSwitcher: React.FC = () => {
           User
         </button>
         <button
-          onClick={() => handleRoleChange('seller')}
+          onClick={() => handleRoleChange('SELLER')}
           className={`w-full flex items-center px-3 py-2 rounded-lg text-sm ${
-            userRole === 'seller' 
+            userRole === 'SELLER' 
               ? 'bg-orange-100 text-orange-700' 
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
@@ -61,9 +61,9 @@ const RoleSwitcher: React.FC = () => {
           Seller
         </button>
         <button
-          onClick={() => handleRoleChange('admin')}
+          onClick={() => handleRoleChange('ADMIN')}
           className={`w-full flex items-center px-3 py-2 rounded-lg text-sm ${
-            userRole === 'admin' 
+            userRole === 'ADMIN' 
               ? 'bg-red-100 text-red-700' 
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}

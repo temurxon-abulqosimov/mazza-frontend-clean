@@ -37,7 +37,7 @@ const RoleBasedRedirect: React.FC = () => {
   }
 
   // Show admin login if admin needs password
-  if (userProfile && userProfile.role === 'admin' && userProfile.needsPassword) {
+  if (userProfile && userProfile.role === 'ADMIN' && userProfile.needsPassword) {
     console.log('RoleBasedRedirect: Admin needs password - showing admin login');
     return <AdminLogin />;
   }
@@ -55,11 +55,11 @@ const RoleBasedRedirect: React.FC = () => {
   const actualRole = userProfile?.role || userRole;
   
   switch (actualRole) {
-    case 'user':
+    case 'USER':
       return <Navigate to="/user" replace />;
-    case 'seller':
+    case 'SELLER':
       return <Navigate to="/seller" replace />;
-    case 'admin':
+    case 'ADMIN':
       return <Navigate to="/admin" replace />;
     default:
       return <Navigate to="/user" replace />;

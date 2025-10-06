@@ -25,18 +25,18 @@ const AdminLogin: React.FC = () => {
           firstName: user?.first_name || 'Admin',
           lastName: user?.last_name,
           username: user?.username,
-          role: 'admin',
+          role: 'ADMIN',
           isRegistered: true
         });
         
-        setUserRole('admin');
+        setUserRole('ADMIN');
         localStorage.setItem('userProfile', JSON.stringify({
           id: 1,
           telegramId: user?.id.toString() || '',
           firstName: user?.first_name || 'Admin',
           lastName: user?.last_name,
           username: user?.username,
-          role: 'admin',
+          role: 'ADMIN',
           isRegistered: true
         }));
         

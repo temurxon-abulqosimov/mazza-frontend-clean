@@ -16,7 +16,7 @@ interface UserProfile {
   firstName: string;
   lastName?: string;
   username?: string;
-  role: "user" | "seller" | "admin";
+  role: "USER" | "SELLER" | "ADMIN";
   isRegistered: boolean;
   needsPassword?: boolean;
   businessName?: string;
@@ -34,8 +34,8 @@ interface TelegramContextType {
   isReady: boolean;
   isLoading: boolean;
   webApp: any;
-  userRole: "user" | "seller" | "admin";
-  setUserRole: (role: "user" | "seller" | "admin") => void;
+  userRole: "USER" | "SELLER" | "ADMIN";
+  setUserRole: (role: "USER" | "SELLER" | "ADMIN") => void;
   setUserProfile: (profile: UserProfile | null) => void;
   login: () => Promise<void>;
   logout: () => void;
@@ -49,7 +49,7 @@ const TelegramContext = createContext<TelegramContextType>({
   isReady: false,
   isLoading: false,
   webApp: null,
-  userRole: "user",
+  userRole: "USER",
   setUserRole: () => {},
   setUserProfile: () => {},
   login: async () => {},
@@ -74,10 +74,10 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [webApp, setWebApp] = useState<any>(null);
-  const [userRole, setUserRole] = useState<"user" | "seller" | "admin">(() => {
+  const [userRole, setUserRole] = useState<"USER" | "SELLER" | "ADMIN">(() => {
     // Initialize from localStorage if available
-    const storedRole = localStorage.getItem('userRole') as "user" | "seller" | "admin";
-    return storedRole || "user";
+    const storedRole = localStorage.getItem('userRole') as "USER" | "SELLER" | "ADMIN";
+    return storedRole || "USER";
   });
   const initialized = useRef(false);
 
@@ -92,7 +92,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const logout = () => {
     setUserProfileState(null);
-    setUserRole("user");
+    setUserRole("USER");
     localStorage.removeItem('userProfile');
     localStorage.removeItem('userRole');
     localStorage.removeItem('telegramInitData');
@@ -154,7 +154,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       // Set all state immediately for development
       setUser(testUser);
       setUserProfileState(testProfile);
-      setUserRole("user");
+      setUserRole("USER");
       setWebApp({ ready: () => {}, expand: () => {} }); // Mock WebApp for development
       setIsReady(true);
       setIsLoading(false);
@@ -301,12 +301,12 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           firstName: '',
           lastName: '',
           username: '',
-          role: 'user' as "user" | "seller" | "admin",
+           role: 'USER' as "USER" | "SELLER" | "ADMIN",
           isRegistered: false
         };
         
         setUserProfileState(profile);
-        setUserRole('user');
+        setUserRole('USER');
         
         setTimeout(() => {
           setIsReady(true);
@@ -320,7 +320,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.log('🔍 Final user created:', finalUser);
       
       // Check if this is an admin user based on Telegram ID
-      const isAdminUser = config.ADMIN_TELEGRAM_ID && finalUser.id.toString() === config.ADMIN_TELEGRAM_ID;
+      const isAdminUser = config.ADMIN_TELEGRAM_ID && finalUser?.id.toString() === config.ADMIN_TELEGRAM_ID;
       
         // Store initData for backend authentication
         const initData = tg.initData;
@@ -336,10 +336,10 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             console.log('Checking if user exists in database by Telegram ID...');
             
             // Use your approach: check if user exists first
-            console.log('🔍 Checking user with Telegram ID:', finalUser.id.toString());
+            console.log('🔍 Checking user with Telegram ID:', finalUser?.id.toString());
             console.log('🔍 Final user object:', finalUser);
             console.log('🔍 About to call usersApi.checkUserExistsByTelegramId...');
-            const userCheckResponse = await usersApi.checkUserExistsByTelegramId(finalUser.id.toString());
+            const userCheckResponse = await usersApi.checkUserExistsByTelegramId(finalUser?.id.toString() || '');
             console.log('🔍 User check response received:', userCheckResponse);
             console.log('🔍 Response data:', userCheckResponse?.data);
             console.log('🔍 Response exists:', userCheckResponse?.data?.exists);
@@ -354,15 +354,15 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               console.log(`Authenticating user with their actual role: ${userRole}`);
               
               const loginData = {
-                telegramId: finalUser.id.toString(),
+                telegramId: finalUser?.id.toString() || '',
                 role: userRole
               };
               
               const authResponse = await authApi.login(loginData);
               
               if (authResponse.data && authResponse.data.access_token) {
-                // Convert backend role to frontend role format
-                const backendRole = userRole?.toLowerCase() as "user" | "seller" | "admin" || "user";
+                 // Use backend role directly (already uppercase)
+                 const backendRole = userRole as "USER" | "SELLER" | "ADMIN" || "USER";
                 
                 console.log('🎉 Backend authentication successful!');
                 console.log('🎉 User role from backend:', userRole);
@@ -370,14 +370,14 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 console.log('🎉 Backend user data:', backendUser);
                 
                 const profile: UserProfile = {
-                  id: backendUser?.id || finalUser.id,
-                  telegramId: backendUser?.telegramId || finalUser.id.toString(),
-                  firstName: backendUser?.firstName || finalUser.first_name,
-                  lastName: backendUser?.lastName || finalUser.last_name,
-                  username: backendUser?.username || finalUser.username,
-                  role: backendRole as "user" | "seller" | "admin",
+                  id: backendUser?.id || finalUser?.id || 0,
+                  telegramId: backendUser?.telegramId || finalUser?.id.toString() || '',
+                  firstName: backendUser?.firstName || finalUser?.first_name || '',
+                  lastName: backendUser?.lastName || finalUser?.last_name,
+                  username: backendUser?.username || finalUser?.username,
+                   role: backendRole as "USER" | "SELLER" | "ADMIN",
                   isRegistered: true,
-                  needsPassword: backendRole === 'admin',
+                  needsPassword: backendRole === 'ADMIN',
                   businessName: backendUser?.businessName,
                   phoneNumber: backendUser?.phoneNumber,
                   businessType: backendUser?.businessType,
@@ -389,7 +389,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 // Set all state with backend data
                 setUser(finalUser);
                 setUserProfileState(profile);
-                setUserRole(backendRole as "user" | "seller" | "admin");
+                 setUserRole(backendRole as "USER" | "SELLER" | "ADMIN");
                 
                 // Store the profile and tokens in localStorage for persistence
                 localStorage.setItem('userProfile', JSON.stringify(profile));
@@ -410,23 +410,23 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               console.log('❌ User not found in database - showing registration screen');
               console.log('❌ User check response was:', userCheckResponse);
               console.log('❌ This means the user is not registered in the database');
-              console.log('❌ Telegram ID that was checked:', finalUser.id.toString());
+              console.log('❌ Telegram ID that was checked:', finalUser?.id.toString());
               console.log('❌ User needs to register via Telegram bot first');
               // User is not registered, show registration screen
               const profile: UserProfile = {
-                id: finalUser.id,
-                telegramId: finalUser.id.toString(),
-                firstName: finalUser.first_name,
-                lastName: finalUser.last_name,
-                username: finalUser.username,
-                role: isAdminUser ? 'admin' : 'user',
+                id: finalUser?.id || 0,
+                telegramId: finalUser?.id.toString() || '',
+                firstName: finalUser?.first_name || '',
+                lastName: finalUser?.last_name,
+                username: finalUser?.username,
+                 role: isAdminUser ? 'ADMIN' : 'USER',
                 isRegistered: false,
                 needsPassword: !!isAdminUser
               };
               
               setUser(finalUser);
               setUserProfileState(profile);
-              setUserRole(isAdminUser ? 'admin' : 'user');
+               setUserRole(isAdminUser ? 'ADMIN' : 'USER');
               
               setTimeout(() => {
                 setIsReady(true);
@@ -452,12 +452,12 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         // Fallback: Set up default user if backend auth fails
         console.log('⚠️ Backend authentication failed, setting up unregistered user');
         const profile: UserProfile = {
-          id: finalUser.id,
-          telegramId: finalUser.id.toString(),
-          firstName: finalUser.first_name,
-          lastName: finalUser.last_name,
-          username: finalUser.username,
-          role: isAdminUser ? 'admin' : 'user',
+          id: finalUser?.id || 0,
+          telegramId: finalUser?.id.toString() || '',
+          firstName: finalUser?.first_name || '',
+          lastName: finalUser?.last_name,
+          username: finalUser?.username,
+                 role: isAdminUser ? 'ADMIN' : 'USER',
           isRegistered: false, // This should be false for unregistered users
           needsPassword: !!isAdminUser
         };
@@ -465,11 +465,11 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       // Set all state in a single batch to avoid race conditions
       setUser(finalUser);
       setUserProfileState(profile);
-        setUserRole(isAdminUser ? 'admin' : 'user');
+               setUserRole(isAdminUser ? 'ADMIN' : 'USER');
       
       // Store the profile in localStorage for persistence
       localStorage.setItem('userProfile', JSON.stringify(profile));
-        localStorage.setItem('userRole', isAdminUser ? 'admin' : 'user');
+         localStorage.setItem('userRole', isAdminUser ? 'ADMIN' : 'USER');
       
       // Use setTimeout to ensure state updates are processed
       setTimeout(() => {
@@ -488,7 +488,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         firstName: '',
         lastName: '',
         username: '',
-        role: 'user',
+         role: 'USER',
         isRegistered: false
       });
       
@@ -519,13 +519,13 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           firstName: "Test",
           lastName: "User",
           username: "testuser",
-          role: "user" as const,
+          role: "USER" as const,
           isRegistered: true
         };
         
         setUser(testUser);
         setUserProfileState(testProfile);
-        setUserRole("user");
+        setUserRole("USER");
         setWebApp({ ready: () => {}, expand: () => {} });
         setIsReady(true);
         setIsLoading(false);
@@ -555,13 +555,13 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           firstName: "Test",
           lastName: "User",
           username: "testuser",
-          role: "user" as const,
+          role: "USER" as const,
           isRegistered: true
         };
         
         setUser(testUser);
         setUserProfileState(testProfile);
-        setUserRole("user");
+        setUserRole("USER");
         setWebApp({ ready: () => {}, expand: () => {} });
         setIsReady(true);
         setIsLoading(false);
