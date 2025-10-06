@@ -172,14 +172,16 @@ export const usersApi = {
     }
   },
   checkUserExistsByTelegramId: async (telegramId: string) => {
-    console.log('Checking if user exists by Telegram ID:', telegramId);
+    console.log('🔍 Checking if user exists by Telegram ID:', telegramId);
+    console.log('🔍 API URL:', `${api.defaults.baseURL}/webapp/users/admin/telegram/${telegramId}`);
     
     try {
       // Use the public endpoint you created
       const response = await api.get(`/webapp/users/admin/telegram/${telegramId}`);
+      console.log('✅ API Response:', response.data);
       
       if (response.data) {
-        console.log('User found in database:', response.data);
+        console.log('✅ User found in database:', response.data);
         return {
           data: {
             exists: true,
@@ -187,9 +189,19 @@ export const usersApi = {
             user: response.data
           }
         };
+      } else {
+        console.log('❌ No user data in response');
+        return {
+          data: {
+            exists: false,
+            role: null,
+            user: null
+          }
+        };
       }
     } catch (error: any) {
-      console.log('User not found in database:', error.response?.status);
+      console.log('❌ API Error:', error.response?.status, error.response?.data);
+      console.log('❌ Full error:', error);
       return {
         data: {
           exists: false,

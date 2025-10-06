@@ -235,10 +235,12 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             console.log('Checking if user exists in database by Telegram ID...');
             
             // Use your approach: check if user exists first
+            console.log('Checking user with Telegram ID:', finalUser.id.toString());
             const userCheckResponse = await usersApi.checkUserExistsByTelegramId(finalUser.id.toString());
+            console.log('User check response:', userCheckResponse);
             
             if (userCheckResponse && userCheckResponse.data && userCheckResponse.data.exists) {
-              console.log('User found in database with role:', userCheckResponse.data.role);
+              console.log('✅ User found in database with role:', userCheckResponse.data.role);
               
               // User exists, now authenticate with their actual role
               const userRole = userCheckResponse.data.role;
@@ -296,7 +298,8 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 return;
               }
             } else {
-              console.log('User not found in database - showing registration screen');
+              console.log('❌ User not found in database - showing registration screen');
+              console.log('User check response was:', userCheckResponse);
               // User is not registered, show registration screen
               const profile: UserProfile = {
                 id: finalUser.id,
@@ -328,14 +331,15 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
         
         // Fallback: Set up default user if backend auth fails
-      const profile: UserProfile = {
-        id: finalUser.id,
-        telegramId: finalUser.id.toString(),
-        firstName: finalUser.first_name,
-        lastName: finalUser.last_name,
-        username: finalUser.username,
+        console.log('⚠️ Backend authentication failed, setting up unregistered user');
+        const profile: UserProfile = {
+          id: finalUser.id,
+          telegramId: finalUser.id.toString(),
+          firstName: finalUser.first_name,
+          lastName: finalUser.last_name,
+          username: finalUser.username,
           role: isAdminUser ? 'admin' : 'user',
-          isRegistered: true,
+          isRegistered: false, // This should be false for unregistered users
           needsPassword: !!isAdminUser
         };
       
