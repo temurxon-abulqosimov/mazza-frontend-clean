@@ -1,5 +1,5 @@
 ﻿import React, { createContext, useContext, useEffect, useState, useMemo, useRef, startTransition } from "react";
-import { authApi } from "../services/api";
+import { authApi, usersApi } from "../services/api";
 import { config } from "../config/env";
 
 interface TelegramUser {
@@ -229,108 +229,72 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           setInitData(initData);
         }
         
-        // Try to authenticate user with their most likely role first
+        // Check if user exists in database by Telegram ID (your approach)
         if (initData) {
           try {
-            console.log('Attempting to authenticate user...');
+            console.log('Checking if user exists in database by Telegram ID...');
             
-            // Try USER role first (most common)
-            let authResponse = null;
-            let backendUser = null;
-            let backendRole = "user";
+            // Use your approach: check if user exists first
+            const userCheckResponse = await usersApi.checkUserExistsByTelegramId(finalUser.id.toString());
             
-            try {
-              console.log('Trying to login with USER role...');
+            if (userCheckResponse.data.exists) {
+              console.log('User found in database with role:', userCheckResponse.data.role);
+              
+              // User exists, now authenticate with their actual role
+              const userRole = userCheckResponse.data.role;
+              const backendUser = userCheckResponse.data.user;
+              
+              console.log(`Authenticating user with their actual role: ${userRole}`);
+              
               const loginData = {
                 telegramId: finalUser.id.toString(),
-                role: "USER"
+                role: userRole
               };
               
-              authResponse = await authApi.login(loginData);
+              const authResponse = await authApi.login(loginData);
               
               if (authResponse.data && authResponse.data.access_token) {
-                backendUser = authResponse.data.user;
-                backendRole = backendUser?.role?.toLowerCase() as "user" | "seller" | "admin" || "user";
-                console.log('Backend login successful with USER role');
-              }
-            } catch (userError) {
-              console.log('USER role failed, trying SELLER role...');
-              
-              try {
-                const loginData = {
-                  telegramId: finalUser.id.toString(),
-                  role: "SELLER"
+                const backendRole = backendUser?.role?.toLowerCase() as "user" | "seller" | "admin" || "user";
+                
+                console.log('Backend authentication successful:', { role: backendRole, user: backendUser });
+                
+                const profile: UserProfile = {
+                  id: backendUser?.id || finalUser.id,
+                  telegramId: backendUser?.telegramId || finalUser.id.toString(),
+                  firstName: backendUser?.firstName || finalUser.first_name,
+                  lastName: backendUser?.lastName || finalUser.last_name,
+                  username: backendUser?.username || finalUser.username,
+                  role: backendRole as "user" | "seller" | "admin",
+                  isRegistered: true,
+                  needsPassword: backendRole === 'admin',
+                  businessName: backendUser?.businessName,
+                  phoneNumber: backendUser?.phoneNumber,
+                  businessType: backendUser?.businessType,
+                  location: backendUser?.location,
+                  language: backendUser?.language,
+                  status: backendUser?.status
                 };
                 
-                authResponse = await authApi.login(loginData);
+                // Set all state with backend data
+                setUser(finalUser);
+                setUserProfileState(profile);
+                setUserRole(backendRole as "user" | "seller" | "admin");
                 
-                if (authResponse.data && authResponse.data.access_token) {
-                  backendUser = authResponse.data.user;
-                  backendRole = backendUser?.role?.toLowerCase() as "user" | "seller" | "admin" || "user";
-                  console.log('Backend login successful with SELLER role');
-                }
-              } catch (sellerError) {
-                console.log('SELLER role failed, trying ADMIN role...');
+                // Store the profile and tokens in localStorage for persistence
+                localStorage.setItem('userProfile', JSON.stringify(profile));
+                localStorage.setItem('userRole', backendRole);
+                localStorage.setItem('access_token', authResponse.data.access_token);
+                localStorage.setItem('refresh_token', authResponse.data.refresh_token);
                 
-                try {
-                  const loginData = {
-                    telegramId: finalUser.id.toString(),
-                    role: "ADMIN"
-                  };
-                  
-                  authResponse = await authApi.login(loginData);
-                  
-                  if (authResponse.data && authResponse.data.access_token) {
-                    backendUser = authResponse.data.user;
-                    backendRole = backendUser?.role?.toLowerCase() as "user" | "seller" | "admin" || "user";
-                    console.log('Backend login successful with ADMIN role');
-                  }
-                } catch (adminError) {
-                  console.log('All authentication attempts failed - user not registered');
-                  authResponse = null;
-                }
+                // Use setTimeout to ensure state updates are processed
+                setTimeout(() => {
+                  setIsReady(true);
+                  setIsLoading(false);
+                  console.log('TelegramContext: User authenticated successfully with role:', backendRole);
+                }, 0);
+                
+                return;
               }
-            }
-            
-            if (authResponse && authResponse.data && authResponse.data.access_token) {
-              console.log('Backend authentication successful:', { role: backendRole, user: backendUser });
-              
-              const profile: UserProfile = {
-                id: backendUser?.id || finalUser.id,
-                telegramId: backendUser?.telegramId || finalUser.id.toString(),
-                firstName: backendUser?.firstName || finalUser.first_name,
-                lastName: backendUser?.lastName || finalUser.last_name,
-                username: backendUser?.username || finalUser.username,
-                role: backendRole as "user" | "seller" | "admin",
-                isRegistered: true,
-                needsPassword: backendRole === 'admin',
-                businessName: backendUser?.businessName,
-                phoneNumber: backendUser?.phoneNumber,
-                businessType: backendUser?.businessType,
-                location: backendUser?.location,
-                language: backendUser?.language,
-                status: backendUser?.status
-              };
-              
-              // Set all state with backend data
-              setUser(finalUser);
-              setUserProfileState(profile);
-              setUserRole(backendRole as "user" | "seller" | "admin");
-              
-              // Store the profile and tokens in localStorage for persistence
-              localStorage.setItem('userProfile', JSON.stringify(profile));
-              localStorage.setItem('userRole', backendRole);
-              localStorage.setItem('access_token', authResponse.data.access_token);
-              localStorage.setItem('refresh_token', authResponse.data.refresh_token);
-              
-              // Use setTimeout to ensure state updates are processed
-              setTimeout(() => {
-                setIsReady(true);
-                setIsLoading(false);
-                console.log('TelegramContext: User authenticated successfully with role:', backendRole);
-              }, 0);
-              
-              return;
             } else {
               console.log('User not found in database - showing registration screen');
               // User is not registered, show registration screen
