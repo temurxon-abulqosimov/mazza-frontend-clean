@@ -147,7 +147,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         firstName: "Test",
         lastName: "User",
         username: "testuser",
-        role: "user" as const,
+        role: "USER" as const,
         isRegistered: true
       };
       
