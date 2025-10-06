@@ -188,7 +188,7 @@ export const usersApi = {
       try {
         const healthCheck = await api.get('/health');
         console.log('✅ Backend health check successful:', healthCheck.data);
-      } catch (healthError) {
+      } catch (healthError: any) {
         console.log('⚠️ Backend health check failed, but continuing with user check:', healthError.message);
       }
       
