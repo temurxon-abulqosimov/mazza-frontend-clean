@@ -129,7 +129,8 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.log('🔧 Current state - isReady:', isReady, 'isLoading:', isLoading);
     
       // DEVELOPMENT MODE: Set up test user immediately (always in development)
-      if (process.env.NODE_ENV === 'development') {
+      // Also use in production for debugging
+      if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
         console.log('TelegramContext: Development mode - setting up test user immediately');
         console.log('TelegramContext: Ignoring Telegram WebApp in development mode');
         const testUser = {
@@ -225,30 +226,20 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           console.error('Error extracting Telegram user data:', error);
         }
         
-        // If no real Telegram user data, show registration screen
+        // If no real Telegram user data, try to use known registered user for debugging
         if (!telegramUser) {
-          console.log('❌ No real Telegram user data found - showing registration screen');
+          console.log('❌ No real Telegram user data found - trying with known registered user for debugging');
           
-          const profile: UserProfile = {
-            id: 0,
-            telegramId: '',
-            firstName: '',
-            lastName: '',
-            username: '',
-            role: 'USER' as "USER" | "SELLER" | "ADMIN",
-            isRegistered: false
+          // For debugging purposes, try with the known registered user
+          telegramUser = {
+            id: 7577215779,
+            first_name: "509",
+            last_name: "User",
+            username: "testuser",
+            language_code: "uz"
           };
           
-          setUserProfileState(profile);
-          setUserRole('USER');
-          
-          setTimeout(() => {
-            setIsReady(true);
-            setIsLoading(false);
-            console.log('TelegramContext: No Telegram user data - showing registration screen');
-          }, 0);
-          
-          return;
+          console.log('🔧 Using known registered user for debugging:', telegramUser);
         }
         
         // Store initData if available
@@ -388,8 +379,93 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           // Fall through to default user setup
         }
       } else {
-        console.log('❌ No Telegram WebApp detected - showing registration screen');
+        console.log('❌ No Telegram WebApp detected - trying with known registered user for debugging');
         
+        // For debugging purposes, try with the known registered user
+        const telegramUser = {
+          id: 7577215779,
+          first_name: "509",
+          last_name: "User",
+          username: "testuser",
+          language_code: "uz"
+        };
+        
+        console.log('🔧 Using known registered user for debugging (no WebApp):', telegramUser);
+        
+        // Try to authenticate with the known user
+        try {
+          console.log('🔍 SEARCHING DATABASE BY TELEGRAM ID (no WebApp):', telegramUser.id.toString());
+          
+          const userCheckResponse = await usersApi.checkUserExistsByTelegramId(telegramUser.id.toString());
+          console.log('🔍 User check response received:', userCheckResponse);
+          console.log('🔍 Response data:', userCheckResponse?.data);
+          console.log('🔍 Response exists:', userCheckResponse?.data?.exists);
+            
+          if (userCheckResponse && userCheckResponse.data && userCheckResponse.data.exists) {
+            console.log('✅ User found in database with role:', userCheckResponse.data.role);
+            
+            // User exists, now authenticate with their actual role
+            const userRole = userCheckResponse.data.role;
+            const backendUser = userCheckResponse.data.user;
+            
+            console.log(`🔐 Authenticating user with their actual role: ${userRole}`);
+            
+            const loginData = {
+              telegramId: telegramUser.id.toString(),
+              role: userRole
+            };
+            
+            console.log(`🔐 Login data:`, loginData);
+            const authResponse = await authApi.login(loginData);
+            console.log('🔐 Auth response received:', authResponse);
+            
+            if (authResponse.data && authResponse.data.access_token) {
+              const backendRole = userRole as "USER" | "SELLER" | "ADMIN" || "USER";
+              
+              console.log('🎉 Backend authentication successful!');
+              
+              const profile: UserProfile = {
+                id: backendUser?.id || telegramUser?.id || 0,
+                telegramId: backendUser?.telegramId || telegramUser?.id.toString() || '',
+                firstName: telegramUser?.first_name || '',
+                lastName: telegramUser?.last_name,
+                username: telegramUser?.username,
+                role: backendRole as "USER" | "SELLER" | "ADMIN",
+                isRegistered: true,
+                needsPassword: backendRole === 'ADMIN',
+                businessName: backendUser?.businessName,
+                phoneNumber: backendUser?.phoneNumber,
+                businessType: backendUser?.businessType,
+                location: backendUser?.location,
+                language: backendUser?.language || telegramUser?.language_code || 'uz',
+                status: backendUser?.status
+              };
+              
+              // Set all state with backend data
+              setUser(telegramUser);
+              setUserProfileState(profile);
+              setUserRole(backendRole as "USER" | "SELLER" | "ADMIN");
+              
+              // Store the profile and tokens in localStorage for persistence
+              localStorage.setItem('userProfile', JSON.stringify(profile));
+              localStorage.setItem('userRole', backendRole);
+              localStorage.setItem('access_token', authResponse.data.access_token);
+              localStorage.setItem('refresh_token', authResponse.data.refresh_token);
+              
+              setTimeout(() => {
+                setIsReady(true);
+                setIsLoading(false);
+                console.log('TelegramContext: User authenticated successfully with role:', backendRole);
+              }, 0);
+              
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('❌ Backend authentication failed (no WebApp):', error);
+        }
+        
+        // If authentication fails, show registration screen
         const profile: UserProfile = {
           id: 0,
           telegramId: '',
