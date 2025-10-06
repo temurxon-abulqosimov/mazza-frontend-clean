@@ -34,15 +34,15 @@ api.interceptors.request.use(
       config.headers['Authorization'] = `Bearer ${token}`;
     }
     
-    // Add language header
-    const language = localStorage.getItem('language') || 'uz';
-    config.headers['X-Language'] = language;
+    // Add language header (commented out due to CORS issues)
+    // const language = localStorage.getItem('language') || 'uz';
+    // config.headers['X-Language'] = language;
     
-    // Also include Telegram init data if available
-    const initData = localStorage.getItem('telegramInitData');
-    if (initData) {
-      config.headers['X-Telegram-Init-Data'] = initData;
-    }
+    // Also include Telegram init data if available (commented out due to CORS issues)
+    // const initData = localStorage.getItem('telegramInitData');
+    // if (initData) {
+    //   config.headers['X-Telegram-Init-Data'] = initData;
+    // }
     
     return config;
   },
