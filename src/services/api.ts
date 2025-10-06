@@ -174,44 +174,30 @@ export const usersApi = {
   checkUserExistsByTelegramId: async (telegramId: string) => {
     console.log('Checking if user exists by Telegram ID:', telegramId);
     
-    // Try to login with each role to see which one works
-    const roles = ["USER", "SELLER", "ADMIN"];
-    
-    for (const role of roles) {
-      try {
-        console.log(`Trying to authenticate with role: ${role}`);
-        const loginData = {
-          telegramId: telegramId,
-          role: role
+    try {
+      // Use the public endpoint you created
+      const response = await api.get(`/webapp/users/admin/telegram/${telegramId}`);
+      
+      if (response.data) {
+        console.log('User found in database:', response.data);
+        return {
+          data: {
+            exists: true,
+            role: response.data.role,
+            user: response.data
+          }
         };
-        
-        const response = await authApi.login(loginData);
-        
-        if (response.data && response.data.access_token) {
-          console.log(`User found with role: ${role}`);
-          return {
-            data: {
-              exists: true,
-              role: role,
-              user: response.data.user
-            }
-          };
+      }
+    } catch (error: any) {
+      console.log('User not found in database:', error.response?.status);
+      return {
+        data: {
+          exists: false,
+          role: null,
+          user: null
         }
-      } catch (error) {
-        console.log(`Role ${role} failed, trying next...`);
-        continue;
-      }
+      };
     }
-    
-    // If no role worked, user doesn't exist
-    console.log('User not found in database');
-    return {
-      data: {
-        exists: false,
-        role: null,
-        user: null
-      }
-    };
   },
   getUserById: async (id: string) => {
     const cacheKey = `get:${api.defaults.baseURL}/webapp/users/${id}`;

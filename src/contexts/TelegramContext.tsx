@@ -237,7 +237,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             // Use your approach: check if user exists first
             const userCheckResponse = await usersApi.checkUserExistsByTelegramId(finalUser.id.toString());
             
-            if (userCheckResponse.data.exists) {
+            if (userCheckResponse && userCheckResponse.data && userCheckResponse.data.exists) {
               console.log('User found in database with role:', userCheckResponse.data.role);
               
               // User exists, now authenticate with their actual role
