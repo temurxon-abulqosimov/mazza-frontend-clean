@@ -182,22 +182,33 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       let telegramUser: TelegramUser | null = null;
       
       try {
+        console.log('🔍 Extracting Telegram user data...');
+        console.log('🔍 tg.initDataUnsafe:', tg.initDataUnsafe);
+        console.log('🔍 tg.initData:', tg.initData);
+        console.log('🔍 tg.user:', tg.user);
+        
         // Try multiple ways to get user data
         let userData = tg.initDataUnsafe?.user;
+        console.log('🔍 userData from initDataUnsafe:', userData);
         
         if (!userData && tg.initData) {
+          console.log('🔍 Trying to parse initData...');
           const urlParams = new URLSearchParams(tg.initData);
           const userParam = urlParams.get('user');
+          console.log('🔍 userParam from initData:', userParam);
           if (userParam) {
             userData = JSON.parse(userParam);
+            console.log('🔍 userData from initData parsing:', userData);
           }
         }
         
         if (!userData && tg.user) {
+          console.log('🔍 Using tg.user directly');
           userData = tg.user;
         }
         
         if (userData) {
+          console.log('✅ Telegram user data found:', userData);
           telegramUser = {
             id: userData.id,
             first_name: userData.first_name,
@@ -205,9 +216,12 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             username: userData.username,
             language_code: userData.language_code
           };
+          console.log('✅ Final telegramUser:', telegramUser);
+        } else {
+          console.log('❌ No Telegram user data found');
         }
       } catch (error) {
-        console.log('Could not get Telegram user data:', error);
+        console.log('❌ Could not get Telegram user data:', error);
       }
       
       // Create user profile - use real data if available, otherwise defaults
@@ -324,8 +338,14 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               
               return;
             }
-          } catch (error) {
-            console.error('Backend authentication failed:', error);
+          } catch (error: any) {
+            console.error('❌ Backend authentication failed:', error);
+            console.error('❌ Error details:', {
+              message: error.message,
+              status: error.response?.status,
+              data: error.response?.data,
+              url: error.config?.url
+            });
             // Fall through to default user setup
           }
         }
