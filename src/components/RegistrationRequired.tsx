@@ -49,8 +49,15 @@ const RegistrationRequired: React.FC = () => {
             Open Telegram Bot
           </button>
 
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+          >
+            Refresh Page
+          </button>
+
           <p className="text-sm text-gray-500">
-            After registration, refresh this page to access your dashboard.
+            After registration, click "Refresh Page" to access your dashboard.
           </p>
         </div>
       </div>

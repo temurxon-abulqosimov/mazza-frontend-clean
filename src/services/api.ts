@@ -188,13 +188,14 @@ export const usersApi = {
       const response = await api.get(endpoint);
       console.log('✅ API Response:', response.data);
       
+      // The backend returns the user data directly, not wrapped in a "user" field
       if (response.data && response.data.role) {
         console.log('✅ User found in database:', response.data);
         return {
           data: {
             exists: true,
             role: response.data.role,
-            user: response.data
+            user: response.data // The entire response is the user data
           }
         };
       } else {

@@ -301,7 +301,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           firstName: '',
           lastName: '',
           username: '',
-           role: 'USER' as "USER" | "SELLER" | "ADMIN",
+          role: 'USER' as "USER" | "SELLER" | "ADMIN",
           isRegistered: false
         };
         
@@ -372,17 +372,17 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 const profile: UserProfile = {
                   id: backendUser?.id || finalUser?.id || 0,
                   telegramId: backendUser?.telegramId || finalUser?.id.toString() || '',
-                  firstName: backendUser?.firstName || finalUser?.first_name || '',
-                  lastName: backendUser?.lastName || finalUser?.last_name,
-                  username: backendUser?.username || finalUser?.username,
-                   role: backendRole as "USER" | "SELLER" | "ADMIN",
+                  firstName: finalUser?.first_name || '', // Use Telegram data for name
+                  lastName: finalUser?.last_name,
+                  username: finalUser?.username,
+                  role: backendRole as "USER" | "SELLER" | "ADMIN",
                   isRegistered: true,
                   needsPassword: backendRole === 'ADMIN',
                   businessName: backendUser?.businessName,
                   phoneNumber: backendUser?.phoneNumber,
                   businessType: backendUser?.businessType,
                   location: backendUser?.location,
-                  language: backendUser?.language,
+                  language: backendUser?.language || finalUser?.language_code || 'uz',
                   status: backendUser?.status
                 };
                 
@@ -419,7 +419,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 firstName: finalUser?.first_name || '',
                 lastName: finalUser?.last_name,
                 username: finalUser?.username,
-                 role: isAdminUser ? 'ADMIN' : 'USER',
+                role: isAdminUser ? 'ADMIN' : 'USER',
                 isRegistered: false,
                 needsPassword: !!isAdminUser
               };
@@ -457,7 +457,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           firstName: finalUser?.first_name || '',
           lastName: finalUser?.last_name,
           username: finalUser?.username,
-                 role: isAdminUser ? 'ADMIN' : 'USER',
+          role: isAdminUser ? 'ADMIN' : 'USER',
           isRegistered: false, // This should be false for unregistered users
           needsPassword: !!isAdminUser
         };
@@ -488,7 +488,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         firstName: '',
         lastName: '',
         username: '',
-         role: 'USER',
+        role: 'USER',
         isRegistered: false
       });
       
