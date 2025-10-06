@@ -68,19 +68,27 @@ const Home: React.FC = () => {
 
       setSellers(sellersWithDistance);
       setProducts(fetchedProducts);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load home data:', err);
-      setError('Failed to load home data');
+      
+      // Check if it's an authentication error
+      if (err.response?.status === 401) {
+        setError('Please register first through the Telegram bot before using the miniapp.');
+      } else if (err.response?.status === 403) {
+        setError('Access denied. Please contact support.');
+      } else {
+        setError('Failed to load home data');
+      }
     } finally {
       setLoading(false);
     }
   }, [calculateDistance, userProfile]);
 
   useEffect(() => {
-    if (isReady && user) {
+    if (isReady && user && userProfile?.isRegistered) {
       loadHomeData();
     }
-  }, [isReady, user, loadHomeData]);
+  }, [isReady, user, userProfile, loadHomeData]);
 
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim()) return;

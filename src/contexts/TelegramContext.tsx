@@ -301,6 +301,31 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               }, 0);
               
               return;
+            } else {
+              console.log('No successful authentication found - user may not be registered');
+              // User is not registered, show registration screen
+              const profile: UserProfile = {
+                id: finalUser.id,
+                telegramId: finalUser.id.toString(),
+                firstName: finalUser.first_name,
+                lastName: finalUser.last_name,
+                username: finalUser.username,
+                role: isAdminUser ? 'admin' : 'user',
+                isRegistered: false,
+                needsPassword: !!isAdminUser
+              };
+              
+              setUser(finalUser);
+              setUserProfileState(profile);
+              setUserRole(isAdminUser ? 'admin' : 'user');
+              
+              setTimeout(() => {
+                setIsReady(true);
+                setIsLoading(false);
+                console.log('TelegramContext: User not registered, showing registration screen');
+              }, 0);
+              
+              return;
             }
           } catch (error) {
             console.error('Backend authentication failed:', error);

@@ -43,20 +43,28 @@ const UserDashboard: React.FC = () => {
       const productsData = productsResponse.data?.products || productsResponse.data || [];
       setProducts(productsData);
       setOrders(ordersResponse.data || []);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load dashboard data:', err);
-      setError('Failed to load dashboard data. Please check your connection and try again.');
+      
+      // Check if it's an authentication error
+      if (err.response?.status === 401) {
+        setError('Please register first through the Telegram bot before using the miniapp.');
+      } else if (err.response?.status === 403) {
+        setError('Access denied. Please contact support.');
+      } else {
+        setError('Failed to load dashboard data. Please check your connection and try again.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (isReady && user) {
+    if (isReady && user && userProfile?.isRegistered) {
       // Load data in background, don't block the main flow
       loadDashboardData();
     }
-  }, [isReady, user]);
+  }, [isReady, user, userProfile]);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;

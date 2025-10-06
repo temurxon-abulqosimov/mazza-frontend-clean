@@ -235,7 +235,9 @@ export const sellersApi = {
   },
   getSellersNearby: async (lat: number, lng: number) => {
     // Use development API in development mode
+    console.log('getSellersNearby: NODE_ENV =', process.env.NODE_ENV);
     if (process.env.NODE_ENV === 'development') {
+      console.log('getSellersNearby: Using devApi');
       return devApi.sellers.getSellers();
     }
     
@@ -320,7 +322,9 @@ export const productsApi = {
   },
   getProductsNearby: async (lat: number, lng: number) => {
     // Use development API in development mode
+    console.log('getProductsNearby: NODE_ENV =', process.env.NODE_ENV);
     if (process.env.NODE_ENV === 'development') {
+      console.log('getProductsNearby: Using devApi');
       return devApi.products.getProducts({ lat, lng });
     }
     
@@ -459,8 +463,10 @@ export const ordersApi = {
   },
   getMyOrders: async () => {
     // Use development API in development mode
+    console.log('getMyOrders: NODE_ENV =', process.env.NODE_ENV);
     if (process.env.NODE_ENV === 'development') {
-      return devApi.orders.getUserOrders('123456789');
+      console.log('getMyOrders: Using devApi');
+      return devApi.orders.getMyOrders();
     }
     
     const cacheKey = `get:${api.defaults.baseURL}/webapp/orders/my`;

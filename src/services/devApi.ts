@@ -238,6 +238,11 @@ export const devApi = {
       await new Promise(resolve => setTimeout(resolve, 300));
       return { data: mockOrders };
     },
+    getMyOrders: async () => {
+      console.log('DEV API: Getting my orders');
+      await new Promise(resolve => setTimeout(resolve, 300));
+      return { data: mockOrders };
+    },
     getOrders: async () => {
       console.log('DEV API: Getting all orders');
       await new Promise(resolve => setTimeout(resolve, 400));
