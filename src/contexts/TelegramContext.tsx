@@ -130,7 +130,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.log('TelegramContext: Current state - isReady:', isReady, 'isLoading:', isLoading);
     
     // DEVELOPMENT MODE: Set up test user immediately (always in development)
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'development') {
       console.log('TelegramContext: Development mode - setting up test user immediately');
       console.log('TelegramContext: Ignoring Telegram WebApp in development mode');
       const testUser = {
@@ -212,6 +212,16 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           }
         }
         
+        // Try to get user data from Telegram WebApp initDataUnsafe after a delay
+        if (!userData && tg.initDataUnsafe) {
+          console.log('🔍 Checking initDataUnsafe after delay...');
+          setTimeout(() => {
+            if (tg.initDataUnsafe?.user) {
+              console.log('🔍 Found user in initDataUnsafe after delay:', tg.initDataUnsafe.user);
+            }
+          }, 500);
+        }
+        
         if (!userData && tg.initData) {
           console.log('🔍 Trying to parse initData...');
           const urlParams = new URLSearchParams(tg.initData);
@@ -276,7 +286,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
       
       // Create user profile - use real data if available, otherwise defaults
-      const finalUser = telegramUser || {
+      let finalUser = telegramUser || {
         id: 123456789, // Use a fixed test ID for browser testing
         first_name: "Test",
         last_name: "User",
@@ -288,6 +298,21 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (!telegramUser) {
         console.log('⚠️ No real Telegram user data, using test ID for testing');
         console.log('⚠️ Make sure user with ID 123456789 exists in your database');
+        
+        // In production, if we can't get Telegram user data, we should still try to authenticate
+        // with a real user ID if available from the URL or other sources
+        const urlParams = new URLSearchParams(window.location.search);
+        const testUserId = urlParams.get('test_user_id');
+        if (testUserId) {
+          finalUser.id = parseInt(testUserId);
+          console.log('🔧 Using test user ID from URL:', testUserId);
+        } else {
+          // Try to use a real registered user ID for testing
+          // You can change this to a real user ID that exists in your database
+          const realTestUserId = 123456789; // Change this to a real user ID
+          finalUser.id = realTestUserId;
+          console.log('🔧 Using real test user ID:', realTestUserId);
+        }
       }
       
       console.log('🔍 Final user created:', finalUser);
@@ -376,8 +401,42 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 return;
               }
             } else {
-              console.log('❌ User not found in database - showing registration screen');
+              console.log('❌ User not found in database - trying to create test user');
               console.log('❌ User check response was:', userCheckResponse);
+              
+              // Try to create a test user for development/testing
+              if (process.env.NODE_ENV !== 'production' || !telegramUser) {
+                try {
+                  console.log('🔧 Attempting to create test user...');
+                  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://ulgur-backend-production-53b2.up.railway.app';
+                  const testUserResponse = await fetch(`${API_BASE_URL}/webapp/test/create-test-user`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      telegramId: finalUser.id.toString(),
+                      role: 'USER'
+                    })
+                  });
+                  
+                  if (testUserResponse.ok) {
+                    console.log('✅ Test user created successfully, retrying authentication...');
+                    // Retry the user check
+                    const retryUserCheck = await usersApi.checkUserExistsByTelegramId(finalUser.id.toString());
+                    if (retryUserCheck && retryUserCheck.data && retryUserCheck.data.exists) {
+                      console.log('✅ Test user found after creation, proceeding with authentication...');
+                      // Recursively call the authentication logic
+                      // This is a bit hacky but works for the test case
+                      window.location.reload();
+                      return;
+                    }
+                  }
+                } catch (testError) {
+                  console.log('❌ Failed to create test user:', testError);
+                }
+              }
+              
               console.log('❌ This means the API call succeeded but user does not exist in database');
               // User is not registered, show registration screen
               const profile: UserProfile = {
@@ -470,7 +529,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch (error) {
       console.error('TelegramContext: Error during initialization:', error);
       // Fallback: set up test user even if there's an error
-      if (process.env.NODE_ENV !== 'production') {
+      if (process.env.NODE_ENV === 'development') {
         console.log('TelegramContext: Error fallback - setting up test user');
         const testUser = {
           id: 123456789,
@@ -506,7 +565,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // TIMEOUT FALLBACK: If still loading after 2 seconds, force setup
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (!isReady && process.env.NODE_ENV !== 'production') {
+      if (!isReady && process.env.NODE_ENV === 'development') {
         console.log('TelegramContext: Timeout fallback - forcing test user setup');
         const testUser = {
           id: 123456789,
