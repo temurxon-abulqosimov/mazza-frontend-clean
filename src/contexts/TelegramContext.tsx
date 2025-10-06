@@ -301,7 +301,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           firstName: '',
           lastName: '',
           username: '',
-          role: 'user',
+          role: 'user' as "user" | "seller" | "admin",
           isRegistered: false
         };
         
@@ -407,43 +407,11 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 return;
               }
             } else {
-              console.log('❌ User not found in database - trying to create test user');
+              console.log('❌ User not found in database - showing registration screen');
               console.log('❌ User check response was:', userCheckResponse);
-              
-              // Try to create a test user for development/testing
-              if (process.env.NODE_ENV !== 'production' || !telegramUser) {
-                try {
-                  console.log('🔧 Attempting to create test user...');
-                  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://ulgur-backend-production-53b2.up.railway.app';
-                  const testUserResponse = await fetch(`${API_BASE_URL}/webapp/test/create-test-user`, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      telegramId: finalUser.id.toString(),
-                      role: 'USER'
-                    })
-                  });
-                  
-                  if (testUserResponse.ok) {
-                    console.log('✅ Test user created successfully, retrying authentication...');
-                    // Retry the user check
-                    const retryUserCheck = await usersApi.checkUserExistsByTelegramId(finalUser.id.toString());
-                    if (retryUserCheck && retryUserCheck.data && retryUserCheck.data.exists) {
-                      console.log('✅ Test user found after creation, proceeding with authentication...');
-                      // Recursively call the authentication logic
-                      // This is a bit hacky but works for the test case
-                      window.location.reload();
-                      return;
-                    }
-                  }
-                } catch (testError) {
-                  console.log('❌ Failed to create test user:', testError);
-                }
-              }
-              
-              console.log('❌ This means the API call succeeded but user does not exist in database');
+              console.log('❌ This means the user is not registered in the database');
+              console.log('❌ Telegram ID that was checked:', finalUser.id.toString());
+              console.log('❌ User needs to register via Telegram bot first');
               // User is not registered, show registration screen
               const profile: UserProfile = {
                 id: finalUser.id,
