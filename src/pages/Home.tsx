@@ -48,7 +48,25 @@ const Home: React.FC = () => {
       setLoading(true);
       
       // Get user location from profile or default to Tashkent
-      const userLocation = userProfile?.location || { latitude: 41.3111, longitude: 69.2797 };
+      const getUserLocation = () => {
+        if (!userProfile?.location) {
+          return { latitude: 41.3111, longitude: 69.2797 };
+        }
+        
+        if (typeof userProfile.location === 'string') {
+          // Parse string location if needed
+          try {
+            const coords = JSON.parse(userProfile.location);
+            return { latitude: coords.latitude, longitude: coords.longitude };
+          } catch {
+            return { latitude: 41.3111, longitude: 69.2797 };
+          }
+        }
+        
+        return userProfile.location;
+      };
+      
+      const userLocation = getUserLocation();
       
       // Load data in parallel for better performance
       const [sellersResponse, productsResponse] = await Promise.all([

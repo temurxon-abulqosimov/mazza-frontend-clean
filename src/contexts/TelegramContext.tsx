@@ -21,7 +21,7 @@ interface UserProfile {
   businessName?: string;
   phoneNumber?: string;
   businessType?: string;
-  location?: string;
+  location?: { latitude: number; longitude: number } | string;
   language?: string;
   status?: string;
 }
@@ -35,6 +35,7 @@ interface TelegramContextType {
   webApp: any;
   userRole: "USER" | "SELLER" | "ADMIN";
   setUserRole: (role: "USER" | "SELLER" | "ADMIN") => void;
+  setUserProfile: (profile: UserProfile | null) => void;
   login: (data: any) => Promise<any>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -49,6 +50,7 @@ const TelegramContext = createContext<TelegramContextType>({
   webApp: null,
   userRole: "USER",
   setUserRole: () => {},
+  setUserProfile: () => {},
   login: async () => ({}),
   logout: () => {},
   isAuthenticated: false,
@@ -112,6 +114,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     webApp,
     userRole,
     setUserRole,
+    setUserProfile: setUserProfileState,
     login,
     logout,
     isAuthenticated

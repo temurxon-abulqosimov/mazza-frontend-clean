@@ -615,7 +615,9 @@ const SellerDashboard: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
                     <input
                       type="text"
-                      value={`${userProfile.location.latitude.toFixed(4)}, ${userProfile.location.longitude.toFixed(4)}`}
+                      value={typeof userProfile.location === 'string' 
+                        ? userProfile.location 
+                        : `${userProfile.location.latitude.toFixed(4)}, ${userProfile.location.longitude.toFixed(4)}`}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                       readOnly
                     />

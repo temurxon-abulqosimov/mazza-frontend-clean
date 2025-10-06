@@ -89,7 +89,11 @@ const Profile: React.FC = () => {
                 <p className="text-sm text-gray-600">🏪 {userProfile.businessType}</p>
               )}
               {userProfile?.location && (
-                <p className="text-sm text-gray-600">📍 Location: {userProfile.location.latitude.toFixed(4)}, {userProfile.location.longitude.toFixed(4)}</p>
+                <p className="text-sm text-gray-600">
+                  📍 Location: {typeof userProfile.location === 'string' 
+                    ? userProfile.location 
+                    : `${userProfile.location.latitude.toFixed(4)}, ${userProfile.location.longitude.toFixed(4)}`}
+                </p>
               )}
               <div className="flex items-center mt-2">
                 {getRoleIcon(userRole)}

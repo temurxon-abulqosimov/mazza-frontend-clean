@@ -32,7 +32,24 @@ const UserDashboard: React.FC = () => {
       setError(null);
       
       // Get user location for product discovery
-      const userLocation = userProfile?.location || { latitude: 41.2995, longitude: 69.2401 }; // Default to Tashkent
+      const getUserLocation = () => {
+        if (!userProfile?.location) {
+          return { latitude: 41.2995, longitude: 69.2401 };
+        }
+        
+        if (typeof userProfile.location === 'string') {
+          try {
+            const coords = JSON.parse(userProfile.location);
+            return { latitude: coords.latitude, longitude: coords.longitude };
+          } catch {
+            return { latitude: 41.2995, longitude: 69.2401 };
+          }
+        }
+        
+        return userProfile.location;
+      };
+      
+      const userLocation = getUserLocation();
       
       const [productsResponse, ordersResponse] = await Promise.all([
         productsApi.getProductsNearby(userLocation.latitude, userLocation.longitude),
