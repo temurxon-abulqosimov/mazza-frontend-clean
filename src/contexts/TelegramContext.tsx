@@ -178,6 +178,9 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (tg.ready) tg.ready();
       if (tg.expand) tg.expand();
       
+      // Wait a bit for WebApp to initialize
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Try to get real user data, but don't fail if we can't
       let telegramUser: TelegramUser | null = null;
       
@@ -193,6 +196,22 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         let userData = tg.initDataUnsafe?.user;
         console.log('🔍 userData from initDataUnsafe:', userData);
         
+        // Try to get user data from URL parameters directly
+        if (!userData) {
+          console.log('🔍 Trying to get user data from URL parameters...');
+          const urlParams = new URLSearchParams(window.location.search);
+          const userParam = urlParams.get('user');
+          console.log('🔍 userParam from URL:', userParam);
+          if (userParam) {
+            try {
+              userData = JSON.parse(decodeURIComponent(userParam));
+              console.log('🔍 userData from URL parsing:', userData);
+            } catch (e) {
+              console.log('🔍 Failed to parse user from URL:', e);
+            }
+          }
+        }
+        
         if (!userData && tg.initData) {
           console.log('🔍 Trying to parse initData...');
           const urlParams = new URLSearchParams(tg.initData);
@@ -207,6 +226,36 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (!userData && tg.user) {
           console.log('🔍 Using tg.user directly');
           userData = tg.user;
+        }
+        
+        // Try to get user data from Telegram WebApp after initialization
+        if (!userData) {
+          console.log('🔍 Trying to get user data from Telegram WebApp after initialization...');
+          // Check if user data is available after WebApp initialization
+          if (tg.initDataUnsafe?.user) {
+            userData = tg.initDataUnsafe.user;
+            console.log('🔍 userData from initDataUnsafe after init:', userData);
+          }
+          
+          // Try to get user data from Telegram WebApp properties
+          if (!userData && tg.user) {
+            userData = tg.user;
+            console.log('🔍 userData from tg.user after init:', userData);
+          }
+          
+          // Try to get user data from Telegram WebApp initData
+          if (!userData && tg.initData) {
+            try {
+              const urlParams = new URLSearchParams(tg.initData);
+              const userParam = urlParams.get('user');
+              if (userParam) {
+                userData = JSON.parse(userParam);
+                console.log('🔍 userData from tg.initData after init:', userData);
+              }
+            } catch (e) {
+              console.log('🔍 Failed to parse user from tg.initData after init:', e);
+            }
+          }
         }
         
         if (userData) {
