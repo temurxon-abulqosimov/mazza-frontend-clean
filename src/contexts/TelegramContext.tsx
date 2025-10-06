@@ -229,23 +229,37 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           setInitData(initData);
         }
         
-        // Try backend authentication to get real user data and role
+        // Try to authenticate user with their most likely role first
         if (initData) {
           try {
-            console.log('Attempting backend authentication...');
+            console.log('Attempting to authenticate user...');
             
-            // Try different roles to find the user's actual registration
-            const rolesToTry = ["USER", "SELLER", "ADMIN"];
+            // Try USER role first (most common)
             let authResponse = null;
             let backendUser = null;
             let backendRole = "user";
             
-            for (const role of rolesToTry) {
+            try {
+              console.log('Trying to login with USER role...');
+              const loginData = {
+                telegramId: finalUser.id.toString(),
+                role: "USER"
+              };
+              
+              authResponse = await authApi.login(loginData);
+              
+              if (authResponse.data && authResponse.data.access_token) {
+                backendUser = authResponse.data.user;
+                backendRole = backendUser?.role?.toLowerCase() as "user" | "seller" | "admin" || "user";
+                console.log('Backend login successful with USER role');
+              }
+            } catch (userError) {
+              console.log('USER role failed, trying SELLER role...');
+              
               try {
-                console.log(`Trying to login with role: ${role}`);
                 const loginData = {
                   telegramId: finalUser.id.toString(),
-                  role: role
+                  role: "SELLER"
                 };
                 
                 authResponse = await authApi.login(loginData);
@@ -253,17 +267,33 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 if (authResponse.data && authResponse.data.access_token) {
                   backendUser = authResponse.data.user;
                   backendRole = backendUser?.role?.toLowerCase() as "user" | "seller" | "admin" || "user";
-                  console.log(`Backend login successful with role: ${backendRole}`);
-                  break;
+                  console.log('Backend login successful with SELLER role');
                 }
-              } catch (roleError) {
-                console.log(`Login failed for role ${role}, trying next role...`);
-                continue;
+              } catch (sellerError) {
+                console.log('SELLER role failed, trying ADMIN role...');
+                
+                try {
+                  const loginData = {
+                    telegramId: finalUser.id.toString(),
+                    role: "ADMIN"
+                  };
+                  
+                  authResponse = await authApi.login(loginData);
+                  
+                  if (authResponse.data && authResponse.data.access_token) {
+                    backendUser = authResponse.data.user;
+                    backendRole = backendUser?.role?.toLowerCase() as "user" | "seller" | "admin" || "user";
+                    console.log('Backend login successful with ADMIN role');
+                  }
+                } catch (adminError) {
+                  console.log('All authentication attempts failed - user not registered');
+                  authResponse = null;
+                }
               }
             }
             
             if (authResponse && authResponse.data && authResponse.data.access_token) {
-              console.log('Backend login successful:', { role: backendRole, user: backendUser });
+              console.log('Backend authentication successful:', { role: backendRole, user: backendUser });
               
               const profile: UserProfile = {
                 id: backendUser?.id || finalUser.id,
@@ -297,12 +327,12 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               setTimeout(() => {
                 setIsReady(true);
                 setIsLoading(false);
-                console.log('TelegramContext: Backend login successful with role:', backendRole);
+                console.log('TelegramContext: User authenticated successfully with role:', backendRole);
               }, 0);
               
               return;
             } else {
-              console.log('No successful authentication found - user may not be registered');
+              console.log('User not found in database - showing registration screen');
               // User is not registered, show registration screen
               const profile: UserProfile = {
                 id: finalUser.id,
