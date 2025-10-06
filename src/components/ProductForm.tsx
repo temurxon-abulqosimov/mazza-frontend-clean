@@ -5,6 +5,7 @@ import { productsApi, sellersApi } from '../services/api';
 import { CreateProductDto, ProductCategory } from '../types';
 import Notification, { NotificationProps } from './Notification';
 import { useTelegram } from '../contexts/TelegramContext';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 interface ProductFormProps {
   mode: 'create' | 'edit';
@@ -13,6 +14,7 @@ interface ProductFormProps {
 const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { t } = useLocalization();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [seller, setSeller] = useState<any>(null);
@@ -223,7 +225,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
           {/* Product Description */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-              Product Description
+              {t('productDescription') || 'Product Description'}
             </label>
             <textarea
               id="description"
@@ -241,7 +243,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-                Sale Price
+                {t('salePrice') || 'Sale Price'}
               </label>
               <div className="relative">
                 <input
@@ -256,13 +258,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
                   className="w-full px-3 py-2 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   placeholder="0.00"
                 />
-                <DollarSign className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+                <span className="absolute left-3 top-2.5 text-gray-400 text-sm">so'm</span>
               </div>
             </div>
 
             <div>
               <label htmlFor="originalPrice" className="block text-sm font-medium text-gray-700 mb-2">
-                Original Price (Optional)
+                {t('originalPrice') || 'Original Price (Optional)'}
               </label>
               <div className="relative">
                 <input
@@ -276,7 +278,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
                   className="w-full px-3 py-2 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   placeholder="0.00"
                 />
-                <DollarSign className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+                <span className="absolute left-3 top-2.5 text-gray-400 text-sm">so'm</span>
               </div>
             </div>
           </div>
