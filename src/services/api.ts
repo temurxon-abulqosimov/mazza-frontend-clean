@@ -3,6 +3,7 @@ import { devApi } from './devApi';
 
 // Use Railway backend URL
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://ulgur-backend-production-53b2.up.railway.app';
+console.log('🔧 API_BASE_URL:', API_BASE_URL);
 
 // Cache for API responses
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -177,7 +178,10 @@ export const usersApi = {
     
     try {
       // Use the public endpoint you created
-      const response = await api.get(`/webapp/users/admin/telegram/${telegramId}`);
+      const endpoint = `/webapp/users/admin/telegram/${telegramId}`;
+      console.log('🔧 Full endpoint:', endpoint);
+      console.log('🔧 Full URL will be:', `${API_BASE_URL}${endpoint}`);
+      const response = await api.get(endpoint);
       console.log('✅ API Response:', response.data);
       
       if (response.data) {

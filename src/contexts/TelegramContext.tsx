@@ -184,8 +184,10 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       try {
         console.log('🔍 Extracting Telegram user data...');
         console.log('🔍 tg.initDataUnsafe:', tg.initDataUnsafe);
+        console.log('🔍 tg.initDataUnsafe.user:', tg.initDataUnsafe?.user);
         console.log('🔍 tg.initData:', tg.initData);
         console.log('🔍 tg.user:', tg.user);
+        console.log('🔍 tg object keys:', Object.keys(tg));
         
         // Try multiple ways to get user data
         let userData = tg.initDataUnsafe?.user;
@@ -232,6 +234,12 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         username: "testuser",
         language_code: "en"
       };
+      
+      // For testing: if no real user data, try to use a known registered user ID
+      if (!telegramUser) {
+        console.log('⚠️ No real Telegram user data, using test ID for testing');
+        console.log('⚠️ Make sure user with ID 123456789 exists in your database');
+      }
       
       console.log('🔍 Final user created:', finalUser);
       
