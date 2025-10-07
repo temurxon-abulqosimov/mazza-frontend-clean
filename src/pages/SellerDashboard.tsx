@@ -120,43 +120,63 @@ const SellerDashboard: React.FC = () => {
       console.log('🔧 Auth token exists:', !!localStorage.getItem('access_token'));
       console.log('🔧 User role:', localStorage.getItem('userRole'));
       
+      // Load data with individual error handling
+      const sellerPromise = sellersApi.getSellerProfile().catch(err => {
+        console.error('❌ Failed to load seller profile:', err);
+        return null;
+      });
+      
+      const productsPromise = productsApi.getSellerProducts().catch(err => {
+        console.error('❌ Failed to load products:', err);
+        return { data: [] };
+      });
+      
+      const ordersPromise = dashboardApi.getSellerOrders().catch(err => {
+        console.error('❌ Failed to load orders:', err);
+        return { data: [] };
+      });
+      
       const [sellerResponse, productsResponse, ordersResponse] = await Promise.all([
-        sellersApi.getSellerProfile(),
-        productsApi.getSellerProducts(),
-        dashboardApi.getSellerOrders()
+        sellerPromise,
+        productsPromise,
+        ordersPromise
       ]);
 
       console.log('✅ Seller data loaded:', {
-        seller: sellerResponse.data,
-        products: productsResponse.data,
-        orders: ordersResponse.data
+        seller: sellerResponse?.data,
+        products: productsResponse?.data,
+        orders: ordersResponse?.data
       });
 
       console.log('🔧 Products data details:', {
         productsResponse: productsResponse,
-        productsData: productsResponse.data,
-        productsArray: Array.isArray(productsResponse.data),
-        productsLength: productsResponse.data?.length || 0,
-        productsType: typeof productsResponse.data
+        productsData: productsResponse?.data,
+        productsArray: Array.isArray(productsResponse?.data),
+        productsLength: productsResponse?.data?.length || 0,
+        productsType: typeof productsResponse?.data
       });
 
-      setSeller(sellerResponse.data);
-      setProducts(productsResponse.data || []);
-      setOrders(ordersResponse.data || []);
+      if (sellerResponse) {
+        setSeller(sellerResponse.data);
+      }
+      setProducts(productsResponse?.data || []);
+      setOrders(ordersResponse?.data || []);
       
       console.log('🔧 State updated:', {
-        seller: sellerResponse.data,
-        products: productsResponse.data || [],
-        orders: ordersResponse.data || []
+        seller: sellerResponse?.data,
+        products: productsResponse?.data || [],
+        orders: ordersResponse?.data || []
       });
 
       // Fetch average rating for this seller
-      try {
-        const avgRes = await ratingsApi.getAverageRatingBySeller(String(sellerResponse.data.id));
-        setAverageRating(avgRes.data?.average ?? null);
-      } catch (e) {
-        console.warn('Failed to fetch average rating:', e);
-        setAverageRating(null);
+      if (sellerResponse?.data?.id) {
+        try {
+          const avgRes = await ratingsApi.getAverageRatingBySeller(String(sellerResponse.data.id));
+          setAverageRating(avgRes.data?.average ?? null);
+        } catch (e) {
+          console.warn('Failed to fetch average rating:', e);
+          setAverageRating(null);
+        }
       }
     } catch (err: any) {
       console.error('❌ Failed to load seller data:', err);
