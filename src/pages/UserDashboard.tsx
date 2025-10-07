@@ -189,17 +189,19 @@ const UserDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Location Permission Modal */}
-      <LocationPermission 
-        onLocationGranted={() => {
-          console.log('Location granted, reloading data...');
-          loadDashboardData();
-        }}
-        onLocationDenied={() => {
-          console.log('Location denied, using default location');
-          // Continue with default location
-        }}
-      />
+      {/* Location Permission Modal - with error boundary */}
+      {typeof window !== 'undefined' && (
+        <LocationPermission 
+          onLocationGranted={() => {
+            console.log('Location granted, reloading data...');
+            loadDashboardData();
+          }}
+          onLocationDenied={() => {
+            console.log('Location denied, using default location');
+            // Continue with default location
+          }}
+        />
+      )}
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-md mx-auto px-4 py-4">

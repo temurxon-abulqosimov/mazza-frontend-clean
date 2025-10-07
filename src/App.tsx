@@ -5,6 +5,7 @@ import { LocalizationProvider } from './contexts/LocalizationContext';
 import { LocationProvider } from './contexts/LocationContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import MobileErrorBoundary from './components/MobileErrorBoundary';
 import './App.css';
 
 // Components (imported first)
@@ -20,6 +21,7 @@ import AdminDashboard from './pages/AdminDashboard';
 
 // Development components
 import TestComponent from './TestComponent';
+import MobileDebug from './components/MobileDebug';
 
 // Lazy load other pages for better performance
 const Search = lazy(() => import('./pages/Search'));
@@ -49,11 +51,12 @@ const PageLoader = () => (
 function App() {
   return (
     <ErrorBoundary>
-      <TelegramProvider>
-        <LocalizationProvider>
-          <LocationProvider>
-            <NotificationProvider>
-              <Router>
+      <MobileErrorBoundary>
+        <TelegramProvider>
+          <LocalizationProvider>
+            <LocationProvider>
+              <NotificationProvider>
+                <Router>
             <div className="App">
               <Suspense fallback={<PageLoader />}>
                 <Routes>
@@ -108,12 +111,16 @@ function App() {
             
             {/* Development auth debug - only in development */}
             {process.env.NODE_ENV === 'development' && <AuthDebug />}
+            
+            {/* Mobile debug info - only in development */}
+            {process.env.NODE_ENV === 'development' && <MobileDebug />}
           </div>
         </Router>
-            </NotificationProvider>
-          </LocationProvider>
-      </LocalizationProvider>
-    </TelegramProvider>
+              </NotificationProvider>
+            </LocationProvider>
+          </LocalizationProvider>
+        </TelegramProvider>
+      </MobileErrorBoundary>
     </ErrorBoundary>
   );
 }

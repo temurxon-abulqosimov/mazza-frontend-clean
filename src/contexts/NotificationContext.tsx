@@ -44,25 +44,34 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
   // Load notifications from localStorage on mount
   useEffect(() => {
-    const savedNotifications = localStorage.getItem('notifications');
-    if (savedNotifications) {
-      try {
+    try {
+      const savedNotifications = localStorage.getItem('notifications');
+      if (savedNotifications) {
         const parsed = JSON.parse(savedNotifications);
         const notificationsWithDates = parsed.map((n: any) => ({
           ...n,
           timestamp: new Date(n.timestamp)
         }));
         setNotifications(notificationsWithDates);
-      } catch (err) {
-        console.warn('Failed to parse saved notifications:', err);
+      }
+    } catch (err) {
+      console.warn('Failed to load notifications from localStorage:', err);
+      // Clear corrupted data
+      try {
         localStorage.removeItem('notifications');
+      } catch (e) {
+        console.warn('Failed to clear localStorage:', e);
       }
     }
   }, []);
 
   // Save notifications to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('notifications', JSON.stringify(notifications));
+    try {
+      localStorage.setItem('notifications', JSON.stringify(notifications));
+    } catch (err) {
+      console.warn('Failed to save notifications to localStorage:', err);
+    }
   }, [notifications]);
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
@@ -77,13 +86,17 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
     setNotifications(prev => [notification, ...prev]);
 
-    // Show browser notification if permission is granted
-    if (Notification.permission === 'granted') {
-      new Notification(notification.title, {
-        body: notification.message,
-        icon: '/favicon.ico',
-        tag: notification.id,
-      });
+    // Show browser notification if permission is granted and available
+    try {
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        new Notification(notification.title, {
+          body: notification.message,
+          icon: '/favicon.ico',
+          tag: notification.id,
+        });
+      }
+    } catch (err) {
+      console.warn('Failed to show browser notification:', err);
     }
   };
 
@@ -105,7 +118,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
   const clearNotifications = () => {
     setNotifications([]);
-    localStorage.removeItem('notifications');
+    try {
+      localStorage.removeItem('notifications');
+    } catch (err) {
+      console.warn('Failed to clear notifications from localStorage:', err);
+    }
   };
 
   const removeNotification = (id: string) => {
@@ -114,8 +131,12 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
   // Request notification permission on mount
   useEffect(() => {
-    if (Notification.permission === 'default') {
-      Notification.requestPermission();
+    try {
+      if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    } catch (err) {
+      console.warn('Failed to request notification permission:', err);
     }
   }, []);
 

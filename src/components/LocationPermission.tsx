@@ -15,13 +15,23 @@ const LocationPermission: React.FC<LocationPermissionProps> = ({
   const { location, locationPermission, isLoading, error, requestLocation } = useLocation();
   const { t } = useLocalization();
 
+  // Add error boundary for mobile compatibility
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
   const handleRequestLocation = async () => {
-    await requestLocation();
-    
-    // Call appropriate callback based on result
-    if (location) {
-      onLocationGranted?.();
-    } else {
+    try {
+      await requestLocation();
+      
+      // Call appropriate callback based on result
+      if (location) {
+        onLocationGranted?.();
+      } else {
+        onLocationDenied?.();
+      }
+    } catch (err) {
+      console.error('Failed to request location:', err);
       onLocationDenied?.();
     }
   };
