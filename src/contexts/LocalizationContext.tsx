@@ -265,6 +265,16 @@ const translations: Record<Language, TranslationKeys> = {
     saving: 'Saqlanmoqda...',
     saveChanges: 'O\'zgarishlarni saqlash',
     settingsSavedSuccessfully: 'Sozlamalar muvaffaqiyatli saqlandi',
+    
+    // Location Services
+    locationPermissionTitle: 'Joylashuv ruxsati',
+    locationPermissionMessage: 'Sizga yaqin mahsulotlarni ko\'rsatish uchun joylashuvingizni bilishimiz kerak.',
+    locationPermissionDenied: 'Joylashuv ruxsati rad etildi. Sizga yaqin mahsulotlar ko\'rsatilmaydi.',
+    locationPermissionGranted: 'Joylashuv ruxsati berildi. Yaqin mahsulotlar yuklanmoqda...',
+    locationError: 'Joylashuvni aniqlashda xatolik. Qayta urinib ko\'ring.',
+    enableLocation: 'Joylashuvni yoqish',
+    locationRequired: 'Joylashuv talab qilinadi',
+    locationRequiredMessage: 'Mahsulotlarni ko\'rish uchun joylashuv ruxsati kerak.',
   },
   ru: {
     // Navigation
@@ -513,6 +523,16 @@ const translations: Record<Language, TranslationKeys> = {
     saving: 'Сохранение...',
     saveChanges: 'Сохранить изменения',
     settingsSavedSuccessfully: 'Настройки успешно сохранены',
+    
+    // Location Services
+    locationPermissionTitle: 'Разрешение на местоположение',
+    locationPermissionMessage: 'Нам нужно знать ваше местоположение, чтобы показать товары рядом с вами.',
+    locationPermissionDenied: 'Разрешение на местоположение отклонено. Близкие товары не будут показаны.',
+    locationPermissionGranted: 'Разрешение на местоположение предоставлено. Загружаются близкие товары...',
+    locationError: 'Ошибка определения местоположения. Попробуйте еще раз.',
+    enableLocation: 'Включить местоположение',
+    locationRequired: 'Требуется местоположение',
+    locationRequiredMessage: 'Для просмотра товаров требуется разрешение на местоположение.',
   }
 };
 

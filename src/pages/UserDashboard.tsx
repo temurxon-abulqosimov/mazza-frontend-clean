@@ -10,13 +10,16 @@ import {
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
+import { useLocation } from '../contexts/LocationContext';
 import { productsApi, ordersApi } from '../services/api';
 import { Product, Seller } from '../types';
+import LocationPermission from '../components/LocationPermission';
 
 const UserDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user, userProfile, isReady } = useTelegram();
   const { t } = useLocalization();
+  const { location, locationPermission, isLoading: locationLoading, requestLocation } = useLocation();
   const [activeTab, setActiveTab] = useState<'home' | 'search' | 'orders' | 'profile'>('home');
   const [products, setProducts] = useState<Product[]>([]);
   const [sellers, setSellers] = useState<Seller[]>([]);
@@ -32,25 +35,8 @@ const UserDashboard: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // Get user location for product discovery
-      const getUserLocation = () => {
-        if (!userProfile?.location) {
-          return { latitude: 41.2995, longitude: 69.2401 };
-        }
-        
-        if (typeof userProfile.location === 'string') {
-          try {
-            const coords = JSON.parse(userProfile.location);
-            return { latitude: coords.latitude, longitude: coords.longitude };
-          } catch {
-            return { latitude: 41.2995, longitude: 69.2401 };
-          }
-        }
-        
-        return userProfile.location;
-      };
-      
-      const userLocation = getUserLocation();
+      // Use location from context, fallback to default location
+      const userLocation = location || { latitude: 41.2995, longitude: 69.2401 };
       
       const [productsResponse, ordersResponse] = await Promise.all([
         productsApi.getProductsNearby(userLocation.latitude, userLocation.longitude),
@@ -83,7 +69,7 @@ const UserDashboard: React.FC = () => {
       // Load data in background, don't block the main flow
       loadDashboardData();
     }
-  }, [isReady, user, userProfile]);
+  }, [isReady, user, userProfile, location]);
 
   // Filter products when category changes or products are loaded
   useEffect(() => {
@@ -101,6 +87,9 @@ const UserDashboard: React.FC = () => {
     
     try {
       setLoading(true);
+      
+      // Use current location for search
+      const userLocation = location || { latitude: 41.2995, longitude: 69.2401 };
       
       // Search products with the query and category filter
       const response = await productsApi.searchProducts(searchQuery, selectedCategory === 'all' ? undefined : selectedCategory);
@@ -123,6 +112,9 @@ const UserDashboard: React.FC = () => {
     
     try {
       setLoading(true);
+      
+      // Use current location for filtering
+      const userLocation = location || { latitude: 41.2995, longitude: 69.2401 };
       
       // Search with empty query but with category filter
       const response = await productsApi.searchProducts('', selectedCategory);
@@ -197,6 +189,17 @@ const UserDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
+      {/* Location Permission Modal */}
+      <LocationPermission 
+        onLocationGranted={() => {
+          console.log('Location granted, reloading data...');
+          loadDashboardData();
+        }}
+        onLocationDenied={() => {
+          console.log('Location denied, using default location');
+          // Continue with default location
+        }}
+      />
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-md mx-auto px-4 py-4">

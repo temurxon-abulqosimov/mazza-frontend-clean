@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { TelegramProvider } from './contexts/TelegramContext';
 import { LocalizationProvider } from './contexts/LocalizationContext';
+import { LocationProvider } from './contexts/LocationContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
@@ -48,7 +49,8 @@ function App() {
     <ErrorBoundary>
       <TelegramProvider>
         <LocalizationProvider>
-          <Router>
+          <LocationProvider>
+            <Router>
             <div className="App">
               <Suspense fallback={<PageLoader />}>
                 <Routes>
@@ -102,6 +104,7 @@ function App() {
             {process.env.NODE_ENV === 'development' && <AuthDebug />}
           </div>
         </Router>
+          </LocationProvider>
       </LocalizationProvider>
     </TelegramProvider>
     </ErrorBoundary>
