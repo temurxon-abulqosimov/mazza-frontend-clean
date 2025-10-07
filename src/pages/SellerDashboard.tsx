@@ -171,10 +171,17 @@ const SellerDashboard: React.FC = () => {
       // Fetch average rating for this seller
       if (sellerResponse?.data?.id) {
         try {
+          console.log('🔧 Fetching rating for seller ID:', sellerResponse.data.id);
           const avgRes = await ratingsApi.getAverageRatingBySeller(String(sellerResponse.data.id));
+          console.log('✅ Rating response:', avgRes.data);
           setAverageRating(avgRes.data?.average ?? null);
-        } catch (e) {
+        } catch (e: any) {
           console.warn('Failed to fetch average rating:', e);
+          console.warn('Rating error details:', {
+            status: e.response?.status,
+            data: e.response?.data,
+            message: e.message
+          });
           setAverageRating(null);
         }
       }
@@ -398,14 +405,14 @@ const SellerDashboard: React.FC = () => {
                   className="flex items-center justify-center p-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                 >
                   <Plus className="w-5 h-5 mr-2" />
-                  Add Product
+                  {t('addProduct')}
                 </button>
                 <button
                   onClick={() => setActiveTab('orders')}
                   className="flex items-center justify-center p-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   <ShoppingBag className="w-5 h-5 mr-2" />
-                  View Orders
+                  {t('viewOrders')}
                 </button>
               </div>
             </div>
@@ -443,7 +450,7 @@ const SellerDashboard: React.FC = () => {
                 className="flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Product
+                {t('addProduct')}
               </button>
             </div>
 
