@@ -29,7 +29,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
   });
   
   const [formData, setFormData] = useState({
-    description: '',
+    name: '', // Product name (required)
+    description: '', // Product description (optional)
     price: '',
     originalPrice: '',
     quantity: '1',
@@ -53,6 +54,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
       const product = response.data;
       
       setFormData({
+        name: product.name || '',
         description: product.description || '',
         price: product.price.toString(),
         originalPrice: product.originalPrice?.toString() || '',
@@ -89,16 +91,33 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
     setLoading(true);
     setError(null);
 
+    // Validate required fields
+    if (!formData.name.trim()) {
+      setError('Product name is required');
+      setLoading(false);
+      return;
+    }
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      setError('Valid price is required');
+      setLoading(false);
+      return;
+    }
+    if (!formData.availableUntil) {
+      setError('Available until date is required');
+      setLoading(false);
+      return;
+    }
+
     try {
       const productData: CreateProductDto = {
-        name: formData.description, // Backend expects 'name' field
-        description: formData.description, // Also send description
+        name: formData.name, // Product name (required)
+        description: formData.description, // Product description (optional)
         price: parseFloat(formData.price),
         originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : undefined,
         quantity: parseInt(formData.quantity),
         availableUntil: new Date(formData.availableUntil),
         availableFrom: formData.availableFrom ? new Date(formData.availableFrom) : undefined,
-        category: formData.category, // CRITICAL: Send category field
+        category: formData.category,
         sellerId: 0, // Backend will set this automatically
       };
 
@@ -223,6 +242,23 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
             </div>
           </div>
 
+          {/* Product Name */}
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+              {t('productName') || 'Product Name'} *
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              placeholder={t('productNamePlaceholder') || 'Enter product name'}
+            />
+          </div>
+
           {/* Product Description */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
@@ -233,7 +269,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              required
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
               placeholder={t('productDescriptionPlaceholder')}
