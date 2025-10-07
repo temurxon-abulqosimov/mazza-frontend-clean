@@ -25,6 +25,7 @@ const UserDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
   const loadDashboardData = async () => {
     try {
@@ -59,6 +60,7 @@ const UserDashboard: React.FC = () => {
       // Handle the new data structure from backend
       const productsData = productsResponse.data?.products || productsResponse.data || [];
       setProducts(productsData);
+      setFilteredProducts(productsData);
       setOrders(ordersResponse.data || []);
     } catch (err: any) {
       console.error('Failed to load dashboard data:', err);
@@ -83,22 +85,70 @@ const UserDashboard: React.FC = () => {
     }
   }, [isReady, user, userProfile]);
 
+  // Filter products when category changes or products are loaded
+  useEffect(() => {
+    if (products.length > 0) {
+      filterProductsByCategory();
+    }
+  }, [selectedCategory, products]);
+
   const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      // If no search query, show all products or filter by category
+      filterProductsByCategory();
+      return;
+    }
     
     try {
       setLoading(true);
-      const userLocation = userProfile?.location || { latitude: 41.2995, longitude: 69.2401 };
       
-      const response = await productsApi.searchProducts(searchQuery, selectedCategory);
+      // Search products with the query and category filter
+      const response = await productsApi.searchProducts(searchQuery, selectedCategory === 'all' ? undefined : selectedCategory);
       // Handle the new data structure from backend
       const productsData = response.data?.products || response.data || [];
-      setProducts(productsData);
+      setFilteredProducts(productsData);
     } catch (err) {
       console.error('Search failed:', err);
       setError(t('searchFailed'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const filterProductsByCategory = async () => {
+    if (selectedCategory === 'all') {
+      setFilteredProducts(products);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      
+      // Search with empty query but with category filter
+      const response = await productsApi.searchProducts('', selectedCategory);
+      const productsData = response.data?.products || response.data || [];
+      setFilteredProducts(productsData);
+    } catch (err) {
+      console.error('Category filtering failed:', err);
+      // Fallback to client-side filtering
+      const filtered = products.filter(product => 
+        product.store?.businessType === selectedCategory
+      );
+      setFilteredProducts(filtered);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle category change
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    if (searchQuery.trim()) {
+      // If there's a search query, trigger search with new category
+      handleSearch();
+    } else {
+      // If no search query, filter by category only
+      filterProductsByCategory();
     }
   };
 
@@ -168,7 +218,7 @@ const UserDashboard: React.FC = () => {
           <div className="flex space-x-2">
             <input
               type="text"
-              placeholder={t("searchProducts")}
+              placeholder={t("searchProductsAndStores")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
@@ -186,11 +236,11 @@ const UserDashboard: React.FC = () => {
       {/* Category Filter */}
       <div className="bg-white px-4 py-3 border-b">
         <div className="max-w-md mx-auto">
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-          >
+            <select
+              value={selectedCategory}
+              onChange={(e) => handleCategoryChange(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            >
             {categories.map((category) => (
               <option key={category.value} value={category.value}>
                 {category.label}
@@ -207,8 +257,17 @@ const UserDashboard: React.FC = () => {
             {/* Featured Products */}
             <div>
               <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('featuredProducts')}</h2>
-              <div className="grid gap-4">
-                {products.slice(0, 6).map((product) => (
+              {filteredProducts.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="text-gray-400 mb-4">
+                    <Search className="w-12 h-12 mx-auto" />
+                  </div>
+                  <p className="text-gray-600 mb-2">{t('noProductsFound')}</p>
+                  <p className="text-sm text-gray-500">{t('tryDifferentSearch')}</p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {filteredProducts.slice(0, 6).map((product) => (
                   <div
                     key={product.id}
                     onClick={() => handleProductClick(product.id)}
@@ -227,7 +286,7 @@ const UserDashboard: React.FC = () => {
                           <Star className="w-4 h-4 text-yellow-400 fill-current" />
                           <span className="text-sm text-gray-600">{product.stats?.averageRating || 0}</span>
                           <MapPin className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-600">{product.store?.distance || 0} km</span>
+                          <span className="text-sm text-gray-600">{product.store?.distance || 0} {t('distance')}</span>
                         </div>
                         <div className="flex items-center justify-between mt-2">
                           <div className="flex items-center space-x-2">
@@ -248,7 +307,8 @@ const UserDashboard: React.FC = () => {
                     </div>
                   </div>
                 ))}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -256,8 +316,17 @@ const UserDashboard: React.FC = () => {
         {activeTab === 'search' && (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-900">{t('searchResults')}</h2>
-            <div className="grid gap-4">
-              {products.map((product) => (
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-gray-400 mb-4">
+                  <Search className="w-12 h-12 mx-auto" />
+                </div>
+                <p className="text-gray-600 mb-2">{t('noProductsFound')}</p>
+                <p className="text-sm text-gray-500">{t('tryDifferentSearch')}</p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {filteredProducts.map((product) => (
                 <div
                   key={product.id}
                   onClick={() => handleProductClick(product.id)}
@@ -276,7 +345,7 @@ const UserDashboard: React.FC = () => {
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
                         <span className="text-sm text-gray-600">{product.stats?.averageRating || 0}</span>
                         <MapPin className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">{product.store?.distance || 0} km</span>
+                        <span className="text-sm text-gray-600">{product.store?.distance || 0} {t('distance')}</span>
                       </div>
                       <div className="flex items-center justify-between mt-2">
                         <div className="flex items-center space-x-2">
@@ -297,7 +366,8 @@ const UserDashboard: React.FC = () => {
                   </div>
                 </div>
               ))}
-            </div>
+              </div>
+            )}
           </div>
         )}
 

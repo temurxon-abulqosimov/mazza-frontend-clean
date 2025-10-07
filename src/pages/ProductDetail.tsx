@@ -34,7 +34,7 @@ const ProductDetail: React.FC = () => {
           setProduct(response.data);
         } catch (error) {
           console.error('Failed to fetch product:', error);
-          showNotification('error', 'Error', 'Failed to load product. Please try again.');
+          showNotification('error', t('error'), t('failedToLoadProduct'));
           setProduct(null);
         }
       }
@@ -54,7 +54,7 @@ const ProductDetail: React.FC = () => {
 
   const handleConfirmOrder = async () => {
     if (!product || !user) {
-      showNotification('error', 'Error', 'User not found. Please refresh and try again.');
+      showNotification('error', t('error'), t('userNotFound'));
       return;
     }
 
@@ -93,8 +93,8 @@ const ProductDetail: React.FC = () => {
       // Show error notification
       showNotification(
         'error',
-        'Order Failed',
-        'Failed to place order. Please try again or contact support.'
+        t('orderFailed'),
+        t('orderFailedMessage')
       );
     } finally {
       setLoading(false);
@@ -105,7 +105,7 @@ const ProductDetail: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Product not found</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('productNotFound')}</h2>
           <button onClick={() => navigate(-1)} className="text-orange-500 hover:text-orange-600">
             {t('goBack')}
           </button>
@@ -168,7 +168,7 @@ const ProductDetail: React.FC = () => {
               <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
               <span className="mr-2">{product.seller.averageRating}</span>
               <span></span>
-              <span className="ml-2">{product.seller.distance} km</span>
+              <span className="ml-2">{product.seller.distance || 0} {t('distance')}</span>
             </div>
           </div>
           <div className="text-right">
@@ -191,7 +191,7 @@ const ProductDetail: React.FC = () => {
               <h3 className="font-medium text-gray-900">{product.seller.businessName}</h3>
               <div className="flex items-center text-sm text-gray-600">
                 <MapPin className="w-4 h-4 mr-1" />
-                <span>{product.seller.distance} km away</span>
+                <span>{product.seller.distance || 0} {t('kmAway')}</span>
               </div>
             </div>
           </div>
@@ -220,7 +220,7 @@ const ProductDetail: React.FC = () => {
             )}
             
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Quantity</span>
+              <span className="text-gray-600">{t('quantity')}</span>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -251,7 +251,7 @@ const ProductDetail: React.FC = () => {
             disabled={loading}
             className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
           >
-            {loading ? 'Placing Order...' : t('confirmOrder')}
+            {loading ? t('placingOrder') : t('confirmOrder')}
           </button>
         </div>
       </div>
@@ -281,7 +281,7 @@ const ProductDetail: React.FC = () => {
                   disabled={loading}
                   className="flex-1 py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? 'Placing...' : t('confirmOrder')}
+                  {loading ? t('placing') : t('confirmOrder')}
                 </button>
               </div>
             </div>

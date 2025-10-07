@@ -51,7 +51,7 @@ const translations: Record<Language, TranslationKeys> = {
     searchPlaceholder: 'Mahsulotlar yoki sotuvchilarni qidiring...',
     filters: 'Filtrlar',
     clear: 'Tozalash',
-    distance: 'Masofa',
+    distance: 'km',
     price: 'Narx',
     newest: 'Yangi',
     min: 'Min',
@@ -231,6 +231,40 @@ const translations: Record<Language, TranslationKeys> = {
     // Language names
     uzbek: 'O\'zbek',
     russian: 'Русский',
+    
+    // Search and filtering
+    searchProductsAndStores: 'Mahsulotlar va do\'konlarni qidirish...',
+    noProductsFound: 'Mahsulot topilmadi',
+    tryDifferentSearch: 'Boshqa qidiruv so\'zini sinab ko\'ring',
+    
+    // Product Details
+    productDetails: 'Mahsulot tafsilotlari',
+    productNotFound: 'Mahsulot topilmadi',
+    goBack: 'Orqaga',
+    confirmYourOrder: 'Buyurtmangizni tasdiqlang',
+    product: 'Mahsulot',
+    unitPrice: 'Birlik narxi',
+    savings: 'Tejash',
+    total: 'Jami',
+    confirmOrder: 'Buyurtmani tasdiqlash',
+    placingOrder: 'Buyurtma berilmoqda...',
+    placing: 'Berilmoqda...',
+    orderFailed: 'Buyurtma muvaffaqiyatsiz',
+    orderFailedMessage: 'Buyurtma berishda xatolik. Qayta urinib ko\'ring yoki qo\'llab-quvvatlash xizmati bilan bog\'laning.',
+    userNotFound: 'Foydalanuvchi topilmadi. Sahifani yangilang va qayta urinib ko\'ring.',
+    failedToLoadProduct: 'Mahsulotni yuklashda xatolik. Qayta urinib ko\'ring.',
+    kmAway: 'km uzoqlikda',
+    
+    // Account Settings
+    accountSettings: 'Hisob sozlamalari',
+    personalInformation: 'Shaxsiy ma\'lumotlar',
+    contactInformation: 'Aloqa ma\'lumotlari',
+    preferences: 'Sozlamalar',
+    emailPlaceholder: 'your@email.com',
+    phonePlaceholder: '+998 90 123 45 67',
+    saving: 'Saqlanmoqda...',
+    saveChanges: 'O\'zgarishlarni saqlash',
+    settingsSavedSuccessfully: 'Sozlamalar muvaffaqiyatli saqlandi',
   },
   ru: {
     // Navigation
@@ -264,7 +298,7 @@ const translations: Record<Language, TranslationKeys> = {
     searchPlaceholder: 'Поиск товаров или продавцов...',
     filters: 'Фильтры',
     clear: 'Очистить',
-    distance: 'Расстояние',
+    distance: 'км',
     price: 'Цена',
     newest: 'Новое',
     min: 'Мин',
@@ -445,6 +479,40 @@ const translations: Record<Language, TranslationKeys> = {
     // Language names
     uzbek: 'O\'zbek',
     russian: 'Русский',
+    
+    // Search and filtering
+    searchProductsAndStores: 'Поиск товаров и магазинов...',
+    noProductsFound: 'Товары не найдены',
+    tryDifferentSearch: 'Попробуйте другие поисковые слова',
+    
+    // Product Details
+    productDetails: 'Детали товара',
+    productNotFound: 'Товар не найден',
+    goBack: 'Назад',
+    confirmYourOrder: 'Подтвердите ваш заказ',
+    product: 'Товар',
+    unitPrice: 'Цена за единицу',
+    savings: 'Экономия',
+    total: 'Итого',
+    confirmOrder: 'Подтвердить заказ',
+    placingOrder: 'Размещение заказа...',
+    placing: 'Размещение...',
+    orderFailed: 'Заказ не удался',
+    orderFailedMessage: 'Не удалось разместить заказ. Попробуйте еще раз или обратитесь в службу поддержки.',
+    userNotFound: 'Пользователь не найден. Обновите страницу и попробуйте еще раз.',
+    failedToLoadProduct: 'Ошибка загрузки товара. Попробуйте еще раз.',
+    kmAway: 'км от вас',
+    
+    // Account Settings
+    accountSettings: 'Настройки аккаунта',
+    personalInformation: 'Личная информация',
+    contactInformation: 'Контактная информация',
+    preferences: 'Настройки',
+    emailPlaceholder: 'your@email.com',
+    phonePlaceholder: '+998 90 123 45 67',
+    saving: 'Сохранение...',
+    saveChanges: 'Сохранить изменения',
+    settingsSavedSuccessfully: 'Настройки успешно сохранены',
   }
 };
 
