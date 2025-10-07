@@ -393,15 +393,27 @@ export const sellersApi = {
     }
   },
   getSellerProfile: async () => {
+    console.log('🔧 getSellerProfile called');
+    console.log('🔧 Auth token exists:', !!localStorage.getItem('access_token'));
+    console.log('🔧 User role:', localStorage.getItem('userRole'));
+    
+    // Clear cache to ensure fresh data
     const cacheKey = `get:${api.defaults.baseURL}/webapp/sellers/profile`;
-    const cachedData = getCachedData(cacheKey);
-    if (cachedData) return Promise.resolve({ data: cachedData });
+    cache.delete(cacheKey);
+    console.log('🗑️ Cleared cache for seller profile');
     
     try {
+      console.log('🌐 Making API call to /webapp/sellers/profile');
       const response = await api.get('/webapp/sellers/profile');
+      console.log('✅ Seller profile API response:', response.data);
       return response;
     } catch (error) {
-      console.error('Failed to get seller profile:', error);
+      console.error('❌ Failed to get seller profile:', error);
+      console.error('❌ Error details:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
       throw error;
     }
   },
@@ -498,15 +510,27 @@ export const productsApi = {
     }
   },
   getSellerProducts: async () => {
+    console.log('🔧 getSellerProducts called');
+    console.log('🔧 Auth token exists:', !!localStorage.getItem('access_token'));
+    console.log('🔧 User role:', localStorage.getItem('userRole'));
+    
+    // Clear cache to ensure fresh data
     const cacheKey = `get:${api.defaults.baseURL}/webapp/products/seller/my`;
-    const cachedData = getCachedData(cacheKey);
-    if (cachedData) return Promise.resolve({ data: cachedData });
+    cache.delete(cacheKey);
+    console.log('🗑️ Cleared cache for seller products');
     
     try {
+      console.log('🌐 Making API call to /webapp/products/seller/my');
       const response = await api.get('/webapp/products/seller/my');
+      console.log('✅ Seller products API response:', response.data);
       return response;
     } catch (error) {
-      console.error('Failed to get seller products:', error);
+      console.error('❌ Failed to get seller products:', error);
+      console.error('❌ Error details:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
       throw error;
     }
   },
