@@ -3,11 +3,13 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, User, Store, Phone, Clock } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
+import { useLocalization } from '../contexts/LocalizationContext';
 import { usersApi, sellersApi } from '../services/api';
 import { BusinessType } from '../types';
 
 const Register: React.FC = () => {
   const { user, webApp } = useTelegram();
+  const { t } = useLocalization();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [registrationType, setRegistrationType] = useState<'user' | 'seller' | null>(null);
@@ -52,7 +54,7 @@ const Register: React.FC = () => {
     } catch (err: any) {
       console.error('Registration failed:', err);
       console.error('Error response:', err.response?.data);
-      setError(`Failed to register as user: ${err.response?.data?.message || err.message || 'Please try again.'}`);
+      setError(`${t('registrationFailed')}: ${err.response?.data?.message || err.message || t('retry')}`);
     } finally {
       setLoading(false);
     }
@@ -82,7 +84,7 @@ const Register: React.FC = () => {
       await sellersApi.createSeller(sellerData);
       // Show success message with Open Mini App button
     } catch (err) {
-      setError('Failed to register as seller. Please try again.');
+      setError(t('registrationFailed'));
     } finally {
       setLoading(false);
     }
@@ -148,7 +150,7 @@ const Register: React.FC = () => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-xl font-bold text-gray-900">
-            Register as {registrationType === 'user' ? 'User' : 'Seller'}
+            {t('registerAs')} {registrationType === 'user' ? t('registerAsUser') : t('registerAsSeller')}
           </h1>
         </div>
       </div>
@@ -199,7 +201,7 @@ const Register: React.FC = () => {
                     type="text"
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
-                    placeholder="Your business name"
+                    placeholder={t('businessNamePlaceholder')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     required
                   />
@@ -262,7 +264,7 @@ const Register: React.FC = () => {
               disabled={loading}
               className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-orange-600 transition-colors disabled:opacity-50"
             >
-              {loading ? 'Registering...' : `Register as ${registrationType === 'user' ? 'User' : 'Seller'}`}
+              {loading ? t('registering') : `${t('registerButton')} ${registrationType === 'user' ? t('registerAsUser') : t('registerAsSeller')}`}
             </button>
           </div>
         </form>

@@ -63,7 +63,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
       });
     } catch (error) {
       console.error('Failed to load product:', error);
-      setError('Failed to load product details');
+      setError(t('productLoadError') || 'Failed to load product details');
     }
   }, [id]);
 
@@ -91,22 +91,22 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
 
     // Validate required fields
     if (!formData.description.trim()) {
-      setError('Product description is required');
+      setError(t('productDescriptionRequired'));
       setLoading(false);
       return;
     }
     if (formData.description.trim().length < 3) {
-      setError('Product description must be at least 3 characters');
+      setError(t('productDescriptionMinLength'));
       setLoading(false);
       return;
     }
     if (!formData.price || parseFloat(formData.price) <= 0) {
-      setError('Valid price is required');
+      setError(t('validPriceRequired'));
       setLoading(false);
       return;
     }
     if (!formData.availableUntil) {
-      setError('Available until date is required');
+      setError(t('availableUntilRequired'));
       setLoading(false);
       return;
     }
@@ -198,7 +198,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </button>
             <h1 className="text-lg font-semibold text-gray-900">
-              {mode === 'create' ? 'Add Product' : 'Edit Product'}
+              {mode === 'create' ? t('addProduct') : t('editProduct')}
             </h1>
           </div>
         </div>

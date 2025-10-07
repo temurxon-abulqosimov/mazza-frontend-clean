@@ -81,7 +81,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <div className="p-4">
         <div className="flex items-start justify-between mb-2">
           <div>
-            <h3 className="font-semibold text-gray-900">{product.store?.businessName || product.seller?.businessName || 'Unknown Seller'}</h3>
+            <h3 className="font-semibold text-gray-900">{product.store?.businessName || product.seller?.businessName || t('unknownSeller')}</h3>
             <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getBusinessTypeColor(product.store?.businessType || product.seller?.businessType || 'other')}`}>
               {product.store?.businessType || product.seller?.businessType || 'other'}
             </span>
@@ -91,16 +91,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {/* Product Details */}
         <div className="mb-3">
           <p className="text-sm text-gray-600 mb-1">
-            {product.description || product.name || 'Fresh surplus food available'}
+            {product.description || product.name || t('freshSurplusFood')}
           </p>
-          <p className="text-xs text-gray-500">{t('quantity')}: {product.quantity} available</p>
+          <p className="text-xs text-gray-500">{t('quantity')}: {product.quantity} {t('quantityAvailable')}</p>
         </div>
 
         {/* Location, Time, Rating */}
         <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
           <div className="flex items-center">
             <MapPin className="w-4 h-4 mr-1" />
-            <span>{distance ? `${distance.toFixed(1)} km` : 'Nearby'}</span>
+            <span>{distance ? `${distance.toFixed(1)} km` : t('nearby')}</span>
           </div>
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1" />

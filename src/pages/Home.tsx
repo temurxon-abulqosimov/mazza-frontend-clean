@@ -37,10 +37,10 @@ const Home: React.FC = () => {
   // Memoize categories to avoid recreation on every render
   const categories = useMemo(() => [
     { value: 'all', label: t('allCategories') },
-    { value: 'bakery', label: 'Bakery' },
-    { value: 'restaurant', label: 'Restaurant' },
-    { value: 'cafe', label: 'Cafe' },
-    { value: 'grocery', label: 'Grocery' },
+    { value: 'bakery', label: t('bakery') },
+    { value: 'restaurant', label: t('restaurant') },
+    { value: 'cafe', label: t('cafe') },
+    { value: 'grocery', label: t('grocery') },
   ], [t]);
 
   const loadHomeData = useCallback(async () => {
@@ -91,11 +91,11 @@ const Home: React.FC = () => {
       
       // Check if it's an authentication error
       if (err.response?.status === 401) {
-        setError('Please register first through the Telegram bot before using the miniapp.');
+        setError(t('pleaseRegister'));
       } else if (err.response?.status === 403) {
-        setError('Access denied. Please contact support.');
+        setError(t('accessDenied'));
       } else {
-        setError('Failed to load home data');
+        setError(t('failedToLoadHome'));
       }
     } finally {
       setLoading(false);
@@ -121,7 +121,7 @@ const Home: React.FC = () => {
       setProducts(productsData);
     } catch (err) {
       console.error('Search failed:', err);
-      setError('Search failed. Please try again.');
+      setError(t('searchFailed'));
     } finally {
       setLoading(false);
     }
@@ -242,7 +242,7 @@ const Home: React.FC = () => {
                   />
                   <div className="flex-1">
                     <h3 className="font-medium text-gray-900">{product.description || product.name}</h3>
-                    <p className="text-sm text-gray-600">{product.store?.businessName || 'Store'}</p>
+                    <p className="text-sm text-gray-600">{product.store?.businessName || t('store')}</p>
                     <div className="flex items-center space-x-2 mt-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
                       <span className="text-sm text-gray-600">{product.stats?.averageRating || 0}</span>
@@ -299,7 +299,7 @@ const Home: React.FC = () => {
                     </div>
                     <div className="flex items-center justify-between mt-2">
                       <span className="text-sm text-gray-600">
-                        {seller.isOpen ? 'Open' : 'Closed'}
+                        {seller.isOpen ? t('open') : t('closed')}
                       </span>
                       <button className="p-1 hover:bg-gray-100 rounded">
                         <Heart className="w-4 h-4 text-gray-400" />

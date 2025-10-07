@@ -65,11 +65,11 @@ const UserDashboard: React.FC = () => {
       
       // Check if it's an authentication error
       if (err.response?.status === 401) {
-        setError('Please register first through the Telegram bot before using the miniapp.');
+        setError(t('pleaseRegister'));
       } else if (err.response?.status === 403) {
-        setError('Access denied. Please contact support.');
+        setError(t('accessDenied'));
       } else {
-        setError('Failed to load dashboard data. Please check your connection and try again.');
+        setError(t('failedToLoadDashboard'));
       }
     } finally {
       setLoading(false);
@@ -96,7 +96,7 @@ const UserDashboard: React.FC = () => {
       setProducts(productsData);
     } catch (err) {
       console.error('Search failed:', err);
-      setError('Search failed. Please try again.');
+      setError(t('searchFailed'));
     } finally {
       setLoading(false);
     }
@@ -112,10 +112,10 @@ const UserDashboard: React.FC = () => {
 
   const categories = [
     { value: 'all', label: t('allCategories') },
-    { value: 'bakery', label: 'Bakery' },
-    { value: 'restaurant', label: 'Restaurant' },
-    { value: 'cafe', label: 'Cafe' },
-    { value: 'grocery', label: 'Grocery' },
+    { value: 'bakery', label: t('bakery') },
+    { value: 'restaurant', label: t('restaurant') },
+    { value: 'cafe', label: t('cafe') },
+    { value: 'grocery', label: t('grocery') },
   ];
 
   if (loading) {
@@ -123,7 +123,7 @@ const UserDashboard: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">{t('loading')}</p>
         </div>
       </div>
     );
@@ -138,7 +138,7 @@ const UserDashboard: React.FC = () => {
             onClick={loadDashboardData}
             className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
           >
-            Retry
+            {t('retry')}
           </button>
         </div>
       </div>
@@ -177,7 +177,7 @@ const UserDashboard: React.FC = () => {
               onClick={handleSearch}
               className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
             >
-              Search
+              {t('searchButton')}
             </button>
           </div>
         </div>
@@ -222,7 +222,7 @@ const UserDashboard: React.FC = () => {
                       />
                       <div className="flex-1">
                         <h3 className="font-medium text-gray-900">{product.description || product.name}</h3>
-                        <p className="text-sm text-gray-600">{product.store?.businessName || 'Store'}</p>
+                        <p className="text-sm text-gray-600">{product.store?.businessName || t('store')}</p>
                         <div className="flex items-center space-x-2 mt-1">
                           <Star className="w-4 h-4 text-yellow-400 fill-current" />
                           <span className="text-sm text-gray-600">{product.stats?.averageRating || 0}</span>
@@ -255,7 +255,7 @@ const UserDashboard: React.FC = () => {
 
         {activeTab === 'search' && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">Search Results</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('searchResults')}</h2>
             <div className="grid gap-4">
               {products.map((product) => (
                 <div
@@ -271,7 +271,7 @@ const UserDashboard: React.FC = () => {
                     />
                     <div className="flex-1">
                       <h3 className="font-medium text-gray-900">{product.description || product.name}</h3>
-                      <p className="text-sm text-gray-600">{product.store?.businessName || 'Store'}</p>
+                      <p className="text-sm text-gray-600">{product.store?.businessName || t('store')}</p>
                       <div className="flex items-center space-x-2 mt-1">
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
                         <span className="text-sm text-gray-600">{product.stats?.averageRating || 0}</span>
@@ -303,19 +303,19 @@ const UserDashboard: React.FC = () => {
 
         {activeTab === 'orders' && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">My Orders</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('myOrders')}</h2>
             {orders.length === 0 ? (
               <div className="text-center py-8">
                 <ShoppingBag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No orders yet</p>
-                <p className="text-sm text-gray-500">Start exploring products to place your first order!</p>
+                <p className="text-gray-600">{t('noOrdersYet')}</p>
+                <p className="text-sm text-gray-500">{t('startExploringProducts')}</p>
               </div>
             ) : (
               <div className="grid gap-4">
                 {orders.map((order) => (
                   <div key={order.id} className="bg-white rounded-lg shadow-sm border p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-900">Order #{order.id}</span>
+                      <span className="text-sm font-medium text-gray-900">{t('orderNumber')}{order.id}</span>
                       <span className="text-sm text-gray-600">{order.status}</span>
                     </div>
                     <p className="text-sm text-gray-600">{order.product?.description}</p>
@@ -332,7 +332,7 @@ const UserDashboard: React.FC = () => {
 
         {activeTab === 'profile' && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">Profile</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('profile')}</h2>
             <div className="bg-white rounded-lg shadow-sm border p-4">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">

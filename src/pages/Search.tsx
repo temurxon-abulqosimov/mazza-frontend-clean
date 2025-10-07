@@ -5,6 +5,7 @@ import BottomNavigation from '../components/BottomNavigation';
 import ProductCard from '../components/ProductCard';
 import { productsApi } from '../services/api';
 import { Product, BusinessType } from '../types';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 interface SearchFilters {
   category: BusinessType | 'all';
@@ -16,6 +17,7 @@ interface SearchFilters {
 
 const Search: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useLocalization();
   const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
@@ -77,7 +79,7 @@ const Search: React.FC = () => {
       setProducts(filteredProducts);
     } catch (err) {
       console.error('Search failed:', err);
-      setError('Search failed. Please try again.');
+      setError(t('searchFailed'));
     } finally {
       setLoading(false);
     }
@@ -115,11 +117,11 @@ const Search: React.FC = () => {
   };
 
   const businessTypes = [
-    { value: 'all', label: 'All Categories' },
-    { value: 'bakery', label: 'Bakery' },
-    { value: 'restaurant', label: 'Restaurant' },
-    { value: 'cafe', label: 'Cafe' },
-    { value: 'market', label: 'Market' }
+    { value: 'all', label: t('allCategories') },
+    { value: 'bakery', label: t('bakery') },
+    { value: 'restaurant', label: t('restaurant') },
+    { value: 'cafe', label: t('cafe') },
+    { value: 'market', label: t('market') }
   ];
 
   return (
@@ -134,7 +136,7 @@ const Search: React.FC = () => {
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-lg font-semibold text-gray-900">Search</h1>
+            <h1 className="text-lg font-semibold text-gray-900">{t('search')}</h1>
           </div>
         </div>
       </div>
@@ -145,7 +147,7 @@ const Search: React.FC = () => {
           <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
             type="text"
-            placeholder="Search products or sellers..."
+            placeholder={t('searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -162,24 +164,24 @@ const Search: React.FC = () => {
               className="flex items-center px-3 py-2 bg-gray-100 rounded-lg text-sm"
             >
               <Filter className="w-4 h-4 mr-1" />
-              Filters
+              {t('filters')}
             </button>
             <select
               value={filters.sortBy}
               onChange={(e) => handleFilterChange('sortBy', e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
-              <option value="distance">Distance</option>
-              <option value="price">Price</option>
-              <option value="rating">Rating</option>
-              <option value="newest">Newest</option>
+              <option value="distance">{t('distance')}</option>
+              <option value="price">{t('price')}</option>
+              <option value="rating">{t('rating')}</option>
+              <option value="newest">{t('newest')}</option>
             </select>
           </div>
           <button
             onClick={clearFilters}
             className="text-sm text-gray-500 hover:text-gray-700"
           >
-            Clear
+            {t('clear')}
           </button>
         </div>
       </div>
@@ -208,7 +210,7 @@ const Search: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <input
                   type="number"
-                  placeholder="Min"
+                  placeholder={t('min')}
                   value={filters.priceRange.min}
                   onChange={(e) => handleFilterChange('priceRange', { ...filters.priceRange, min: parseInt(e.target.value) || 0 })}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -216,7 +218,7 @@ const Search: React.FC = () => {
                 <span className="text-gray-500">-</span>
                 <input
                   type="number"
-                  placeholder="Max"
+                  placeholder={t('max')}
                   value={filters.priceRange.max}
                   onChange={(e) => handleFilterChange('priceRange', { ...filters.priceRange, max: parseInt(e.target.value) || 100000 })}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -265,8 +267,8 @@ const Search: React.FC = () => {
         {!loading && !error && searchQuery && products.length === 0 && (
           <div className="text-center py-8">
             <SearchIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 mb-2">No results found</p>
-            <p className="text-sm text-gray-400">Try adjusting your search or filters</p>
+            <p className="text-gray-500 mb-2">{t('noResults')}</p>
+            <p className="text-sm text-gray-400">{t('tryAdjustingSearch')}</p>
           </div>
         )}
 

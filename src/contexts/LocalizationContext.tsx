@@ -47,11 +47,73 @@ const translations: Record<Language, TranslationKeys> = {
     allCategories: 'Barcha kategoriyalar',
     featuredProducts: 'Tavsiya etilgan mahsulotlar',
     
+    // Search page
+    searchPlaceholder: 'Mahsulotlar yoki sotuvchilarni qidiring...',
+    filters: 'Filtrlar',
+    clear: 'Tozalash',
+    distance: 'Masofa',
+    price: 'Narx',
+    newest: 'Yangi',
+    min: 'Min',
+    max: 'Max',
+    noResults: 'Natija topilmadi',
+    tryAdjustingSearch: 'Qidiruv yoki filtrlarni o\'zgartiring',
+    
+    // Register page
+    registerAs: 'Ro\'yxatdan o\'tish',
+    registerAsUser: 'Foydalanuvchi sifatida',
+    registerAsSeller: 'Sotuvchi sifatida',
+    businessName: 'Biznes nomi',
+    businessNamePlaceholder: 'Biznesingiz nomi',
+    phoneNumber: 'Telefon raqami',
+    language: 'Til',
+    businessType: 'Biznes turi',
+    openingHours: 'Ish vaqti',
+    opensAt: 'Ochilish vaqti',
+    closesAt: 'Yopilish vaqti',
+    registering: 'Ro\'yxatdan o\'tkazilmoqda...',
+    registerButton: 'Ro\'yxatdan o\'tish',
+    registrationFailed: 'Ro\'yxatdan o\'tish muvaffaqiyatsiz. Qayta urinib ko\'ring.',
+    
+    // Product form
+    addProduct: 'Mahsulot qo\'shish',
+    editProduct: 'Mahsulotni tahrirlash',
+    productDescription: 'Mahsulot tavsifi',
+    productDescriptionPlaceholder: 'Mahsulot tavsifini kiriting',
+    salePrice: 'Sotish narxi',
+    originalPrice: 'Asl narx (ixtiyoriy)',
+    quantity: 'Miqdor',
+    availableUntil: 'Mavjud bo\'lish muddati',
+    availableFrom: 'Mavjud bo\'lish vaqti',
+    category: 'Kategoriya',
+    productDescriptionRequired: 'Mahsulot tavsifi kiritilishi shart',
+    productDescriptionMinLength: 'Mahsulot tavsifi kamida 3 ta belgi bo\'lishi kerak',
+    validPriceRequired: 'To\'g\'ri narx kiritilishi shart',
+    availableUntilRequired: 'Mavjud bo\'lish muddati kiritilishi shart',
+    productCreated: 'Mahsulot muvaffaqiyatli yaratildi',
+    productUpdated: 'Mahsulot muvaffaqiyatli yangilandi',
+    productCreateError: 'Mahsulot yaratishda xatolik',
+    productUpdateError: 'Mahsulot yangilashda xatolik',
+    
+    // Product display
+    unknownSeller: 'Noma\'lum sotuvchi',
+    freshSurplusFood: 'Yangilangan ortiqcha oziq-ovqat mavjud',
+    quantityAvailable: 'mavjud',
+    nearby: 'Yaqin atrofda',
+    open: 'Ochiq',
+    closed: 'Yopiq',
+    store: 'Do\'kon',
+    grocery: 'Oziq-ovqat do\'koni',
+    pleaseRegister: 'Iltimos, avval Telegram bot orqali ro\'yxatdan o\'ting.',
+    accessDenied: 'Kirish rad etildi. Iltimos, qo\'llab-quvvatlash xizmati bilan bog\'laning.',
+    failedToLoadHome: 'Bosh sahifa ma\'lumotlarini yuklashda xatolik',
+    failedToLoadDashboard: 'Boshqaruv paneli ma\'lumotlarini yuklashda xatolik',
+    searchFailed: 'Qidiruv muvaffaqiyatsiz. Qayta urinib ko\'ring.',
+    
     // Business types
     bakery: 'Nonvoyxona',
     restaurant: 'Restoran',
     cafe: 'Kafe',
-    grocery: 'Oziq-ovqat do\'koni',
     
     // Seller Dashboard
     myStore: 'Mening do\'konim',
@@ -63,7 +125,6 @@ const translations: Record<Language, TranslationKeys> = {
     quickActions: 'Tezkor amallar',
     viewOrders: 'Buyurtmalarni ko\'rish',
     recentOrders: 'So\'nggi buyurtmalar',
-    noOrdersYet: 'Hali buyurtma yo\'q',
     
     // Order statuses
     filterByStatus: 'Holat bo\'yicha filtr',
@@ -88,27 +149,6 @@ const translations: Record<Language, TranslationKeys> = {
     businessImageUpdated: 'Biznes rasmi yangilandi.',
     uploadFailed: 'Yuklashda xatolik',
     uploadFailedMessage: 'Rasmni yuklashda xatolik. Qayta urinib koring.',
-    
-    // Product Form
-    addProduct: 'Mahsulot qo\'shish',
-    editProduct: 'Mahsulotni tahrirlash',
-    productImage: 'Mahsulot rasmi',
-    productImageDescription: 'Bu mahsulot sizning biznes rasmingizdan foydalanadi',
-    yourBusiness: 'Sizning biznesingiz',
-    productDescription: 'Mahsulot tavsifi',
-    productDescriptionPlaceholder: 'Mahsulotingizni tavsiflang...',
-    salePrice: 'Sotish narxi',
-    originalPrice: 'Asl narx',
-    quantityAvailable: 'Mavjud miqdor',
-    category: 'Kategoriya',
-    availableFrom: 'Mavjud bo\'lish vaqti (ixtiyoriy)',
-    availableUntil: 'Mavjud bo\'lish muddati',
-    createProduct: 'Mahsulot yaratish',
-    updateProduct: 'Mahsulotni yangilash',
-    productCreated: 'Mahsulot muvaffaqiyatli yaratildi',
-    productUpdated: 'Mahsulot muvaffaqiyatli yangilandi',
-    productCreationFailed: 'Mahsulot yaratishda xatolik',
-    productUpdateFailed: 'Mahsulot yangilashda xatolik',
     
     // Product Categories
     breadBakery: 'Non va pishiriq',
@@ -179,6 +219,18 @@ const translations: Record<Language, TranslationKeys> = {
     
     // Business Types
     pharmacy: 'Dorixona',
+    
+    // User Dashboard specific
+    searchResults: 'Qidiruv natijalari',
+    myOrders: 'Mening buyurtmalarim',
+    noOrdersYet: 'Hali buyurtma yo\'q',
+    startExploringProducts: 'Birinchi buyurtmangizni berish uchun mahsulotlarni o\'rganishni boshlang!',
+    orderNumber: 'Buyurtma #',
+    searchButton: 'Qidirish',
+    
+    // Language names
+    uzbek: 'O\'zbek',
+    russian: 'Русский',
   },
   ru: {
     // Navigation
@@ -208,11 +260,73 @@ const translations: Record<Language, TranslationKeys> = {
     allCategories: 'Все категории',
     featuredProducts: 'Рекомендуемые товары',
     
+    // Search page
+    searchPlaceholder: 'Поиск товаров или продавцов...',
+    filters: 'Фильтры',
+    clear: 'Очистить',
+    distance: 'Расстояние',
+    price: 'Цена',
+    newest: 'Новое',
+    min: 'Мин',
+    max: 'Макс',
+    noResults: 'Результаты не найдены',
+    tryAdjustingSearch: 'Попробуйте изменить поиск или фильтры',
+    
+    // Register page
+    registerAs: 'Регистрация',
+    registerAsUser: 'Как пользователь',
+    registerAsSeller: 'Как продавец',
+    businessName: 'Название бизнеса',
+    businessNamePlaceholder: 'Название вашего бизнеса',
+    phoneNumber: 'Номер телефона',
+    language: 'Язык',
+    businessType: 'Тип бизнеса',
+    openingHours: 'Часы работы',
+    opensAt: 'Время открытия',
+    closesAt: 'Время закрытия',
+    registering: 'Регистрация...',
+    registerButton: 'Зарегистрироваться',
+    registrationFailed: 'Регистрация не удалась. Попробуйте еще раз.',
+    
+    // Product form
+    addProduct: 'Добавить товар',
+    editProduct: 'Редактировать товар',
+    productDescription: 'Описание товара',
+    productDescriptionPlaceholder: 'Введите описание товара',
+    salePrice: 'Цена продажи',
+    originalPrice: 'Оригинальная цена (необязательно)',
+    quantity: 'Количество',
+    availableUntil: 'Доступно до',
+    availableFrom: 'Доступно с',
+    category: 'Категория',
+    productDescriptionRequired: 'Описание товара обязательно',
+    productDescriptionMinLength: 'Описание товара должно содержать минимум 3 символа',
+    validPriceRequired: 'Требуется корректная цена',
+    availableUntilRequired: 'Требуется дата доступности',
+    productCreated: 'Товар успешно создан',
+    productUpdated: 'Товар успешно обновлен',
+    productCreateError: 'Ошибка создания товара',
+    productUpdateError: 'Ошибка обновления товара',
+    
+    // Product display
+    unknownSeller: 'Неизвестный продавец',
+    freshSurplusFood: 'Свежие излишки еды доступны',
+    quantityAvailable: 'доступно',
+    nearby: 'Рядом',
+    open: 'Открыто',
+    closed: 'Закрыто',
+    store: 'Магазин',
+    grocery: 'Продуктовый магазин',
+    pleaseRegister: 'Пожалуйста, сначала зарегистрируйтесь через Telegram бота.',
+    accessDenied: 'Доступ запрещен. Пожалуйста, обратитесь в службу поддержки.',
+    failedToLoadHome: 'Ошибка загрузки данных главной страницы',
+    failedToLoadDashboard: 'Ошибка загрузки данных панели управления',
+    searchFailed: 'Поиск не удался. Попробуйте еще раз.',
+    
     // Business types
     bakery: 'Пекарня',
     restaurant: 'Ресторан',
     cafe: 'Кафе',
-    grocery: 'Продуктовый магазин',
     
     // Seller Dashboard
     myStore: 'Мой магазин',
@@ -224,7 +338,6 @@ const translations: Record<Language, TranslationKeys> = {
     quickActions: 'Быстрые действия',
     viewOrders: 'Просмотр заказов',
     recentOrders: 'Последние заказы',
-    noOrdersYet: 'Заказов пока нет',
     
     // Order statuses
     filterByStatus: 'Фильтр по статусу',
@@ -250,26 +363,6 @@ const translations: Record<Language, TranslationKeys> = {
     uploadFailed: 'Ошибка загрузки',
     uploadFailedMessage: 'Ошибка при загрузке изображения. Попробуйте снова.',
     
-    // Product Form
-    addProduct: 'Добавить товар',
-    editProduct: 'Редактировать товар',
-    productImage: 'Изображение товара',
-    productImageDescription: 'Этот товар будет использовать изображение вашего бизнеса',
-    yourBusiness: 'Ваш бизнес',
-    productDescription: 'Описание товара',
-    productDescriptionPlaceholder: 'Опишите ваш товар...',
-    salePrice: 'Цена продажи',
-    originalPrice: 'Оригинальная цена',
-    quantityAvailable: 'Доступное количество',
-    category: 'Категория',
-    availableFrom: 'Доступно с (необязательно)',
-    availableUntil: 'Доступно до',
-    createProduct: 'Создать товар',
-    updateProduct: 'Обновить товар',
-    productCreated: 'Товар успешно создан',
-    productUpdated: 'Товар успешно обновлен',
-    productCreationFailed: 'Ошибка создания товара',
-    productUpdateFailed: 'Ошибка обновления товара',
     
     // Product Categories
     breadBakery: 'Хлеб и выпечка',
@@ -340,6 +433,18 @@ const translations: Record<Language, TranslationKeys> = {
     
     // Business Types
     pharmacy: 'Аптека',
+    
+    // User Dashboard specific
+    searchResults: 'Результаты поиска',
+    myOrders: 'Мои заказы',
+    noOrdersYet: 'Заказов пока нет',
+    startExploringProducts: 'Начните изучать товары, чтобы сделать первый заказ!',
+    orderNumber: 'Заказ #',
+    searchButton: 'Поиск',
+    
+    // Language names
+    uzbek: 'O\'zbek',
+    russian: 'Русский',
   }
 };
 
