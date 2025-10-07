@@ -82,6 +82,10 @@ const SellerDashboard: React.FC = () => {
     }
   }, [isReady, user]);
 
+  useEffect(() => {
+    console.log('🔧 Rendering products:', { products, productsLength: products.length, productsType: typeof products });
+  }, [products]);
+
   // Remove simulated notifications
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -424,7 +428,6 @@ const SellerDashboard: React.FC = () => {
             </div>
 
             <div className="grid gap-4">
-              {console.log('🔧 Rendering products:', { products, productsLength: products.length, productsType: typeof products })}
               {products.map((product) => (
                 <div key={product.id} className="bg-white p-4 rounded-lg shadow-sm border">
                   <div className="flex items-start space-x-4">
