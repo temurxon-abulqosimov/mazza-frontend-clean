@@ -128,9 +128,23 @@ const SellerDashboard: React.FC = () => {
         orders: ordersResponse.data
       });
 
+      console.log('🔧 Products data details:', {
+        productsResponse: productsResponse,
+        productsData: productsResponse.data,
+        productsArray: Array.isArray(productsResponse.data),
+        productsLength: productsResponse.data?.length || 0,
+        productsType: typeof productsResponse.data
+      });
+
       setSeller(sellerResponse.data);
       setProducts(productsResponse.data || []);
       setOrders(ordersResponse.data || []);
+      
+      console.log('🔧 State updated:', {
+        seller: sellerResponse.data,
+        products: productsResponse.data || [],
+        orders: ordersResponse.data || []
+      });
 
       // Fetch average rating for this seller
       try {
@@ -410,6 +424,7 @@ const SellerDashboard: React.FC = () => {
             </div>
 
             <div className="grid gap-4">
+              {console.log('🔧 Rendering products:', { products, productsLength: products.length, productsType: typeof products })}
               {products.map((product) => (
                 <div key={product.id} className="bg-white p-4 rounded-lg shadow-sm border">
                   <div className="flex items-start space-x-4">
