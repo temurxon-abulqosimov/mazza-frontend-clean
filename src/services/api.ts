@@ -407,7 +407,7 @@ export const sellersApi = {
       const response = await api.get('/webapp/sellers/profile');
       console.log('✅ Seller profile API response:', response.data);
       return response;
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Failed to get seller profile:', error);
       console.error('❌ Error details:', {
         status: error.response?.status,
@@ -524,7 +524,7 @@ export const productsApi = {
       const response = await api.get('/webapp/products/seller/my');
       console.log('✅ Seller products API response:', response.data);
       return response;
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Failed to get seller products:', error);
       console.error('❌ Error details:', {
         status: error.response?.status,
