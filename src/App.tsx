@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { TelegramProvider } from './contexts/TelegramContext';
 import { LocalizationProvider } from './contexts/LocalizationContext';
 import { LocationProvider } from './contexts/LocationContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
@@ -24,6 +25,7 @@ import TestComponent from './TestComponent';
 const Search = lazy(() => import('./pages/Search'));
 const Orders = lazy(() => import('./pages/Orders'));
 const Profile = lazy(() => import('./pages/Profile'));
+const Notifications = lazy(() => import('./pages/Notifications'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
 const SellerDetail = lazy(() => import('./pages/SellerDetail'));
 const AccountSettings = lazy(() => import('./pages/AccountSettings'));
@@ -50,7 +52,8 @@ function App() {
       <TelegramProvider>
         <LocalizationProvider>
           <LocationProvider>
-            <Router>
+            <NotificationProvider>
+              <Router>
             <div className="App">
               <Suspense fallback={<PageLoader />}>
                 <Routes>
@@ -61,11 +64,13 @@ function App() {
                 <Route path="/user" element={<UserDashboard />} />
                 <Route path="/user/orders" element={<Orders />} />
                 <Route path="/user/profile" element={<Profile />} />
+                <Route path="/user/notifications" element={<Notifications />} />
                 
                 {/* Seller routes - Product management and dashboard */}
                 <Route path="/seller" element={<SellerDashboard />} />
                 <Route path="/seller/orders" element={<Orders />} />
                 <Route path="/seller/profile" element={<Profile />} />
+                <Route path="/seller/notifications" element={<Notifications />} />
                 <Route path="/seller/products/create" element={<ProductCreate />} />
                 <Route path="/seller/products/edit/:id" element={<ProductEdit />} />
                 
@@ -86,6 +91,7 @@ function App() {
                 <Route path="/search" element={<Search />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/notifications" element={<Notifications />} />
                 
                 {/* Development routes */}
                 {process.env.NODE_ENV === 'development' && (
@@ -104,6 +110,7 @@ function App() {
             {process.env.NODE_ENV === 'development' && <AuthDebug />}
           </div>
         </Router>
+            </NotificationProvider>
           </LocationProvider>
       </LocalizationProvider>
     </TelegramProvider>

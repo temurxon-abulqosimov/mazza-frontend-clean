@@ -1,8 +1,9 @@
 ﻿import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Search, ShoppingBag, User, Package, BarChart3 } from 'lucide-react';
+import { Home, Search, ShoppingBag, User, Package, BarChart3, Bell } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { useTelegram } from '../contexts/TelegramContext';
+import { useNotifications } from '../contexts/NotificationContext';
 
 interface BottomNavigationProps {
   currentPage: string;
@@ -13,6 +14,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
   const location = useLocation();
   const { t } = useLocalization();
   const { userRole } = useTelegram();
+  const { unreadCount } = useNotifications();
 
   // Different navigation items based on user role
   const getNavItems = () => {
@@ -22,7 +24,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
         { id: 'dashboard', label: t('home'), icon: Home, path: '/seller#dashboard' },
         { id: 'products', label: t('products'), icon: Package, path: '/seller#products' },
         { id: 'orders', label: t('orders'), icon: ShoppingBag, path: '/seller#orders' },
-        { id: 'analytics', label: t('analytics'), icon: BarChart3, path: '/seller#analytics' },
+        { id: 'notifications', label: t('notifications'), icon: Bell, path: '/seller/notifications', badge: unreadCount },
         { id: 'profile', label: t('profile'), icon: User, path: '/seller#profile' },
       ];
     } else if (userRole === 'ADMIN') {
@@ -38,6 +40,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
         { id: 'home', label: t('home'), icon: Home, path: '/user' },
         { id: 'search', label: t('search'), icon: Search, path: '/search' },
         { id: 'orders', label: t('orders'), icon: ShoppingBag, path: '/user/orders' },
+        { id: 'notifications', label: t('notifications'), icon: Bell, path: '/user/notifications', badge: unreadCount },
         { id: 'profile', label: t('profile'), icon: User, path: '/user/profile' },
       ];
     }
@@ -59,11 +62,18 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
             <button
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`flex-1 flex flex-col items-center py-3 px-2 ${
+              className={`flex-1 flex flex-col items-center py-3 px-2 relative ${
                 isActive ? 'text-orange-500' : 'text-gray-500'
               }`}
             >
-              <Icon className={`w-5 h-5 ${isActive ? 'text-orange-500' : 'text-gray-500'}`} />
+              <div className="relative">
+                <Icon className={`w-5 h-5 ${isActive ? 'text-orange-500' : 'text-gray-500'}`} />
+                {item.badge && item.badge > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    {item.badge > 9 ? '9+' : item.badge}
+                  </span>
+                )}
+              </div>
               <span className={`text-xs mt-1 ${isActive ? 'text-orange-500' : 'text-gray-500'}`}>
                 {item.label}
               </span>

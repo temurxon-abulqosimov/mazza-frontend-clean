@@ -275,6 +275,46 @@ const translations: Record<Language, TranslationKeys> = {
     enableLocation: 'Joylashuvni yoqish',
     locationRequired: 'Joylashuv talab qilinadi',
     locationRequiredMessage: 'Mahsulotlarni ko\'rish uchun joylashuv ruxsati kerak.',
+    
+    // Search Results and Product Cards
+    items: 'ta mahsulot',
+    productImage: 'Mahsulot rasmi',
+    available: 'Mavjud',
+    viewDetails: 'Tafsilotlarni ko\'rish',
+    until: 'gacha',
+    discount: 'Chegirma',
+    
+    // Order Notifications
+    orderConfirmed: 'Buyurtma tasdiqlandi',
+    orderConfirmationMessage: 'Buyurtmangiz muvaffaqiyatli yaratildi',
+    orderCreated: 'Yangi buyurtma',
+    orderCreatedMessage: 'Sizga yangi buyurtma keldi',
+    orderStatusChangedMessage: 'Buyurtma holati yangilandi',
+    orderCancelled: 'Buyurtma bekor qilindi',
+    orderCancelledMessage: 'Buyurtma bekor qilindi',
+    orderDelivered: 'Buyurtma yetkazildi',
+    orderDeliveredMessage: 'Buyurtma muvaffaqiyatli yetkazildi',
+    
+    // Seller Notifications
+    productStatusChanged: 'Mahsulot holati o\'zgartirildi',
+    productStatusChangedMessage: 'Mahsulot holati yangilandi',
+    newOrderReceived: 'Yangi buyurtma',
+    newOrderReceivedMessage: 'Sizga yangi buyurtma keldi',
+    orderUpdatedMessage: 'Buyurtma ma\'lumotlari yangilandi',
+    
+    // Notification Types
+    notification: 'Bildirishnoma',
+    notifications: 'Bildirishnomalar',
+    markAsRead: 'O\'qilgan deb belgilash',
+    markAllAsRead: 'Barchasini o\'qilgan deb belgilash',
+    noNotifications: 'Bildirishnoma yo\'q',
+    noNotificationsMessage: 'Hali bildirishnoma yo\'q',
+    justNow: 'Hozir',
+    minutesAgo: 'daqiqa oldin',
+    hoursAgo: 'soat oldin',
+    daysAgo: 'kun oldin',
+    all: 'Barchasi',
+    unread: 'O\'qilmagan',
   },
   ru: {
     // Navigation
@@ -533,6 +573,46 @@ const translations: Record<Language, TranslationKeys> = {
     enableLocation: 'Включить местоположение',
     locationRequired: 'Требуется местоположение',
     locationRequiredMessage: 'Для просмотра товаров требуется разрешение на местоположение.',
+    
+    // Search Results and Product Cards
+    items: 'товаров',
+    productImage: 'Изображение товара',
+    available: 'Доступно',
+    viewDetails: 'Просмотр деталей',
+    until: 'до',
+    discount: 'Скидка',
+    
+    // Order Notifications
+    orderConfirmed: 'Заказ подтвержден',
+    orderConfirmationMessage: 'Ваш заказ успешно создан',
+    orderCreated: 'Новый заказ',
+    orderCreatedMessage: 'У вас новый заказ',
+    orderStatusChangedMessage: 'Статус заказа обновлен',
+    orderCancelled: 'Заказ отменен',
+    orderCancelledMessage: 'Заказ отменен',
+    orderDelivered: 'Заказ доставлен',
+    orderDeliveredMessage: 'Заказ успешно доставлен',
+    
+    // Seller Notifications
+    productStatusChanged: 'Статус товара изменен',
+    productStatusChangedMessage: 'Статус товара обновлен',
+    newOrderReceived: 'Новый заказ',
+    newOrderReceivedMessage: 'У вас новый заказ',
+    orderUpdatedMessage: 'Информация о заказе обновлена',
+    
+    // Notification Types
+    notification: 'Уведомление',
+    notifications: 'Уведомления',
+    markAsRead: 'Отметить как прочитанное',
+    markAllAsRead: 'Отметить все как прочитанные',
+    noNotifications: 'Нет уведомлений',
+    noNotificationsMessage: 'Пока нет уведомлений',
+    justNow: 'Сейчас',
+    minutesAgo: 'минут назад',
+    hoursAgo: 'часов назад',
+    daysAgo: 'дней назад',
+    all: 'Все',
+    unread: 'Непрочитанные',
   }
 };
 

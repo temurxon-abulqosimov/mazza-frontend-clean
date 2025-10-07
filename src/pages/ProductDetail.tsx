@@ -6,12 +6,14 @@ import { useLocalization } from '../contexts/LocalizationContext';
 import { useTelegram } from '../contexts/TelegramContext';
 import { ordersApi } from '../services/api';
 import Notification, { NotificationProps } from '../components/Notification';
+import { useNotifications } from '../contexts/NotificationContext';
 
 const ProductDetail: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { t } = useLocalization();
   const { user } = useTelegram();
+  const { addNotification } = useNotifications();
   const [product, setProduct] = useState<any>(null);
   const [quantity, setQuantity] = useState(1);
   const [showOrderConfirm, setShowOrderConfirm] = useState(false);
@@ -81,6 +83,24 @@ const ProductDetail: React.FC = () => {
         t('orderConfirmed'),
         `${t('orderConfirmationMessage')} ${t('orderNumber')}: ${order.code}`
       );
+
+      // Add notification for user
+      addNotification({
+        type: 'order',
+        title: t('orderConfirmed'),
+        message: `${t('orderConfirmationMessage')} ${t('orderNumber')}: ${order.code}`,
+        orderId: order.id,
+        userId: user?.id?.toString(),
+      });
+
+      // Add notification for seller
+      addNotification({
+        type: 'order',
+        title: t('newOrderReceived'),
+        message: t('newOrderReceivedMessage'),
+        orderId: order.id,
+        sellerId: product.seller?.id?.toString(),
+      });
 
       // Navigate back to home after a delay
       setTimeout(() => {
