@@ -174,7 +174,9 @@ const SellerDashboard: React.FC = () => {
           console.log('🔧 Fetching rating for seller ID:', sellerResponse.data.id);
           const avgRes = await ratingsApi.getAverageRatingBySeller(String(sellerResponse.data.id));
           console.log('✅ Rating response:', avgRes.data);
-          setAverageRating(avgRes.data?.average ?? null);
+          console.log('✅ Average rating value:', avgRes.data?.averageRating);
+          console.log('✅ Average rating type:', typeof avgRes.data?.averageRating);
+          setAverageRating(avgRes.data?.averageRating ?? null);
         } catch (e: any) {
           console.warn('Failed to fetch average rating:', e);
           console.warn('Rating error details:', {
@@ -390,7 +392,12 @@ const SellerDashboard: React.FC = () => {
                   </div>
                   <div className="ml-3">
                     <p className="text-sm text-gray-600">{t('rating')}</p>
-                    <p className="text-2xl font-bold text-gray-900">{averageRating !== null ? averageRating.toFixed(1) : '-'}</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {averageRating !== null && averageRating > 0 ? averageRating.toFixed(1) : '-'}
+                    </p>
+                    {averageRating !== null && averageRating === 0 && (
+                      <p className="text-xs text-gray-500">{t('noRatingsYet')}</p>
+                    )}
                   </div>
                 </div>
               </div>

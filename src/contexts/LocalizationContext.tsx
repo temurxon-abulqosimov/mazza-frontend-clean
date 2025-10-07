@@ -39,6 +39,7 @@ const translations: Record<Language, TranslationKeys> = {
     // Messages
     success: 'Muvaffaqiyat',
     error: 'Xatolik',
+    noRatingsYet: 'Hali baho yo\'q',
     
     // Home page
     discover: 'Mahsulotlarni topish',
@@ -199,6 +200,7 @@ const translations: Record<Language, TranslationKeys> = {
     // Messages
     success: 'Успех',
     error: 'Ошибка',
+    noRatingsYet: 'Пока нет оценок',
     
     // Home page
     discover: 'Найти товары',
