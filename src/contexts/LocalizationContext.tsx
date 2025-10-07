@@ -163,6 +163,7 @@ const translations: Record<Language, TranslationKeys> = {
     step5: '5. Bu mini ilovaga qayting',
     afterRegistration: 'Ro\'yxatdan o\'tgandan so\'ng, sahifani yangilang va dashboardingizga kirish uchun.',
     refreshPage: 'Sahifani yangilash',
+    openTelegramBot: 'Telegram botni ochish',
     
     // Roles
     user: 'Foydalanuvchi',
@@ -316,6 +317,7 @@ const translations: Record<Language, TranslationKeys> = {
     step5: '5. Вернитесь к этому мини-приложению',
     afterRegistration: 'После регистрации обновите страницу для доступа к вашей панели управления.',
     refreshPage: 'Обновить страницу',
+    openTelegramBot: 'Открыть Telegram бота',
     
     // Roles
     user: 'Пользователь',
