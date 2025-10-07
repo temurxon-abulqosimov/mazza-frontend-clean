@@ -22,6 +22,7 @@ import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { dashboardApi, productsApi, ordersApi, sellersApi, ratingsApi } from '../services/api';
+import AuthDebug from '../components/AuthDebug';
 import { Product, Seller } from '../types';
 import ImageUpload from '../components/ImageUpload';
 import Notification, { NotificationProps } from '../components/Notification';
@@ -111,11 +112,21 @@ const SellerDashboard: React.FC = () => {
       setLoading(true);
       setError(null);
       
+      console.log('🔧 Loading seller data...');
+      console.log('🔧 Auth token exists:', !!localStorage.getItem('access_token'));
+      console.log('🔧 User role:', localStorage.getItem('userRole'));
+      
       const [sellerResponse, productsResponse, ordersResponse] = await Promise.all([
         sellersApi.getSellerProfile(),
         productsApi.getSellerProducts(),
         dashboardApi.getSellerOrders()
       ]);
+
+      console.log('✅ Seller data loaded:', {
+        seller: sellerResponse.data,
+        products: productsResponse.data,
+        orders: ordersResponse.data
+      });
 
       setSeller(sellerResponse.data);
       setProducts(productsResponse.data || []);
@@ -126,11 +137,24 @@ const SellerDashboard: React.FC = () => {
         const avgRes = await ratingsApi.getAverageRatingBySeller(String(sellerResponse.data.id));
         setAverageRating(avgRes.data?.average ?? null);
       } catch (e) {
+        console.warn('Failed to fetch average rating:', e);
         setAverageRating(null);
       }
-    } catch (err) {
-      console.error('Failed to load seller data:', err);
-      setError('Failed to load dashboard data. Please check your connection and try again.');
+    } catch (err: any) {
+      console.error('❌ Failed to load seller data:', err);
+      console.error('❌ Error details:', {
+        status: err.response?.status,
+        message: err.message,
+        data: err.response?.data
+      });
+      
+      if (err.response?.status === 401) {
+        setError('Authentication failed. Please log in again.');
+      } else if (err.response?.status === 403) {
+        setError('Access denied. You need seller permissions to view this page.');
+      } else {
+        setError('Failed to load dashboard data. Please check your connection and try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -634,6 +658,9 @@ const SellerDashboard: React.FC = () => {
       </div>
 
       <BottomNavigation currentPage={activeTab} />
+      
+      {/* Debug component for troubleshooting */}
+      <AuthDebug />
     </div>
   );
 };

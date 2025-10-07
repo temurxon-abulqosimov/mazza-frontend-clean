@@ -32,21 +32,30 @@ api.interceptors.request.use(
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
+      console.log('🔐 Adding auth token to request:', config.url);
+    } else {
+      console.warn('⚠️ No access token found for request:', config.url);
     }
     
     // Add language header
     const language = localStorage.getItem('language') || 'uz';
     config.headers['x-language'] = language;
     
-    // Also include Telegram init data if available (commented out due to CORS issues)
-    // const initData = localStorage.getItem('telegramInitData');
-    // if (initData) {
-    //   config.headers['X-Telegram-Init-Data'] = initData;
-    // }
+    // Log request details for debugging
+    console.log('📤 API Request:', {
+      url: config.url,
+      method: config.method,
+      hasAuth: !!token,
+      headers: {
+        Authorization: token ? 'Bearer ***' : 'None',
+        'x-language': language
+      }
+    });
     
     return config;
   },
   (error) => {
+    console.error('❌ Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
@@ -54,17 +63,31 @@ api.interceptors.request.use(
 // Response interceptor to handle token refresh
 api.interceptors.response.use(
   (response) => {
+    console.log('📥 API Response:', {
+      url: response.config.url,
+      status: response.status,
+      data: response.data
+    });
     return response;
   },
   async (error) => {
     const originalRequest = error.config;
     
+    console.log('❌ API Error:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      message: error.message,
+      data: error.response?.data
+    });
+    
     if (error.response?.status === 401 && !originalRequest._retry) {
+      console.log('🔄 Attempting token refresh...');
       originalRequest._retry = true;
       
       try {
         const refreshToken = localStorage.getItem('refresh_token');
         if (refreshToken) {
+          console.log('🔄 Using refresh token to get new access token');
           // Try to refresh the token using the correct endpoint
           const response = await axios.post(`${API_BASE_URL}/webapp/auth/refresh?refresh_token=${refreshToken}`);
           
@@ -72,16 +95,22 @@ api.interceptors.response.use(
           localStorage.setItem('access_token', access_token);
           localStorage.setItem('refresh_token', newRefreshToken);
           
+          console.log('✅ Token refreshed successfully');
+          
           // Retry the original request with new token
           originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
           return api(originalRequest);
+        } else {
+          console.log('❌ No refresh token available');
         }
       } catch (refreshError) {
+        console.error('❌ Token refresh failed:', refreshError);
         // Refresh failed, redirect to login or clear tokens
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('userProfile');
         localStorage.removeItem('userRole');
+        console.log('🔄 Redirecting to login...');
         window.location.reload();
       }
     }

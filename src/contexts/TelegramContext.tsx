@@ -80,15 +80,20 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const login = async (data: any) => {
     try {
+      console.log('🔐 Attempting login with data:', data);
       const response = await authApi.login(data);
+      console.log('🔐 Login response:', response);
+      
       if (response.data?.access_token) {
         localStorage.setItem('access_token', response.data.access_token);
         localStorage.setItem('refresh_token', response.data.refresh_token);
+        console.log('✅ Tokens stored successfully');
         return response;
       }
       throw new Error('No access token received');
-    } catch (error) {
-      console.error('Login failed:', error);
+    } catch (error: any) {
+      console.error('❌ Login failed:', error);
+      console.error('❌ Error details:', error.response?.data);
       throw error;
     }
   };
