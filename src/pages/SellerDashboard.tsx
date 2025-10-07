@@ -21,7 +21,7 @@ import {
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
-import { dashboardApi, productsApi, ordersApi, sellersApi } from '../services/api';
+import { dashboardApi, productsApi, ordersApi, sellersApi, ratingsApi } from '../services/api';
 import { Product, Seller } from '../types';
 import ImageUpload from '../components/ImageUpload';
 import Notification, { NotificationProps } from '../components/Notification';
@@ -38,6 +38,7 @@ const SellerDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newOrdersCount, setNewOrdersCount] = useState(0);
+  const [averageRating, setAverageRating] = useState<number | null>(null);
   
 
   // Notification state
@@ -80,46 +81,20 @@ const SellerDashboard: React.FC = () => {
     }
   }, [isReady, user]);
 
-  // Simulate new order notifications
-  // Sync active tab with URL hash
-  // Sync active tab with URL hash
-  useEffect(() => {
-    const hash = location.hash.substring(1);
-    if (hash && ['dashboard', 'products', 'orders', 'profile', 'analytics'].includes(hash)) {
-      setActiveTab(hash as any);
-    }
-  }, [location.hash]);
-
-  useEffect(() => {
-    const hash = location.hash.substring(1);
-    if (hash && ['dashboard', 'products', 'orders', 'profile', 'analytics'].includes(hash)) {
-      setActiveTab(hash as any);
-    }
-  }, [location.hash]);
-
-  // Sync active tab with URL hash
-  useEffect(() => {
-    const hash = location.hash.substring(1);
-    if (hash && ['dashboard', 'products', 'orders', 'profile', 'analytics'].includes(hash)) {
-      setActiveTab(hash as any);
-    }
-  }, [location.hash]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Simulate new orders every 30 seconds for demo
-      if (Math.random() > 0.7) {
-        setNewOrdersCount(prev => prev + 1);
-        showNotification(
-          'info',
-          'New Order Received!',
-          'You have received a new order. Check the Orders tab to view details.'
-        );
-      }
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, []);
+  // Remove simulated notifications
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (Math.random() > 0.7) {
+  //       setNewOrdersCount(prev => prev + 1);
+  //       showNotification(
+  //         'info',
+  //         'New Order Received!',
+  //         'You have received a new order. Check the Orders tab to view details.'
+  //       );
+  //     }
+  //   }, 30000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   const showNotification = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
     setNotification({
@@ -145,6 +120,14 @@ const SellerDashboard: React.FC = () => {
       setSeller(sellerResponse.data);
       setProducts(productsResponse.data || []);
       setOrders(ordersResponse.data || []);
+
+      // Fetch average rating for this seller
+      try {
+        const avgRes = await ratingsApi.getAverageRatingBySeller(String(sellerResponse.data.id));
+        setAverageRating(avgRes.data?.average ?? null);
+      } catch (e) {
+        setAverageRating(null);
+      }
     } catch (err) {
       console.error('Failed to load seller data:', err);
       setError('Failed to load dashboard data. Please check your connection and try again.');
@@ -338,7 +321,7 @@ const SellerDashboard: React.FC = () => {
                   </div>
                   <div className="ml-3">
                     <p className="text-sm text-gray-600">{t('rating')}</p>
-                    <p className="text-2xl font-bold text-gray-900">4.8</p>
+                    <p className="text-2xl font-bold text-gray-900">{averageRating !== null ? averageRating.toFixed(1) : '-'}</p>
                   </div>
                 </div>
               </div>

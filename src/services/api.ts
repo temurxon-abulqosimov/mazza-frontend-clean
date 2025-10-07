@@ -469,12 +469,12 @@ export const productsApi = {
     }
   },
   getSellerProducts: async () => {
-    const cacheKey = `get:${api.defaults.baseURL}/webapp/products/seller`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products/seller/my`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/webapp/products/seller');
+      const response = await api.get('/webapp/products/seller/my');
       return response;
     } catch (error) {
       console.error('Failed to get seller products:', error);
