@@ -33,7 +33,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
     price: '',
     originalPrice: '',
     quantity: '1',
-    availableUntil: '',
+    availableUntil: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16), // Default to 24 hours from now
     availableFrom: '',
     category: ProductCategory.OTHER,
   });
@@ -95,6 +95,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
       setLoading(false);
       return;
     }
+    if (formData.description.trim().length < 3) {
+      setError('Product description must be at least 3 characters');
+      setLoading(false);
+      return;
+    }
     if (!formData.price || parseFloat(formData.price) <= 0) {
       setError('Valid price is required');
       setLoading(false);
@@ -113,10 +118,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
         price: parseFloat(formData.price),
         originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : undefined,
         quantity: parseInt(formData.quantity),
-        availableUntil: new Date(formData.availableUntil),
-        availableFrom: formData.availableFrom ? new Date(formData.availableFrom) : undefined,
+        availableUntil: formData.availableUntil, // Send as string, backend will transform
+        availableFrom: formData.availableFrom || undefined,
         category: formData.category,
-        sellerId: 0, // Backend will set this automatically
+        // sellerId will be set by backend automatically
       };
 
       console.log('ProductForm: Submitting product data:', productData);

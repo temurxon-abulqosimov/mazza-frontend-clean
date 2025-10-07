@@ -114,8 +114,8 @@ export interface CreateProductDto {
   price: number;
   originalPrice?: number;
   quantity?: number; // Optional in backend
-  availableUntil: Date;
-  availableFrom?: Date;
+  availableUntil: string; // Send as string, backend will transform to Date
+  availableFrom?: string; // Send as string, backend will transform to Date
   category?: string; // CRITICAL: Add category field
   sellerId?: number; // Backend will set this automatically
 }
