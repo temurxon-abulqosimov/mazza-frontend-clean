@@ -14,7 +14,7 @@ interface ProductFormProps {
 const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [seller, setSeller] = useState<any>(null);
@@ -108,8 +108,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
         console.log('ProductForm: Product updated successfully:', response.data);
         showNotification(
           'success',
-          'Success',
-          'Product updated successfully!'
+          t('success'),
+          t('productUpdated')
         );
         setTimeout(() => {
           navigate('/seller-dashboard');
@@ -119,8 +119,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
         console.log('ProductForm: Product created successfully:', response.data);
         showNotification(
           'success',
-          'Success',
-          'Product created successfully!'
+          t('success'),
+          t('productCreated')
         );
         setTimeout(() => {
           navigate('/seller-dashboard');
@@ -130,8 +130,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
       console.error('ProductForm: Submit error:', err);
       showNotification(
         'error',
-        'Failed to Save Product',
-        'There was an error saving your product. Please try again.'
+        t('error'),
+        t('productCreationFailed')
       );
     } finally {
       setLoading(false);
@@ -212,10 +212,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-gray-600">
-                    This product will use your business image
+                    {t('productImageDescription')}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {seller?.businessName || 'Your business'}
+                    {seller?.businessName || t('yourBusiness')}
                   </p>
                 </div>
               </div>
@@ -235,7 +235,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
               required
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-              placeholder="Describe your product..."
+              placeholder={t('productDescriptionPlaceholder')}
             />
           </div>
 
@@ -258,7 +258,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
                   className="w-full px-3 py-2 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   placeholder="0.00"
                 />
-                <span className="absolute left-3 top-2.5 text-gray-400 text-sm">so'm</span>
+                <span className="absolute left-3 top-2.5 text-gray-400 text-sm">{language === 'uz' ? 'so\'m' : 'сум'}</span>
               </div>
             </div>
 
@@ -278,7 +278,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
                   className="w-full px-3 py-2 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   placeholder="0.00"
                 />
-                <span className="absolute left-3 top-2.5 text-gray-400 text-sm">so'm</span>
+                <span className="absolute left-3 top-2.5 text-gray-400 text-sm">{language === 'uz' ? 'so\'m' : 'сум'}</span>
               </div>
             </div>
           </div>
@@ -286,7 +286,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
           {/* Quantity */}
           <div>
             <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
-              Quantity Available
+              {t('quantityAvailable')}
             </label>
             <input
               type="number"
@@ -303,7 +303,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
           {/* Category */}
           <div>
             <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-              Category
+              {t('category')}
             </label>
             <select
               id="category"
@@ -324,7 +324,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="availableFrom" className="block text-sm font-medium text-gray-700 mb-2">
-                Available From (Optional)
+                {t('availableFrom')}
               </label>
               <div className="relative">
                 <input
@@ -341,7 +341,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
 
             <div>
               <label htmlFor="availableUntil" className="block text-sm font-medium text-gray-700 mb-2">
-                Available Until
+                {t('availableUntil')}
               </label>
               <div className="relative">
                 <input
@@ -364,7 +364,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
             disabled={loading}
             className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? 'Saving...' : mode === 'create' ? 'Add Product' : 'Update Product'}
+            {loading ? t('loading') : mode === 'create' ? t('addProduct') : t('updateProduct')}
           </button>
         </form>
       </div>
