@@ -98,6 +98,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
         quantity: parseInt(formData.quantity),
         availableUntil: new Date(formData.availableUntil),
         availableFrom: formData.availableFrom ? new Date(formData.availableFrom) : undefined,
+        category: formData.category, // CRITICAL: Send category field
         sellerId: 0, // Backend will set this automatically
       };
 
@@ -144,12 +145,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
   };
 
   const categoryOptions = [
-    { value: ProductCategory.BREAD, label: 'Bread & Bakery' },
-    { value: ProductCategory.PASTRY, label: 'Pastry' },
-    { value: ProductCategory.MAIN_DISH, label: 'Main Dishes' },
-    { value: ProductCategory.DESSERT, label: 'Desserts' },
-    { value: ProductCategory.BEVERAGE, label: 'Beverages' },
-    { value: ProductCategory.OTHER, label: 'Other' },
+    { value: ProductCategory.BREAD_BAKERY, label: t('breadBakery') },
+    { value: ProductCategory.PASTRY, label: t('pastry') },
+    { value: ProductCategory.MAIN_DISHES, label: t('mainDishes') },
+    { value: ProductCategory.DESSERTS, label: t('desserts') },
+    { value: ProductCategory.BEVERAGES, label: t('beverages') },
+    { value: ProductCategory.OTHER, label: t('other') },
   ];
 
   return (

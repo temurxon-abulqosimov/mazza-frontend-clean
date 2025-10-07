@@ -110,6 +110,12 @@ const translations: Record<Language, TranslationKeys> = {
     productUpdateFailed: 'Mahsulot yangilashda xatolik',
     
     // Product Categories
+    breadBakery: 'Non va pishiriq',
+    pastry: 'Pishiriq',
+    mainDishes: 'Asosiy taomlar',
+    desserts: 'Shirinliklar',
+    beverages: 'Ichimliklar',
+    other: 'Boshqa',
     food: 'Oziq-ovqat',
     drinks: 'Ichimliklar',
     electronics: 'Elektronika',
@@ -264,6 +270,12 @@ const translations: Record<Language, TranslationKeys> = {
     productUpdateFailed: 'Ошибка обновления товара',
     
     // Product Categories
+    breadBakery: 'Хлеб и выпечка',
+    pastry: 'Выпечка',
+    mainDishes: 'Основные блюда',
+    desserts: 'Десерты',
+    beverages: 'Напитки',
+    other: 'Другое',
     food: 'Еда',
     drinks: 'Напитки',
     electronics: 'Электроника',

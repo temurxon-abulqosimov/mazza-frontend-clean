@@ -7,14 +7,11 @@
 }
 
 export enum ProductCategory {
-  BREAD = 'bread',
+  BREAD_BAKERY = 'bread_bakery',
   PASTRY = 'pastry',
-  MAIN_DISH = 'main_dish',
-  DESSERT = 'dessert',
-  BEVERAGE = 'beverage',
-  SNACK = 'snack',
-  SALAD = 'salad',
-  SOUP = 'soup',
+  MAIN_DISHES = 'main_dishes',
+  DESSERTS = 'desserts',
+  BEVERAGES = 'beverages',
   OTHER = 'other',
 }
 
@@ -119,6 +116,7 @@ export interface CreateProductDto {
   quantity?: number; // Optional in backend
   availableUntil: Date;
   availableFrom?: Date;
+  category?: string; // CRITICAL: Add category field
   sellerId?: number; // Backend will set this automatically
 }
 
