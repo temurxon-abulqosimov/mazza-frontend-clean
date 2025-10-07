@@ -29,8 +29,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
   });
   
   const [formData, setFormData] = useState({
-    name: '', // Product name (required)
-    description: '', // Product description (optional)
+    description: '', // Product description (will be sent as name to backend)
     price: '',
     originalPrice: '',
     quantity: '1',
@@ -54,8 +53,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
       const product = response.data;
       
       setFormData({
-        name: product.name || '',
-        description: product.description || '',
+        description: product.name || product.description || '', // Use name as description for editing
         price: product.price.toString(),
         originalPrice: product.originalPrice?.toString() || '',
         quantity: product.quantity.toString(),
@@ -92,8 +90,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
     setError(null);
 
     // Validate required fields
-    if (!formData.name.trim()) {
-      setError('Product name is required');
+    if (!formData.description.trim()) {
+      setError('Product description is required');
       setLoading(false);
       return;
     }
@@ -110,8 +108,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
 
     try {
       const productData: CreateProductDto = {
-        name: formData.name, // Product name (required)
-        description: formData.description, // Product description (optional)
+        name: formData.description, // Send description as name to backend
+        description: formData.description, // Also send as description
         price: parseFloat(formData.price),
         originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : undefined,
         quantity: parseInt(formData.quantity),
@@ -242,36 +240,20 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
             </div>
           </div>
 
-          {/* Product Name */}
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-              {t('productName') || 'Product Name'} *
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-              placeholder={t('productNamePlaceholder') || 'Enter product name'}
-            />
-          </div>
-
           {/* Product Description */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-              {t('productDescription') || 'Product Description'}
+              {t('productDescription') || 'Product Description'} *
             </label>
             <textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleInputChange}
+              required
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-              placeholder={t('productDescriptionPlaceholder')}
+              placeholder={t('productDescriptionPlaceholder') || 'Enter product description'}
             />
           </div>
 
