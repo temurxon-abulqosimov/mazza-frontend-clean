@@ -101,32 +101,7 @@ const SellerDashboard: React.FC = () => {
       // Load data in background, don't block the main flow
       loadSellerData();
       
-      // Add sample notifications for testing (only once)
-      const hasSampleNotifications = localStorage.getItem('sampleNotificationsAdded');
-      if (!hasSampleNotifications && userProfile?.id) {
-        // Add sample notifications
-        addNotification({
-          type: 'order',
-          title: t('newOrderReceived') || 'New Order Received',
-          message: t('newOrderReceivedMessage') || 'You have received a new order for your product.',
-          sellerId: userProfile.id.toString(),
-        });
-        
-        addNotification({
-          type: 'product',
-          title: t('productApproved') || 'Product Approved',
-          message: t('productApprovedMessage') || 'Your product has been approved and is now live.',
-          sellerId: userProfile.id.toString(),
-        });
-        
-        addNotification({
-          type: 'system',
-          title: t('welcomeSeller') || 'Welcome to Seller Dashboard',
-          message: t('welcomeSellerMessage') || 'Welcome to your seller dashboard. Start by adding your products.',
-        });
-        
-        localStorage.setItem('sampleNotificationsAdded', 'true');
-      }
+      // Sample notifications disabled to avoid confusion in production-like env
     }
   }, [isReady, user, userProfile, addNotification, t]);
 

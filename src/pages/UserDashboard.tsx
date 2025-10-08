@@ -76,25 +76,7 @@ const UserDashboard: React.FC = () => {
       // Load data in background, don't block the main flow
       loadDashboardData();
       
-      // Add sample notifications for testing (only once)
-      const hasSampleNotifications = localStorage.getItem('sampleNotificationsAddedUser');
-      if (!hasSampleNotifications && user?.id) {
-        // Add sample notifications for users
-        addNotification({
-          type: 'order',
-          title: t('orderConfirmed') || 'Order Confirmed',
-          message: t('orderConfirmationMessage') || 'Your order has been confirmed and is being processed.',
-          userId: user.id.toString(),
-        });
-        
-        addNotification({
-          type: 'system',
-          title: t('welcomeUser') || 'Welcome to Mazza',
-          message: t('welcomeUserMessage') || 'Welcome to Mazza! Discover amazing products from local sellers.',
-        });
-        
-        localStorage.setItem('sampleNotificationsAddedUser', 'true');
-      }
+      // Sample notifications disabled to avoid confusion in production-like env
     }
   }, [isReady, user, userProfile, location, addNotification, t]);
 
