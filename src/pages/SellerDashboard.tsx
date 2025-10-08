@@ -654,15 +654,7 @@ const SellerDashboard: React.FC = () => {
                         </button>
                       </>
                     )}
-                    {order.status === 'confirmed' && (
-                      <button
-                        onClick={() => handleOrderStatusChange(order.id, 'completed')}
-                        className="flex items-center px-3 py-1 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        {t('markComplete')}
-                      </button>
-                    )}
+                    {/* After confirm, no extra action needed */}
                   </div>
                 </div>
               ))}

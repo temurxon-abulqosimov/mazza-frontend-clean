@@ -322,6 +322,7 @@ const UserDashboard: React.FC = () => {
                             }
                             alt={product.description || product.name}
                             className="w-full h-full object-cover"
+                            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                           />
                         ) : (
                           <div className="text-orange-600 text-2xl font-bold">
@@ -396,6 +397,7 @@ const UserDashboard: React.FC = () => {
                           }
                           alt={product.description || product.name}
                           className="w-full h-full object-cover"
+                          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                         />
                         ) : (
                           <div className="text-orange-600 text-2xl font-bold">
