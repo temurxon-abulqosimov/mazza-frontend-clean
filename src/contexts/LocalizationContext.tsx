@@ -30,6 +30,7 @@ const translations: Record<Language, TranslationKeys> = {
     retry: 'Qayta urinish',
     save: 'Saqlash',
     cancel: 'Bekor qilish',
+    available: 'Mavjud',
     
     // Dashboard
     dashboard: 'Boshqaruv paneli',
@@ -40,6 +41,7 @@ const translations: Record<Language, TranslationKeys> = {
     success: 'Muvaffaqiyat',
     error: 'Xatolik',
     noRatingsYet: 'Hali baho yo\'q',
+    quantityExceedsAvailable: 'Miqdor mavjud miqdordan oshib ketdi',
     
     // Home page
     discover: 'Mahsulotlarni topish',
@@ -279,7 +281,6 @@ const translations: Record<Language, TranslationKeys> = {
     // Search Results and Product Cards
     items: 'ta mahsulot',
     productImage: 'Mahsulot rasmi',
-    available: 'Mavjud',
     viewDetails: 'Tafsilotlarni ko\'rish',
     until: 'gacha',
     discount: 'Chegirma',
@@ -327,6 +328,7 @@ const translations: Record<Language, TranslationKeys> = {
     retry: 'Повторить',
     save: 'Сохранить',
     cancel: 'Отмена',
+    available: 'Доступно',
     
     // Dashboard
     dashboard: 'Панель управления',
@@ -337,6 +339,7 @@ const translations: Record<Language, TranslationKeys> = {
     success: 'Успех',
     error: 'Ошибка',
     noRatingsYet: 'Пока нет оценок',
+    quantityExceedsAvailable: 'Количество превышает доступное',
     
     // Home page
     discover: 'Найти товары',
@@ -577,7 +580,6 @@ const translations: Record<Language, TranslationKeys> = {
     // Search Results and Product Cards
     items: 'товаров',
     productImage: 'Изображение товара',
-    available: 'Доступно',
     viewDetails: 'Просмотр деталей',
     until: 'до',
     discount: 'Скидка',

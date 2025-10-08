@@ -64,6 +64,16 @@ const ProductDetail: React.FC = () => {
     setShowOrderConfirm(false);
 
     try {
+      // Validate quantity
+      if (quantity > (product.quantity || 1)) {
+        showNotification(
+          'error',
+          t('error'),
+          t('quantityExceedsAvailable')
+        );
+        return;
+      }
+
       // Create the order
       const orderData = {
         productId: product.id,
@@ -165,18 +175,29 @@ const ProductDetail: React.FC = () => {
       </div>
 
       {/* Product Image */}
-      <div className="w-full h-64 bg-gray-200">
+      <div className="w-full h-64 bg-gradient-to-br from-orange-100 to-orange-200 relative overflow-hidden">
         {product.imageUrl ? (
           <img
             src={product.imageUrl}
             alt={product.description}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+              if (nextElement) {
+                nextElement.style.display = 'flex';
+              }
+            }}
           />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
-            <ShoppingBag className="w-12 h-12" />
+        ) : null}
+        <div className={`w-full h-full flex flex-col items-center justify-center text-orange-600 ${product.imageUrl ? 'hidden' : 'flex'}`}>
+          <div className="text-6xl font-bold mb-2">
+            {product.name?.charAt(0) || '🍞'}
           </div>
-        )}
+          <div className="text-sm font-medium text-orange-700">
+            {product.name || t('product')}
+          </div>
+        </div>
       </div>
 
       {/* Product Info */}
@@ -240,7 +261,10 @@ const ProductDetail: React.FC = () => {
             )}
             
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">{t('quantity')}</span>
+              <div>
+                <span className="text-gray-600">{t('quantity')}</span>
+                <span className="text-xs text-gray-500 ml-2">({t('available')}: {product.quantity || 1})</span>
+              </div>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -250,8 +274,11 @@ const ProductDetail: React.FC = () => {
                 </button>
                 <span className="w-8 text-center">{quantity}</span>
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                  onClick={() => setQuantity(Math.min(product.quantity || 1, quantity + 1))}
+                  disabled={quantity >= (product.quantity || 1)}
+                  className={`w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 ${
+                    quantity >= (product.quantity || 1) ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
                   +
                 </button>
