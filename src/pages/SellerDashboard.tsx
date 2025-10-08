@@ -33,7 +33,7 @@ const SellerDashboard: React.FC = () => {
   const location = useLocation();
   const { user, userProfile, isReady } = useTelegram();
   const { t } = useLocalization();
-  const { unreadCount } = useNotifications();
+  const { unreadCount, addNotification, clearNotifications } = useNotifications();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'profile' | 'analytics'>('dashboard');
   const [seller, setSeller] = useState<Seller | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -81,8 +81,44 @@ const SellerDashboard: React.FC = () => {
     if (isReady && user) {
       // Load data in background, don't block the main flow
       loadSellerData();
+      
+      // Add sample notifications for testing (only once)
+      const hasSampleNotifications = localStorage.getItem('sampleNotificationsAdded');
+      if (!hasSampleNotifications && userProfile?.id) {
+        // Add sample notifications
+        addNotification({
+          type: 'order',
+          title: t('newOrderReceived') || 'New Order Received',
+          message: t('newOrderReceivedMessage') || 'You have received a new order for your product.',
+          sellerId: userProfile.id.toString(),
+        });
+        
+        addNotification({
+          type: 'product',
+          title: t('productApproved') || 'Product Approved',
+          message: t('productApprovedMessage') || 'Your product has been approved and is now live.',
+          sellerId: userProfile.id.toString(),
+        });
+        
+        addNotification({
+          type: 'system',
+          title: t('welcomeSeller') || 'Welcome to Seller Dashboard',
+          message: t('welcomeSellerMessage') || 'Welcome to your seller dashboard. Start by adding your products.',
+        });
+        
+        localStorage.setItem('sampleNotificationsAdded', 'true');
+      }
     }
-  }, [isReady, user]);
+  }, [isReady, user, userProfile, addNotification, t]);
+
+  // Debug function to reset sample notifications (for testing)
+  const resetSampleNotifications = () => {
+    localStorage.removeItem('sampleNotificationsAdded');
+    localStorage.removeItem('sampleNotificationsAddedUser');
+    clearNotifications();
+    localStorage.removeItem('notifications');
+    window.location.reload();
+  };
 
   useEffect(() => {
     console.log('🔧 Rendering products:', { products, productsLength: products.length, productsType: typeof products });
@@ -315,6 +351,15 @@ const SellerDashboard: React.FC = () => {
                     {newOrdersCount}
                   </span>
                 </div>
+              )}
+              {process.env.NODE_ENV === 'development' && (
+                <button
+                  onClick={resetSampleNotifications}
+                  className="p-2 hover:bg-gray-100 rounded-lg text-xs"
+                  title="Reset sample notifications"
+                >
+                  🔄
+                </button>
               )}
               <button
                 onClick={() => setActiveTab('profile')}

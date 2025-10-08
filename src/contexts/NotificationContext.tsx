@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useLocalization } from './LocalizationContext';
+import { useTelegram } from './TelegramContext';
 
 export interface Notification {
   id: string;
@@ -39,8 +40,9 @@ interface NotificationProviderProps {
 }
 
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [allNotifications, setAllNotifications] = useState<Notification[]>([]);
   const { t } = useLocalization();
+  const { user, userProfile, userRole } = useTelegram();
 
   // Load notifications from localStorage on mount
   useEffect(() => {
@@ -52,7 +54,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
           ...n,
           timestamp: new Date(n.timestamp)
         }));
-        setNotifications(notificationsWithDates);
+        setAllNotifications(notificationsWithDates);
       }
     } catch (err) {
       console.warn('Failed to load notifications from localStorage:', err);
@@ -68,11 +70,35 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   // Save notifications to localStorage whenever they change
   useEffect(() => {
     try {
-      localStorage.setItem('notifications', JSON.stringify(notifications));
+      localStorage.setItem('notifications', JSON.stringify(allNotifications));
     } catch (err) {
       console.warn('Failed to save notifications to localStorage:', err);
     }
-  }, [notifications]);
+  }, [allNotifications]);
+
+  // Filter notifications based on current user
+  const notifications = allNotifications.filter(notification => {
+    // If no user is logged in, show no notifications
+    if (!user || !userRole) return false;
+    
+    // System notifications are shown to everyone
+    if (notification.type === 'system') return true;
+    
+    // Filter by user role and ID
+    if (userRole === 'SELLER') {
+      // Sellers see notifications for their seller ID
+      return notification.sellerId === userProfile?.id?.toString() || 
+             notification.sellerId === user.id?.toString();
+    } else if (userRole === 'USER') {
+      // Regular users see notifications for their user ID
+      return notification.userId === user.id?.toString();
+    } else if (userRole === 'ADMIN') {
+      // Admins see all notifications
+      return true;
+    }
+    
+    return false;
+  });
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
@@ -84,7 +110,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       isRead: false,
     };
 
-    setNotifications(prev => [notification, ...prev]);
+    setAllNotifications(prev => [notification, ...prev]);
 
     // Show browser notification if permission is granted and available
     try {
@@ -101,7 +127,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   };
 
   const markAsRead = (id: string) => {
-    setNotifications(prev =>
+    setAllNotifications(prev =>
       prev.map(notification =>
         notification.id === id
           ? { ...notification, isRead: true }
@@ -111,13 +137,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev =>
+    setAllNotifications(prev =>
       prev.map(notification => ({ ...notification, isRead: true }))
     );
   };
 
   const clearNotifications = () => {
-    setNotifications([]);
+    setAllNotifications([]);
     try {
       localStorage.removeItem('notifications');
     } catch (err) {
@@ -126,7 +152,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   };
 
   const removeNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
+    setAllNotifications(prev => prev.filter(notification => notification.id !== id));
   };
 
   // Request notification permission on mount
