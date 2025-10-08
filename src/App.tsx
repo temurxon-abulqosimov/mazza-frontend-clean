@@ -12,7 +12,6 @@ import './App.css';
 import RoleBasedRedirect from './components/RoleBasedRedirect';
 import RoleSwitcher from './components/RoleSwitcher';
 import LoadingScreen from './components/LoadingScreen';
-import AuthDebug from './components/AuthDebug';
 
 // Import main dashboard components directly to prevent Suspense issues
 import UserDashboard from './pages/UserDashboard';
@@ -109,8 +108,6 @@ function App() {
             {/* Development role switcher - only in development */}
             {process.env.NODE_ENV === 'development' && <RoleSwitcher />}
             
-            {/* Development auth debug - only in development */}
-            {process.env.NODE_ENV === 'development' && <AuthDebug />}
             
             {/* Mobile debug info - only in development */}
             {process.env.NODE_ENV === 'development' && <MobileDebug />}

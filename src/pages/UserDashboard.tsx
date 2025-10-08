@@ -5,12 +5,14 @@ import {
   Star, 
   MapPin, 
   Search,
-  Heart
+  Heart,
+  Bell
 } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { useLocation } from '../contexts/LocationContext';
+import { useNotifications } from '../contexts/NotificationContext';
 import { productsApi, ordersApi } from '../services/api';
 import { Product, Seller } from '../types';
 import LocationPermission from '../components/LocationPermission';
@@ -20,6 +22,7 @@ const UserDashboard: React.FC = () => {
   const { user, userProfile, isReady } = useTelegram();
   const { t } = useLocalization();
   const { location, locationPermission, isLoading: locationLoading, requestLocation } = useLocation();
+  const { unreadCount } = useNotifications();
   const [activeTab, setActiveTab] = useState<'home' | 'search' | 'orders' | 'profile'>('home');
   const [products, setProducts] = useState<Product[]>([]);
   const [sellers, setSellers] = useState<Seller[]>([]);
@@ -206,7 +209,20 @@ const UserDashboard: React.FC = () => {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold text-gray-900">{t('discover')}</h1>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => navigate('/user/notifications')}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
+              >
+                <Bell className="w-5 h-5 text-gray-600" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+              <h1 className="text-lg font-semibold text-gray-900">{t('discover')}</h1>
+            </div>
             <button
               onClick={() => setActiveTab('search')}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"

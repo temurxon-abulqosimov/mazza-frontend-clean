@@ -40,7 +40,6 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
         { id: 'home', label: t('home'), icon: Home, path: '/user' },
         { id: 'search', label: t('search'), icon: Search, path: '/search' },
         { id: 'orders', label: t('orders'), icon: ShoppingBag, path: '/user/orders' },
-        { id: 'notifications', label: t('notifications'), icon: Bell, path: '/user/notifications', badge: unreadCount },
         { id: 'profile', label: t('profile'), icon: User, path: '/user/profile' },
       ];
     }
