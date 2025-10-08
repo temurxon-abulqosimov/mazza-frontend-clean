@@ -47,7 +47,8 @@ const UserDashboard: React.FC = () => {
       ]);
 
       // Handle the new data structure from backend
-      const productsData = productsResponse.data?.products || productsResponse.data || [];
+      const productsData = (productsResponse.data?.products || productsResponse.data || [])
+        .filter((p: Product) => p.isActive !== false && ((p.quantity ?? 1) > 0));
       setProducts(productsData);
       setFilteredProducts(productsData);
       setOrders(ordersResponse.data || []);

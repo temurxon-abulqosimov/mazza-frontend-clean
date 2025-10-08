@@ -15,6 +15,7 @@ const ProductDetail: React.FC = () => {
   const { user } = useTelegram();
   const { addNotification } = useNotifications();
   const [product, setProduct] = useState<any>(null);
+  const [sellerImageUrl, setSellerImageUrl] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [showOrderConfirm, setShowOrderConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,6 +35,17 @@ const ProductDetail: React.FC = () => {
         try {
           const response = await productsApi.getProductById(id);
           setProduct(response.data);
+          const p = response.data;
+          if ((!p?.imageUrl || p.imageUrl.length === 0) && p?.seller?.id) {
+            try {
+              const url = await productsApi.getSellerImageUrl(p.seller.id);
+              setSellerImageUrl(url);
+            } catch {
+              setSellerImageUrl(null);
+            }
+          } else {
+            setSellerImageUrl(null);
+          }
         } catch (error) {
           console.error('Failed to fetch product:', error);
           showNotification('error', t('error'), t('failedToLoadProduct'));
@@ -198,9 +210,9 @@ const ProductDetail: React.FC = () => {
 
       {/* Product Image */}
       <div className="w-full h-64 bg-gradient-to-br from-orange-100 to-orange-200 relative overflow-hidden">
-        {product.imageUrl ? (
+        {product.imageUrl || sellerImageUrl ? (
           <img
-            src={product.imageUrl}
+            src={product.imageUrl || sellerImageUrl || ''}
             alt={product.description}
             className="w-full h-full object-cover"
             onError={(e) => {
@@ -212,7 +224,7 @@ const ProductDetail: React.FC = () => {
             }}
           />
         ) : null}
-        <div className={`w-full h-full flex flex-col items-center justify-center text-orange-600 ${product.imageUrl ? 'hidden' : 'flex'}`}>
+        <div className={`w-full h-full flex flex-col items-center justify-center text-orange-600 ${(product.imageUrl || sellerImageUrl) ? 'hidden' : 'flex'}`}>
           <div className="text-6xl font-bold mb-2">
             {getCategoryEmoji(product.category)}
           </div>

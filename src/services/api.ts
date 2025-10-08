@@ -491,6 +491,15 @@ export const productsApi = {
       throw error;
     }
   },
+  // Resolve seller image URL - handles Telegram file_id on backend
+  getSellerImageUrl: async (sellerId: number) => {
+    try {
+      const response = await api.get(`/webapp/sellers/${sellerId}/image`);
+      return response.data?.url || null;
+    } catch (e) {
+      return null;
+    }
+  },
   getProductById: async (id: string) => {
     // Use development API in development mode
     if (process.env.NODE_ENV === 'development') {
