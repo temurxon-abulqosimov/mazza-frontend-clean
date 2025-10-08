@@ -175,6 +175,17 @@ const UserDashboard: React.FC = () => {
     navigate(`/seller-detail/${sellerId}`);
   };
 
+  const getCategoryEmoji = (category?: string) => {
+    switch (category) {
+      case 'bread_bakery': return '🍞';
+      case 'pastry': return '🥐';
+      case 'main_dishes': return '🍽️';
+      case 'desserts': return '🍰';
+      case 'beverages': return '🥤';
+      default: return '🍞';
+    }
+  };
+
   const categories = [
     { value: 'all', label: t('allCategories') },
     { value: 'bread_bakery', label: t('breadBakery') },
@@ -326,7 +337,7 @@ const UserDashboard: React.FC = () => {
                           />
                         ) : (
                           <div className="text-orange-600 text-2xl font-bold">
-                            {product.name?.charAt(0) || '🍞'}
+                            {getCategoryEmoji(product.category)}
                           </div>
                         )}
                         {product.originalPrice && (
@@ -396,11 +407,11 @@ const UserDashboard: React.FC = () => {
                           alt={product.description || product.name}
                           className="w-full h-full object-cover"
                         />
-                      ) : (
-                        <div className="text-orange-600 text-2xl font-bold">
-                          {product.name?.charAt(0) || '🍞'}
-                        </div>
-                      )}
+                        ) : (
+                          <div className="text-orange-600 text-2xl font-bold">
+                            {getCategoryEmoji(product.category)}
+                          </div>
+                        )}
                       {product.originalPrice && (
                         <div className="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 py-0.5 rounded">
                           -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%

@@ -199,6 +199,9 @@ const translations: Record<Language, TranslationKeys> = {
     businessInfo: 'Biznes ma\'lumotlari',
     settings: 'Sozlamalar',
     logout: 'Chiqish',
+    accountSection: 'Hisob bo\'limi',
+    settingsSection: 'Sozlamalar bo\'limi',
+    til: 'Til',
     
     // Registration
     registration: 'Ro\'yxatdan o\'tish',
@@ -498,6 +501,9 @@ const translations: Record<Language, TranslationKeys> = {
     businessInfo: 'Информация о бизнесе',
     settings: 'Настройки',
     logout: 'Выйти',
+    accountSection: 'Раздел аккаунта',
+    settingsSection: 'Раздел настроек',
+    til: 'Язык',
     
     // Registration
     registration: 'Регистрация',

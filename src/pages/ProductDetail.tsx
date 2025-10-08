@@ -54,6 +54,28 @@ const ProductDetail: React.FC = () => {
     });
   };
 
+  const getCategoryEmoji = (category: string) => {
+    switch (category) {
+      case 'bread_bakery': return '🍞';
+      case 'pastry': return '🥐';
+      case 'main_dishes': return '🍽️';
+      case 'desserts': return '🍰';
+      case 'beverages': return '🥤';
+      default: return '🍞';
+    }
+  };
+
+  const getCategoryName = (category: string) => {
+    switch (category) {
+      case 'bread_bakery': return t('breadBakery');
+      case 'pastry': return t('pastry');
+      case 'main_dishes': return t('mainDishes');
+      case 'desserts': return t('desserts');
+      case 'beverages': return t('beverages');
+      default: return t('other');
+    }
+  };
+
   const handleConfirmOrder = async () => {
     if (!product || !user) {
       showNotification('error', t('error'), t('userNotFound'));
@@ -192,10 +214,13 @@ const ProductDetail: React.FC = () => {
         ) : null}
         <div className={`w-full h-full flex flex-col items-center justify-center text-orange-600 ${product.imageUrl ? 'hidden' : 'flex'}`}>
           <div className="text-6xl font-bold mb-2">
-            {product.name?.charAt(0) || '🍞'}
+            {getCategoryEmoji(product.category)}
           </div>
           <div className="text-sm font-medium text-orange-700">
             {product.name || t('product')}
+          </div>
+          <div className="text-xs text-orange-500 mt-1">
+            {getCategoryName(product.category)}
           </div>
         </div>
       </div>
