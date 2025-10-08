@@ -21,6 +21,7 @@ import {
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
+import { useNotifications } from '../contexts/NotificationContext';
 import { dashboardApi, productsApi, ordersApi, sellersApi, ratingsApi } from '../services/api';
 import AuthDebug from '../components/AuthDebug';
 import { Product, Seller } from '../types';
@@ -32,6 +33,7 @@ const SellerDashboard: React.FC = () => {
   const location = useLocation();
   const { user, userProfile, isReady } = useTelegram();
   const { t } = useLocalization();
+  const { unreadCount } = useNotifications();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'profile' | 'analytics'>('dashboard');
   const [seller, setSeller] = useState<Seller | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -280,22 +282,35 @@ const SellerDashboard: React.FC = () => {
       <div className="bg-white shadow-sm">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center mr-3">
-                <Store className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">{t('myStore')}</h1>
-                <p className="text-sm text-gray-600">{userProfile?.businessName || seller?.businessName || 'Your Business'}</p>
-                {userProfile?.businessType && (
-                  <p className="text-xs text-gray-500">{userProfile.businessType}</p>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => navigate('/seller/notifications')}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
+              >
+                <Bell className="w-5 h-5 text-gray-600" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
                 )}
+              </button>
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center mr-3">
+                  <Store className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900">{t('myStore')}</h1>
+                  <p className="text-sm text-gray-600">{userProfile?.businessName || seller?.businessName || 'Your Business'}</p>
+                  {userProfile?.businessType && (
+                    <p className="text-xs text-gray-500">{userProfile.businessType}</p>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex items-center space-x-2">
               {newOrdersCount > 0 && (
                 <div className="relative">
-                  <Bell className="w-6 h-6 text-orange-500" />
+                  <ShoppingBag className="w-6 h-6 text-orange-500" />
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {newOrdersCount}
                   </span>

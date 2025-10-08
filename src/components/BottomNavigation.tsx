@@ -9,6 +9,14 @@ interface BottomNavigationProps {
   currentPage: string;
 }
 
+interface NavItem {
+  id: string;
+  label: string;
+  icon: React.ComponentType<any>;
+  path: string;
+  badge?: number;
+}
+
 const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,14 +25,13 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentPage }) => {
   const { unreadCount } = useNotifications();
 
   // Different navigation items based on user role
-  const getNavItems = () => {
+  const getNavItems = (): NavItem[] => {
     if (userRole === 'SELLER') {
       // For sellers, use hash fragments to trigger internal tab switching
       return [
         { id: 'dashboard', label: t('home'), icon: Home, path: '/seller#dashboard' },
         { id: 'products', label: t('products'), icon: Package, path: '/seller#products' },
         { id: 'orders', label: t('orders'), icon: ShoppingBag, path: '/seller#orders' },
-        { id: 'notifications', label: t('notifications'), icon: Bell, path: '/seller/notifications', badge: unreadCount },
         { id: 'profile', label: t('profile'), icon: User, path: '/seller#profile' },
       ];
     } else if (userRole === 'ADMIN') {
