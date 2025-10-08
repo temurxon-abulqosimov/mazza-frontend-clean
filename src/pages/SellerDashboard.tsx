@@ -23,7 +23,6 @@ import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { useNotifications } from '../contexts/NotificationContext';
 import { dashboardApi, productsApi, ordersApi, sellersApi, ratingsApi } from '../services/api';
-import AuthDebug from '../components/AuthDebug';
 import { Product, Seller } from '../types';
 import ImageUpload from '../components/ImageUpload';
 import Notification, { NotificationProps } from '../components/Notification';
@@ -770,9 +769,6 @@ const SellerDashboard: React.FC = () => {
       </div>
 
       <BottomNavigation currentPage={activeTab} />
-      
-      {/* Debug component for troubleshooting */}
-      <AuthDebug />
     </div>
   );
 };

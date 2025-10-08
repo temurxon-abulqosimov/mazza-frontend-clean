@@ -177,10 +177,12 @@ const UserDashboard: React.FC = () => {
 
   const categories = [
     { value: 'all', label: t('allCategories') },
-    { value: 'bakery', label: t('bakery') },
-    { value: 'restaurant', label: t('restaurant') },
-    { value: 'cafe', label: t('cafe') },
-    { value: 'grocery', label: t('grocery') },
+    { value: 'bread_bakery', label: t('breadBakery') },
+    { value: 'pastry', label: t('pastry') },
+    { value: 'main_dishes', label: t('mainDishes') },
+    { value: 'desserts', label: t('desserts') },
+    { value: 'beverages', label: t('beverages') },
+    { value: 'other', label: t('other') },
   ];
 
   if (loading) {
@@ -315,11 +317,24 @@ const UserDashboard: React.FC = () => {
                     className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow cursor-pointer"
                   >
                     <div className="flex space-x-3">
-                      <img
-                        src={product.imageUrl || product.store?.imageUrl || 'https://via.placeholder.com/64x64'}
-                        alt={product.description || product.name}
-                        className="w-16 h-16 object-cover rounded-lg"
-                      />
+                      <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center relative overflow-hidden">
+                        {product.imageUrl ? (
+                          <img
+                            src={product.imageUrl}
+                            alt={product.description || product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="text-orange-600 text-2xl font-bold">
+                            {product.name?.charAt(0) || '🍞'}
+                          </div>
+                        )}
+                        {product.originalPrice && (
+                          <div className="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 py-0.5 rounded">
+                            -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                          </div>
+                        )}
+                      </div>
                       <div className="flex-1">
                         <h3 className="font-medium text-gray-900">{product.description || product.name}</h3>
                         <p className="text-sm text-gray-600">{product.store?.businessName || t('store')}</p>
@@ -374,11 +389,24 @@ const UserDashboard: React.FC = () => {
                   className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow cursor-pointer"
                 >
                   <div className="flex space-x-3">
-                    <img
-                      src={product.imageUrl || product.store?.imageUrl || 'https://via.placeholder.com/64x64'}
-                      alt={product.description || product.name}
-                      className="w-16 h-16 object-cover rounded-lg"
-                    />
+                    <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center relative overflow-hidden">
+                      {product.imageUrl ? (
+                        <img
+                          src={product.imageUrl}
+                          alt={product.description || product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="text-orange-600 text-2xl font-bold">
+                          {product.name?.charAt(0) || '🍞'}
+                        </div>
+                      )}
+                      {product.originalPrice && (
+                        <div className="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 py-0.5 rounded">
+                          -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                        </div>
+                      )}
+                    </div>
                     <div className="flex-1">
                       <h3 className="font-medium text-gray-900">{product.description || product.name}</h3>
                       <p className="text-sm text-gray-600">{product.store?.businessName || t('store')}</p>
