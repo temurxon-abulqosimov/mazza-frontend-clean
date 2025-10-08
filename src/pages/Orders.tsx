@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, CheckCircle, XCircle, MapPin, Phone, ArrowLeft, Package, User, Star, ShoppingBag } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
 import { ordersApi } from '../services/api';
+import { io, Socket } from 'socket.io-client';
+import { config } from '../config/env';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 
@@ -139,6 +141,19 @@ const Orders: React.FC = () => {
 
     loadOrders();
   }, [user, mockOrders]);
+
+  // Realtime user order updates
+  useEffect(() => {
+    if (!user?.id) return;
+    const socket: Socket = io(config.API_BASE_URL, { transports: ['websocket'] });
+    socket.on('connect', () => {
+      socket.emit('subscribe', { type: 'user', id: user.id });
+    });
+    socket.on('orderStatusChanged', (updated: any) => {
+      setOrders(prev => prev.map(o => o.id === updated.id ? { ...o, status: updated.status } : o));
+    });
+    return () => { socket.disconnect(); };
+  }, [user?.id]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {

@@ -188,6 +188,7 @@ const translations: Record<Language, TranslationKeys> = {
     view: 'Ko\'rish',
     close: 'Yopish',
     confirm: 'Tasdiqlash',
+    markComplete: 'Yakunlandi deb belgilash',
     
     // Status Messages
     warning: 'Ogohlantirish',
@@ -490,6 +491,7 @@ const translations: Record<Language, TranslationKeys> = {
     view: 'Просмотр',
     close: 'Закрыть',
     confirm: 'Подтвердить',
+    markComplete: 'Отметить как выполнен',
     
     // Status Messages
     warning: 'Предупреждение',

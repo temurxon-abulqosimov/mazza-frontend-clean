@@ -9,6 +9,7 @@ import {
   Bell
 } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
+import { config } from '../config/env';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { useLocation } from '../contexts/LocationContext';
@@ -50,7 +51,9 @@ const UserDashboard: React.FC = () => {
       const productsData = (productsResponse.data?.products || productsResponse.data || [])
         .filter((p: Product) => p.isActive !== false && ((p.quantity ?? 1) > 0));
       setProducts(productsData);
-      setFilteredProducts(productsData);
+      setFilteredProducts(
+        productsData.filter((p: Product) => selectedCategory === 'all' || p.category === selectedCategory)
+      );
       setOrders(ordersResponse.data || []);
     } catch (err: any) {
       console.error('Failed to load dashboard data:', err);
@@ -330,9 +333,11 @@ const UserDashboard: React.FC = () => {
                   >
                     <div className="flex space-x-3">
                       <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center relative overflow-hidden">
-                        {product.imageUrl ? (
+                        {product.imageUrl || ((product as any).seller?.id || (product as any).store?.id) ? (
                           <img
-                            src={product.imageUrl}
+                            src={
+                              product.imageUrl || `${config.API_BASE_URL}/webapp/sellers/${((product as any).seller?.id ?? (product as any).store?.id)}/photo`
+                            }
                             alt={product.description || product.name}
                             className="w-full h-full object-cover"
                           />
@@ -402,9 +407,11 @@ const UserDashboard: React.FC = () => {
                 >
                   <div className="flex space-x-3">
                     <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center relative overflow-hidden">
-                      {product.imageUrl ? (
+                      {product.imageUrl || ((product as any).seller?.id || (product as any).store?.id) ? (
                         <img
-                          src={product.imageUrl}
+                          src={
+                            product.imageUrl || `${config.API_BASE_URL}/webapp/sellers/${((product as any).seller?.id ?? (product as any).store?.id)}/photo`
+                          }
                           alt={product.description || product.name}
                           className="w-full h-full object-cover"
                         />

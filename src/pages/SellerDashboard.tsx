@@ -22,6 +22,8 @@ import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { useNotifications } from '../contexts/NotificationContext';
+import { io, Socket } from 'socket.io-client';
+import { config } from '../config/env';
 import { dashboardApi, productsApi, ordersApi, sellersApi, ratingsApi } from '../services/api';
 import { Product, Seller } from '../types';
 import ImageUpload from '../components/ImageUpload';
@@ -37,6 +39,24 @@ const SellerDashboard: React.FC = () => {
   const [seller, setSeller] = useState<Seller | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
+  // Realtime: connect to socket.io and subscribe to seller room
+  useEffect(() => {
+    if (!seller?.id) return;
+    const socket: Socket = io(config.API_BASE_URL, { transports: ['websocket'] });
+    socket.on('connect', () => {
+      socket.emit('subscribe', { type: 'seller', id: seller.id });
+    });
+    socket.on('orderCreated', (order: any) => {
+      setOrders((prev) => [order, ...prev]);
+      addNotification({ type: 'order', title: t('newOrderReceived'), message: t('newOrderReceivedMessage'), sellerId: String(seller.id) });
+    });
+    socket.on('orderStatusChanged', (order: any) => {
+      setOrders((prev) => prev.map(o => o.id === order.id ? order : o));
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, [seller?.id]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newOrdersCount, setNewOrdersCount] = useState(0);
@@ -633,7 +653,7 @@ const SellerDashboard: React.FC = () => {
                           order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
                           'bg-gray-100 text-gray-800'
                         }`}>
-                          {order.status}
+                          {order.status === 'pending' ? t('pending') : order.status === 'confirmed' ? t('confirmed') : order.status === 'completed' ? t('completed') : t('cancelled')}
                         </span>
                       </div>
                     </div>
@@ -648,14 +668,14 @@ const SellerDashboard: React.FC = () => {
                           className="flex items-center px-3 py-1 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600"
                         >
                           <CheckCircle className="w-4 h-4 mr-1" />
-                          Confirm
+                          {t('confirm')}
                         </button>
                         <button
                           onClick={() => handleOrderStatusChange(order.id, 'cancelled')}
                           className="flex items-center px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600"
                         >
                           <XCircle className="w-4 h-4 mr-1" />
-                          Cancel
+                          {t('cancel')}
                         </button>
                       </>
                     )}
@@ -665,7 +685,7 @@ const SellerDashboard: React.FC = () => {
                         className="flex items-center px-3 py-1 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600"
                       >
                         <CheckCircle className="w-4 h-4 mr-1" />
-                        Mark Complete
+                        {t('markComplete')}
                       </button>
                     )}
                   </div>

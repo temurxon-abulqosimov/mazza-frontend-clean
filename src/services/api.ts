@@ -494,8 +494,9 @@ export const productsApi = {
   // Resolve seller image URL - handles Telegram file_id on backend
   getSellerImageUrl: async (sellerId: number) => {
     try {
-      const response = await api.get(`/webapp/sellers/${sellerId}/image`);
-      return response.data?.url || null;
+      // Prefer redirect endpoint for <img src>; fallback to JSON endpoint
+      const redirectUrl = `${api.defaults.baseURL}/webapp/sellers/${sellerId}/photo`;
+      return redirectUrl;
     } catch (e) {
       return null;
     }
