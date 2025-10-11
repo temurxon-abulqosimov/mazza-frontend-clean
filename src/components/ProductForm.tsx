@@ -176,7 +176,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white pb-20">
       {/* Notification */}
       <Notification
         type={notification.type}
@@ -187,40 +187,55 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
         duration={4000}
       />
 
-      {/* Clean Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-md mx-auto px-4 py-4">
+      {/* Beautiful Header */}
+      <div className="bg-white shadow-sm border-b border-orange-100">
+        <div className="max-w-md mx-auto px-6 py-5">
           <div className="flex items-center">
             <button
               onClick={() => navigate('/seller')}
-              className="mr-3 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="mr-4 p-3 bg-orange-50 hover:bg-orange-100 rounded-2xl transition-all duration-200"
             >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
+              <ArrowLeft className="w-5 h-5 text-orange-600" />
             </button>
-            <h1 className="text-lg font-semibold text-gray-900">
-              {mode === 'create' ? t('addProduct') : t('editProduct')}
-            </h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                  {mode === 'create' ? t('addProduct') : t('editProduct')}
+                </span>
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                {mode === 'create' ? t('createNewProduct') : t('updateProductDetails')}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Clean Form */}
-      <div className="max-w-md mx-auto p-4">
+      {/* Beautiful Form */}
+      <div className="max-w-md mx-auto p-6">
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-600">{error}</p>
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                <span className="text-red-600 text-sm">⚠</span>
+              </div>
+              <p className="text-sm text-red-600 font-medium">{error}</p>
+            </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* Business Image Preview */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Product Image
-            </label>
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+          <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
+                <Store className="w-4 h-4 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">{t('productImage')}</h3>
+            </div>
+            <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-4">
+              <div className="flex items-center space-x-4">
+                <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl overflow-hidden shadow-md">
                   {seller?.businessImageUrl ? (
                     <img
                       src={seller.businessImageUrl}
@@ -229,15 +244,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Store className="w-8 h-8 text-gray-400" />
+                      <Store className="w-10 h-10 text-orange-500" />
                     </div>
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-700 font-medium mb-1">
                     {t('productImageDescription')}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-600 bg-white px-3 py-1 rounded-full inline-block">
                     {seller?.businessName || t('yourBusiness')}
                   </p>
                 </div>
@@ -246,149 +261,193 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
           </div>
 
           {/* Product Description */}
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-              {t('productDescription') || 'Product Description'} *
-            </label>
+          <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
+                <span className="text-white text-sm">📝</span>
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">{t('productDescription') || 'Product Description'}</h3>
+              <span className="text-red-500 text-sm font-medium">*</span>
+            </div>
             <textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleInputChange}
               required
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              rows={4}
+              className="w-full px-4 py-3 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200 resize-none"
               placeholder={t('productDescriptionPlaceholder') || 'Enter product description'}
             />
           </div>
 
           {/* Price Fields */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-                {t('salePrice') || 'Sale Price'}
-              </label>
-              <div className="relative">
+          <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
+            <div className="flex items-center space-x-2 mb-6">
+              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
+                <DollarSign className="w-4 h-4 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">{t('pricing') || 'Pricing'}</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-3">
+                  {t('salePrice') || 'Sale Price'}
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    id="price"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    required
+                    min="0"
+                    step="0.01"
+                    className="w-full px-4 py-3 pl-12 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
+                    placeholder="0.00"
+                  />
+                  <span className="absolute left-4 top-3.5 text-gray-500 text-sm font-medium">{t('so_m')}</span>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="originalPrice" className="block text-sm font-medium text-gray-700 mb-3">
+                  {t('originalPrice') || 'Original Price'}
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    id="originalPrice"
+                    name="originalPrice"
+                    value={formData.originalPrice}
+                    onChange={handleInputChange}
+                    min="0"
+                    step="0.01"
+                    className="w-full px-4 py-3 pl-12 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
+                    placeholder="0.00"
+                  />
+                  <span className="absolute left-4 top-3.5 text-gray-500 text-sm font-medium">{t('so_m')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quantity & Category */}
+          <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
+            <div className="flex items-center space-x-2 mb-6">
+              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
+                <span className="text-white text-sm">📦</span>
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">{t('productDetails') || 'Product Details'}</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-3">
+                  {t('quantityAvailable')}
+                </label>
                 <input
                   type="number"
-                  id="price"
-                  name="price"
-                  value={formData.price}
+                  id="quantity"
+                  name="quantity"
+                  value={formData.quantity}
                   onChange={handleInputChange}
                   required
-                  min="0"
-                  step="0.01"
-                  className="w-full px-3 py-2 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="0.00"
+                  min="1"
+                  className="w-full px-4 py-3 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
                 />
-                <span className="absolute left-3 top-2.5 text-gray-400 text-sm">{language === 'uz' ? 'so\'m' : 'сум'}</span>
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="originalPrice" className="block text-sm font-medium text-gray-700 mb-2">
-                {t('originalPrice') || 'Original Price (Optional)'}
-              </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  id="originalPrice"
-                  name="originalPrice"
-                  value={formData.originalPrice}
+              <div>
+                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-3">
+                  {t('category')}
+                </label>
+                <select
+                  id="category"
+                  name="category"
+                  value={formData.category}
                   onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                  className="w-full px-3 py-2 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="0.00"
-                />
-                <span className="absolute left-3 top-2.5 text-gray-400 text-sm">{language === 'uz' ? 'so\'m' : 'сум'}</span>
+                  className="w-full px-4 py-3 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200 appearance-none cursor-pointer"
+                >
+                  {categoryOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-          </div>
-
-          {/* Quantity */}
-          <div>
-            <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
-              {t('quantityAvailable')}
-            </label>
-            <input
-              type="number"
-              id="quantity"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleInputChange}
-              required
-              min="1"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            />
-          </div>
-
-          {/* Category */}
-          <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-              {t('category')}
-            </label>
-            <select
-              id="category"
-              name="category"
-              value={formData.category}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            >
-              {categoryOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
           </div>
 
           {/* Availability Dates */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="availableFrom" className="block text-sm font-medium text-gray-700 mb-2">
-                {t('availableFrom')}
-              </label>
-              <div className="relative">
-                <input
-                  type="datetime-local"
-                  id="availableFrom"
-                  name="availableFrom"
-                  value={formData.availableFrom}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                />
-                <Clock className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+          <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
+            <div className="flex items-center space-x-2 mb-6">
+              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
+                <Clock className="w-4 h-4 text-white" />
               </div>
+              <h3 className="text-lg font-bold text-gray-900">{t('availability') || 'Availability'}</h3>
             </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="availableFrom" className="block text-sm font-medium text-gray-700 mb-3">
+                  {t('availableFrom')}
+                </label>
+                <div className="relative">
+                  <input
+                    type="datetime-local"
+                    id="availableFrom"
+                    name="availableFrom"
+                    value={formData.availableFrom}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 pl-12 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
+                  />
+                  <Clock className="absolute left-4 top-3.5 w-4 h-4 text-gray-500" />
+                </div>
+              </div>
 
-            <div>
-              <label htmlFor="availableUntil" className="block text-sm font-medium text-gray-700 mb-2">
-                {t('availableUntil')}
-              </label>
-              <div className="relative">
-                <input
-                  type="datetime-local"
-                  id="availableUntil"
-                  name="availableUntil"
-                  value={formData.availableUntil}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                />
-                <Clock className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+              <div>
+                <label htmlFor="availableUntil" className="block text-sm font-medium text-gray-700 mb-3">
+                  {t('availableUntil')} <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="datetime-local"
+                    id="availableUntil"
+                    name="availableUntil"
+                    value={formData.availableUntil}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 pl-12 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
+                  />
+                  <Clock className="absolute left-4 top-3.5 w-4 h-4 text-gray-500" />
+                </div>
               </div>
             </div>
           </div>
 
           {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? t('loading') : mode === 'create' ? t('addProduct') : t('updateProduct')}
-          </button>
+          <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white py-4 px-6 rounded-2xl hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] font-semibold text-lg"
+            >
+              {loading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>{t('loading')}</span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center space-x-2">
+                  <span>{mode === 'create' ? t('addProduct') : t('updateProduct')}</span>
+                  <span className="text-xl">✨</span>
+                </div>
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </div>

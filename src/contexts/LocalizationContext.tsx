@@ -254,6 +254,21 @@ const translations: Record<Language, TranslationKeys> = {
     total: 'Jami',
     so_m: 'so\'m',
     confirmOrder: 'Buyurtmani tasdiqlash',
+    
+    // Additional translations for beautiful UI
+    createNewProduct: 'Yangi mahsulot yaratish',
+    updateProductDetails: 'Mahsulot ma\'lumotlarini yangilash',
+    productImage: 'Mahsulot rasmi',
+    pricing: 'Narxlash',
+    availability: 'Mavjudlik',
+    businessImage: 'Biznes rasmi',
+    businessInformation: 'Biznes ma\'lumotlari',
+    manageYourBusinessProfile: 'Biznes profilingizni boshqaring',
+    manageYourAccount: 'Hisobingizni boshqaring',
+    manageNotifications: 'Bildirishnomalarni boshqaring',
+    signOutOfAccount: 'Hisobdan chiqish',
+    clearSearch: 'Qidiruvni tozalash',
+    items: 'ta',
     placingOrder: 'Buyurtma berilmoqda...',
     placing: 'Berilmoqda...',
     orderFailed: 'Buyurtma muvaffaqiyatsiz',
@@ -284,8 +299,6 @@ const translations: Record<Language, TranslationKeys> = {
     locationRequiredMessage: 'Mahsulotlarni ko\'rish uchun joylashuv ruxsati kerak.',
     
     // Search Results and Product Cards
-    items: 'ta mahsulot',
-    productImage: 'Mahsulot rasmi',
     viewDetails: 'Tafsilotlarni ko\'rish',
     until: 'gacha',
     discount: 'Chegirma',
@@ -563,6 +576,21 @@ const translations: Record<Language, TranslationKeys> = {
     total: 'Итого',
     so_m: 'сум',
     confirmOrder: 'Подтвердить заказ',
+    
+    // Additional translations for beautiful UI
+    createNewProduct: 'Создать новый товар',
+    updateProductDetails: 'Обновить детали товара',
+    productImage: 'Изображение товара',
+    pricing: 'Ценообразование',
+    availability: 'Доступность',
+    businessImage: 'Изображение бизнеса',
+    businessInformation: 'Информация о бизнесе',
+    manageYourBusinessProfile: 'Управление профилем бизнеса',
+    manageYourAccount: 'Управление аккаунтом',
+    manageNotifications: 'Управление уведомлениями',
+    signOutOfAccount: 'Выйти из аккаунта',
+    clearSearch: 'Очистить поиск',
+    items: 'шт',
     placingOrder: 'Размещение заказа...',
     placing: 'Размещение...',
     orderFailed: 'Заказ не удался',
@@ -593,8 +621,6 @@ const translations: Record<Language, TranslationKeys> = {
     locationRequiredMessage: 'Для просмотра товаров требуется разрешение на местоположение.',
     
     // Search Results and Product Cards
-    items: 'товаров',
-    productImage: 'Изображение товара',
     viewDetails: 'Просмотр деталей',
     until: 'до',
     discount: 'Скидка',

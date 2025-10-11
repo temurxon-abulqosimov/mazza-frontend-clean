@@ -687,73 +687,130 @@ const SellerDashboard: React.FC = () => {
         )}
 
         {activeTab === 'profile' && (
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900">{t('profile')}</h3>
+          <div className="space-y-8">
+            {/* Profile Header */}
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                  {t('profile')}
+                </span>
+              </h3>
+              <p className="text-gray-600">{t('manageYourBusinessProfile')}</p>
+            </div>
             
             {/* Business Image Upload */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <h4 className="font-medium text-gray-900 mb-4">Business Image</h4>
-              <ImageUpload
-                onImageSelect={handleImageUpload}
-                currentImageUrl={seller?.businessImageUrl}
-                label="Upload Business Image"
-                maxSize={5}
-              />
+            <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
+              <div className="flex items-center space-x-2 mb-6">
+                <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
+                  <span className="text-white text-sm">📸</span>
+                </div>
+                <h4 className="text-lg font-bold text-gray-900">{t('businessImage')}</h4>
+              </div>
+              <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-4">
+                <ImageUpload
+                  onImageSelect={handleImageUpload}
+                  currentImageUrl={seller?.businessImageUrl}
+                  label="Upload Business Image"
+                  maxSize={5}
+                />
+              </div>
             </div>
 
             {/* Business Info */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <h4 className="font-medium text-gray-900 mb-4">Business Information</h4>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Business Name</label>
-                  <input
-                    type="text"
-                    value={userProfile?.businessName || seller?.businessName || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    readOnly
-                  />
+            <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
+              <div className="flex items-center space-x-2 mb-6">
+                <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
+                  <Store className="w-4 h-4 text-white" />
                 </div>
+                <h4 className="text-lg font-bold text-gray-900">{t('businessInformation')}</h4>
+              </div>
+              
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Business Type</label>
-                  <input
-                    type="text"
-                    value={userProfile?.businessType || seller?.businessType || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    readOnly
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                  <input
-                    type="text"
-                    value={userProfile?.phoneNumber || seller?.phoneNumber || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    readOnly
-                  />
-                </div>
-                {userProfile?.location && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                    <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                    {t('businessName')}
+                  </label>
+                  <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-4">
                     <input
                       type="text"
-                      value={typeof userProfile.location === 'string' 
-                        ? userProfile.location 
-                        : `${userProfile.location.latitude.toFixed(4)}, ${userProfile.location.longitude.toFixed(4)}`}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      value={userProfile?.businessName || seller?.businessName || ''}
+                      className="w-full px-4 py-3 bg-white border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-gray-900 font-medium"
                       readOnly
                     />
                   </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                    <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                    {t('businessType')}
+                  </label>
+                  <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-4">
+                    <input
+                      type="text"
+                      value={userProfile?.businessType || seller?.businessType || ''}
+                      className="w-full px-4 py-3 bg-white border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-gray-900 font-medium"
+                      readOnly
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                    <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                    {t('phoneNumber')}
+                  </label>
+                  <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-4">
+                    <input
+                      type="text"
+                      value={userProfile?.phoneNumber || seller?.phoneNumber || ''}
+                      className="w-full px-4 py-3 bg-white border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-gray-900 font-medium"
+                      readOnly
+                    />
+                  </div>
+                </div>
+                
+                {userProfile?.location && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                      <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                      {t('location')}
+                    </label>
+                    <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-4">
+                      <input
+                        type="text"
+                        value={typeof userProfile.location === 'string' 
+                          ? userProfile.location 
+                          : `${userProfile.location.latitude.toFixed(4)}, ${userProfile.location.longitude.toFixed(4)}`}
+                        className="w-full px-4 py-3 bg-white border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-gray-900 font-medium"
+                        readOnly
+                      />
+                    </div>
+                  </div>
                 )}
+                
                 {userProfile?.status && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <div className={`px-3 py-2 rounded-lg ${
-                      userProfile.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
-                      userProfile.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {userProfile.status}
+                    <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                      <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                      {t('status')}
+                    </label>
+                    <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-4">
+                      <div className={`px-4 py-3 rounded-xl font-medium text-center ${
+                        userProfile.status === 'APPROVED' ? 'bg-green-100 text-green-800 border border-green-200' :
+                        userProfile.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
+                        'bg-red-100 text-red-800 border border-red-200'
+                      }`}>
+                        <div className="flex items-center justify-center space-x-2">
+                          <span className={`w-2 h-2 rounded-full ${
+                            userProfile.status === 'APPROVED' ? 'bg-green-500' :
+                            userProfile.status === 'PENDING' ? 'bg-yellow-500' :
+                            'bg-red-500'
+                          }`}></span>
+                          <span>{userProfile.status}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
