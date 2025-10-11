@@ -36,6 +36,7 @@ const AdminAnalytics = lazy(() => import('./pages/AdminAnalytics'));
 const AdminOrders = lazy(() => import('./pages/AdminOrders'));
 const ProductCreate = lazy(() => import('./pages/ProductCreate'));
 const ProductEdit = lazy(() => import('./pages/ProductEdit'));
+const RateOrder = lazy(() => import('./pages/RateOrder'));
 
 // Loading component for Suspense fallback
 const PageLoader = () => (
@@ -92,6 +93,7 @@ function App() {
                 <Route path="/seller-detail/:id" element={<SellerDetail />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/orders" element={<Orders />} />
+                <Route path="/orders/:id/rate" element={<RateOrder />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/notifications" element={<Notifications />} />
                 

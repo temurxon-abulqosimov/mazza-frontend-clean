@@ -210,7 +210,7 @@ const UserDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white pb-20">
+    <div className="min-h-screen w-full bg-gradient-to-b from-orange-50 to-white pb-20 overflow-x-hidden">
       {/* Location Permission Modal - with error boundary */}
       {typeof window !== 'undefined' && (
         <LocationPermission 
@@ -226,8 +226,8 @@ const UserDashboard: React.FC = () => {
       )}
       
       {/* Beautiful Header */}
-      <div className="bg-white shadow-sm border-b border-orange-100 sticky top-0 z-50">
-        <div className="max-w-md mx-auto px-6 py-5">
+      <div className="bg-white shadow-sm border-b border-orange-100 sticky top-0 z-50 w-full">
+        <div className="w-full max-w-md mx-auto px-4 sm:px-6 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="relative">
@@ -272,8 +272,8 @@ const UserDashboard: React.FC = () => {
       </div>
 
       {/* Beautiful Search Bar */}
-      <div className="bg-white px-6 py-4 border-b border-orange-100">
-        <div className="max-w-md mx-auto">
+      <div className="bg-white px-4 sm:px-6 py-4 border-b border-orange-100 w-full">
+        <div className="w-full max-w-md mx-auto">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-gray-400" />
@@ -296,8 +296,8 @@ const UserDashboard: React.FC = () => {
       </div>
 
       {/* Beautiful Category Filter */}
-      <div className="bg-white px-6 py-4 border-b border-orange-100">
-        <div className="max-w-md mx-auto">
+      <div className="bg-white px-4 sm:px-6 py-4 border-b border-orange-100 w-full">
+        <div className="w-full max-w-md mx-auto">
           <div className="relative">
             <select
               value={selectedCategory}
@@ -320,7 +320,7 @@ const UserDashboard: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-md mx-auto p-4">
+      <div className="w-full max-w-md mx-auto p-4 sm:p-6">
         {activeTab === 'home' && (
           <div className="space-y-4">
             {/* Featured Products */}
@@ -356,11 +356,11 @@ const UserDashboard: React.FC = () => {
                     <div
                       key={product.id}
                       onClick={() => handleProductClick(product.id)}
-                      className="bg-white rounded-2xl shadow-lg border border-orange-100 p-5 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group"
+                      className="bg-white rounded-2xl shadow-lg border border-orange-100 p-4 sm:p-5 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group w-full"
                     >
-                      <div className="flex space-x-4">
-                        <div className="relative">
-                          <div className="w-18 h-18 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-md">
+                      <div className="flex space-x-3 sm:space-x-4">
+                        <div className="relative flex-shrink-0">
+                          <div className="w-16 h-16 sm:w-18 sm:h-18 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-md">
                             {product.imageUrl || ((product as any).seller?.id || (product as any).store?.id) ? (
                               <img
                                 src={
@@ -383,45 +383,45 @@ const UserDashboard: React.FC = () => {
                           )}
                         </div>
                         
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-gray-900 text-lg mb-1 line-clamp-2 group-hover:text-orange-600 transition-colors">
+                        <div className="flex-1 min-w-0 overflow-hidden">
+                          <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 line-clamp-2 group-hover:text-orange-600 transition-colors">
                             {product.description || product.name}
                           </h3>
-                          <p className="text-sm text-gray-600 mb-2 flex items-center">
-                            <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
-                            {product.store?.businessName || t('store')}
+                          <p className="text-xs sm:text-sm text-gray-600 mb-2 flex items-center truncate">
+                            <span className="w-2 h-2 bg-orange-500 rounded-full mr-2 flex-shrink-0"></span>
+                            <span className="truncate">{product.store?.businessName || t('store')}</span>
                           </p>
                           
-                          <div className="flex items-center space-x-4 mb-3">
+                          <div className="flex items-center space-x-2 sm:space-x-4 mb-3">
                             <div className="flex items-center space-x-1">
-                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                              <span className="text-sm font-medium text-gray-700">{product.stats?.averageRating || 0}</span>
+                              <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-current flex-shrink-0" />
+                              <span className="text-xs sm:text-sm font-medium text-gray-700">{product.stats?.averageRating || 0}</span>
                             </div>
                             <div className="flex items-center space-x-1">
-                              <MapPin className="w-4 h-4 text-blue-500" />
-                              <span className="text-sm text-gray-600">{product.store?.distance || 0} {t('distance')}</span>
+                              <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500 flex-shrink-0" />
+                              <span className="text-xs sm:text-sm text-gray-600">{product.store?.distance || 0} {t('distance')}</span>
                             </div>
                           </div>
                           
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              <span className="text-xl font-bold text-gray-900">
+                            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                              <span className="text-lg sm:text-xl font-bold text-gray-900 truncate">
                                 {product.price.toLocaleString()} {t('so_m')}
                               </span>
                               {product.originalPrice && (
-                                <span className="text-sm text-gray-500 line-through">
+                                <span className="text-xs sm:text-sm text-gray-500 line-through truncate">
                                   {product.originalPrice.toLocaleString()} {t('so_m')}
                                 </span>
                               )}
                             </div>
                             <button 
-                              className="p-2 bg-orange-100 hover:bg-orange-200 rounded-xl transition-all duration-200 group-hover:scale-110"
+                              className="p-1.5 sm:p-2 bg-orange-100 hover:bg-orange-200 rounded-xl transition-all duration-200 group-hover:scale-110 flex-shrink-0 ml-2"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 // Handle favorite
                               }}
                             >
-                              <Heart className="w-5 h-5 text-orange-500" />
+                              <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
                             </button>
                           </div>
                         </div>

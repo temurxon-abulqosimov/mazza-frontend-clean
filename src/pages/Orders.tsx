@@ -153,8 +153,20 @@ const Orders: React.FC = () => {
     // Handle order status change notifications
     socket.on('notification', (notificationData: any) => {
       if (notificationData.type === 'order_confirmed' || notificationData.type === 'order_cancelled' || notificationData.type === 'order_completed') {
-        // You can add notification handling here if needed
         console.log('Order notification received:', notificationData);
+        
+        // If order is confirmed and requires rating, show rating prompt
+        if (notificationData.type === 'order_confirmed' && notificationData.metadata?.requiresRating) {
+          // Reload orders to show updated status
+          setOrders(prev => prev.map(o => o.id === notificationData.orderId ? { ...o, status: 'confirmed' } : o));
+          
+          // Show a prompt to rate the order
+          setTimeout(() => {
+            if (window.confirm(t('orderConfirmedRatePrompt') || 'Your order has been confirmed! Would you like to rate your experience?')) {
+              navigate(`/orders/${notificationData.orderId}/rate`);
+            }
+          }, 1000);
+        }
       }
     });
     
@@ -376,6 +388,15 @@ const Orders: React.FC = () => {
                         <Phone className="w-5 h-5" />
                         <span>{t('contactSeller')}</span>
                       </button>
+                      {order.status === 'confirmed' && (
+                        <button
+                          onClick={() => navigate(`/orders/${order.id}/rate`)}
+                          className="flex-1 flex items-center justify-center space-x-2 py-3 px-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 shadow-lg font-medium"
+                        >
+                          <Star className="w-5 h-5" />
+                          <span>{t('rateOrder') || 'Rate Order'}</span>
+                        </button>
+                      )}
                       {order.status === 'completed' && (
                         <button
                           onClick={() => navigate(`/product-detail/${order.product.id}`)}

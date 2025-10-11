@@ -58,10 +58,10 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white pb-20">
+    <div className="min-h-screen w-full bg-gradient-to-b from-orange-50 to-white pb-20 overflow-x-hidden">
       {/* Beautiful Header */}
-      <div className="bg-white shadow-sm border-b border-orange-100">
-        <div className="px-6 py-5 flex items-center justify-between">
+      <div className="bg-white shadow-sm border-b border-orange-100 w-full">
+        <div className="w-full max-w-md mx-auto px-4 sm:px-6 py-5 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center">
             <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
               {t('profile')}
@@ -72,8 +72,8 @@ const Profile: React.FC = () => {
       </div>
 
       {/* Beautiful User Info Card */}
-      <div className="p-6">
-        <div className="bg-white rounded-3xl shadow-xl border border-orange-100 p-8">
+      <div className="w-full max-w-md mx-auto p-4 sm:p-6">
+        <div className="bg-white rounded-3xl shadow-xl border border-orange-100 p-6 sm:p-8 w-full">
           <div className="flex flex-col items-center text-center space-y-6">
             {/* Profile Avatar */}
             <div className="relative">
@@ -174,7 +174,7 @@ const Profile: React.FC = () => {
       </div>
 
       {/* Beautiful Menu Items */}
-      <div className="px-6 space-y-6">
+      <div className="w-full max-w-md mx-auto px-4 sm:px-6 space-y-6">
         {/* Account Section */}
         <div className="bg-white rounded-3xl shadow-lg border border-orange-100 overflow-hidden">
           <div className="p-6">

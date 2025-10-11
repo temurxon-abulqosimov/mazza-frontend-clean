@@ -176,7 +176,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white pb-20">
+    <div className="min-h-screen w-full bg-gradient-to-b from-orange-50 to-white pb-20 overflow-x-hidden">
       {/* Notification */}
       <Notification
         type={notification.type}
@@ -188,8 +188,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
       />
 
       {/* Beautiful Header */}
-      <div className="bg-white shadow-sm border-b border-orange-100">
-        <div className="max-w-md mx-auto px-6 py-5">
+      <div className="bg-white shadow-sm border-b border-orange-100 w-full">
+        <div className="w-full max-w-md mx-auto px-4 sm:px-6 py-5">
           <div className="flex items-center">
             <button
               onClick={() => navigate('/seller')}
@@ -212,7 +212,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
       </div>
 
       {/* Beautiful Form */}
-      <div className="max-w-md mx-auto p-6">
+      <div className="w-full max-w-md mx-auto p-4 sm:p-6">
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
             <div className="flex items-center space-x-3">
