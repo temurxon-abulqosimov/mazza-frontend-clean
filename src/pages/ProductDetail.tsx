@@ -250,10 +250,10 @@ const ProductDetail: React.FC = () => {
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-gray-900">{product.price.toLocaleString()} so'm</div>
+            <div className="text-2xl font-bold text-gray-900">{product.price.toLocaleString()} {t('so_m')}</div>
             {product.originalPrice && product.originalPrice > product.price && (
               <div className="text-sm text-gray-500 line-through">
-                {product.originalPrice.toLocaleString()} so'm
+                {product.originalPrice.toLocaleString()} {t('so_m')}
               </div>
             )}
           </div>
@@ -287,13 +287,13 @@ const ProductDetail: React.FC = () => {
             
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">{t('unitPrice')}</span>
-              <span className="font-medium">{product.price.toLocaleString()} so'm</span>
+              <span className="font-medium">{product.price.toLocaleString()} {t('so_m')}</span>
             </div>
             
             {savings > 0 && (
               <div className="flex justify-between text-sm text-green-600">
                 <span>{t('savings')}</span>
-                <span className="font-medium">-{savings.toLocaleString()} so'm</span>
+                <span className="font-medium">-{savings.toLocaleString()} {t('so_m')}</span>
               </div>
             )}
             
@@ -325,7 +325,7 @@ const ProductDetail: React.FC = () => {
             <div className="border-t pt-2">
               <div className="flex justify-between text-lg font-semibold">
                 <span>{t('total')}</span>
-                <span>{totalPrice.toLocaleString()} so'm</span>
+                <span>{totalPrice.toLocaleString()} {t('so_m')}</span>
               </div>
             </div>
           </div>

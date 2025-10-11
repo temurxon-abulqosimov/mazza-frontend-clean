@@ -450,7 +450,7 @@ const SellerDashboard: React.FC = () => {
                   <div className="ml-3">
                     <p className="text-sm text-gray-600">{t('revenue')}</p>
                     <p className="text-2xl font-bold text-gray-900">
-                      {orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0).toLocaleString()} so'm
+                      {orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0).toLocaleString()} {t('so_m')}
                     </p>
                   </div>
                 </div>
@@ -506,7 +506,7 @@ const SellerDashboard: React.FC = () => {
                       <p className="text-sm text-gray-600">{order.product?.description}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-gray-900">{order.totalPrice?.toLocaleString()} so'm</p>
+                      <p className="font-semibold text-gray-900">{order.totalPrice?.toLocaleString()} {t('so_m')}</p>
                       <p className="text-sm text-gray-600">{order.status}</p>
                     </div>
                   </div>
@@ -557,7 +557,7 @@ const SellerDashboard: React.FC = () => {
                       <div className="mt-2 space-y-1">
                         <div className="flex items-center text-sm text-gray-600">
                           <DollarSign className="w-4 h-4 mr-1" />
-                          <span>Price: {product.price?.toLocaleString()} so'm</span>
+                          <span>Price: {product.price?.toLocaleString()} {t('so_m')}</span>
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
                           <Package className="w-4 h-4 mr-1" />
@@ -566,7 +566,7 @@ const SellerDashboard: React.FC = () => {
                         {product.originalPrice && product.originalPrice > product.price && (
                           <div className="flex items-center text-sm text-green-600">
                             <Tag className="w-4 h-4 mr-1" />
-                            <span>Sale: {product.originalPrice.toLocaleString()} so'm  {product.price.toLocaleString()} so'm</span>
+                            <span>Sale: {product.originalPrice.toLocaleString()} {t('so_m')}  {product.price.toLocaleString()} {t('so_m')}</span>
                           </div>
                         )}
                         <div className="flex items-center text-sm text-gray-600">
@@ -637,7 +637,7 @@ const SellerDashboard: React.FC = () => {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-gray-900">{order.totalPrice?.toLocaleString()} so'm</p>
+                      <p className="font-semibold text-gray-900">{order.totalPrice?.toLocaleString()} {t('so_m')}</p>
                       <div className="flex items-center space-x-2 mt-2">
                         <span className={`px-2 py-1 text-xs rounded-full ${
                           order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :

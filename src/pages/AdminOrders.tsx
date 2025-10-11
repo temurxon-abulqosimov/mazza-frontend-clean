@@ -4,9 +4,11 @@ import { ArrowLeft, Package, Search as SearchIcon, CheckCircle, XCircle } from '
 import BottomNavigation from '../components/BottomNavigation';
 import { adminApi } from '../services/api';
 import { Order } from '../types';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 const AdminOrders: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useLocalization();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -156,7 +158,7 @@ const AdminOrders: React.FC = () => {
                   <p className="text-sm text-gray-600">Seller: {order.product?.seller?.businessName}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-gray-900">{order.totalPrice?.toLocaleString()} so'm</p>
+                  <p className="font-semibold text-gray-900">{order.totalPrice?.toLocaleString()} {t('so_m')}</p>
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                     {order.status}
                   </span>

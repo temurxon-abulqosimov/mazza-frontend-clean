@@ -252,11 +252,11 @@ const Home: React.FC = () => {
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center space-x-2">
                         <span className="text-lg font-semibold text-gray-900">
-                          {product.price} so'm
+                          {product.price} {t('so_m')}
                         </span>
                         {product.originalPrice && (
                           <span className="text-sm text-gray-500 line-through">
-                            {product.originalPrice} so'm
+                            {product.originalPrice} {t('so_m')}
                           </span>
                         )}
                       </div>
