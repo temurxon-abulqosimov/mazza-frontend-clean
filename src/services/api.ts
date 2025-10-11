@@ -479,18 +479,15 @@ export const productsApi = {
       return devApi.products.getProducts({ lat, lng });
     }
     
-    const cacheKey = `get:${api.defaults.baseURL}/webapp/discovery/products?lat=${lat}&lng=${lng}`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products/nearby?lat=${lat}&lng=${lng}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/webapp/discovery/products', { 
+      const response = await api.get('/webapp/products/nearby', { 
         params: { 
           lat, 
-          lng, 
-          radius: '50', // 50km radius
-          sortBy: 'distance',
-          limit: '100'
+          lng
         } 
       });
       return response;

@@ -9,6 +9,7 @@ import {
   Bell
 } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
+import Logo from '../components/Logo';
 import { config } from '../config/env';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
@@ -230,6 +231,9 @@ const UserDashboard: React.FC = () => {
         <div className="w-full max-w-md mx-auto px-4 sm:px-6 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
+              {/* Logo */}
+              <Logo size="md" showText={true} />
+              
               <div className="relative">
                 <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold text-lg">
