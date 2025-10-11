@@ -18,6 +18,7 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
+import MapView from '../components/MapView';
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
@@ -290,14 +291,25 @@ const SellerDashboard: React.FC = () => {
     }
   };
 
-  const handleImageUpload = (file: File | null) => {
+  const handleImageUpload = async (file: File | null) => {
     if (file) {
       try {
         console.log('Uploading business image:', file);
-        showNotification('success', 'Image Uploaded', 'Business image has been updated.');
-      } catch (err) {
+        setLoading(true);
+        
+        // Upload the image using the sellers API
+        const response = await sellersApi.uploadBusinessImage(file);
+        
+        if (response.data) {
+          // Reload seller data to get updated image
+          await loadSellerData();
+          showNotification('success', 'Image Uploaded', 'Business image has been updated successfully.');
+        }
+      } catch (err: any) {
         console.error('Failed to upload image:', err);
-        showNotification('error', 'Upload Failed', 'Failed to upload image. Please try again.');
+        showNotification('error', 'Upload Failed', err.response?.data?.message || 'Failed to upload image. Please try again.');
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -787,6 +799,21 @@ const SellerDashboard: React.FC = () => {
                         readOnly
                       />
                     </div>
+                  </div>
+                )}
+                
+                {/* Location Map */}
+                {userProfile?.location && (
+                  <div>
+                    <MapView
+                      latitude={typeof userProfile.location === 'string' 
+                        ? JSON.parse(userProfile.location).latitude 
+                        : userProfile.location.latitude}
+                      longitude={typeof userProfile.location === 'string' 
+                        ? JSON.parse(userProfile.location).longitude 
+                        : userProfile.location.longitude}
+                      sellerName={userProfile?.businessName || seller?.businessName}
+                    />
                   </div>
                 )}
                 

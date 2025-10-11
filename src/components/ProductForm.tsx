@@ -390,12 +390,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
               <h3 className="text-lg font-bold text-gray-900">{t('availability') || 'Availability'}</h3>
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
-              <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col">
                 <label htmlFor="availableFrom" className="block text-sm font-medium text-gray-700 mb-3">
                   {t('availableFrom')}
                 </label>
-                <div className="relative">
+                <div className="relative flex-1">
                   <input
                     type="datetime-local"
                     id="availableFrom"
@@ -408,11 +408,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
                 </div>
               </div>
 
-              <div>
+              <div className="flex flex-col">
                 <label htmlFor="availableUntil" className="block text-sm font-medium text-gray-700 mb-3">
                   {t('availableUntil')} <span className="text-red-500">*</span>
                 </label>
-                <div className="relative">
+                <div className="relative flex-1">
                   <input
                     type="datetime-local"
                     id="availableUntil"

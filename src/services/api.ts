@@ -432,6 +432,19 @@ export const sellersApi = {
     cache.delete(cacheKey); // Invalidate cache
     return api.put('/webapp/sellers/profile', data);
   },
+  uploadBusinessImage: async (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/sellers/profile`;
+    cache.delete(cacheKey); // Invalidate cache
+    
+    return api.post('/webapp/sellers/upload-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
   deleteSeller: async (id: string) => {
     const cacheKey = `get:${api.defaults.baseURL}/webapp/sellers`;
     cache.delete(cacheKey); // Invalidate cache
@@ -466,12 +479,20 @@ export const productsApi = {
       return devApi.products.getProducts({ lat, lng });
     }
     
-    const cacheKey = `get:${api.defaults.baseURL}/webapp/products/nearby?lat=${lat}&lng=${lng}`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/discovery/products?lat=${lat}&lng=${lng}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/webapp/products/nearby', { params: { lat, lng } });
+      const response = await api.get('/webapp/discovery/products', { 
+        params: { 
+          lat, 
+          lng, 
+          radius: '50', // 50km radius
+          sortBy: 'distance',
+          limit: '100'
+        } 
+      });
       return response;
     } catch (error) {
       console.error('Failed to fetch nearby products:', error);

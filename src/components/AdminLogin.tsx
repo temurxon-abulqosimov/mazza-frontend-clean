@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useTelegram } from '../contexts/TelegramContext';
-import { config } from '../config/env';
+import { authApi } from '../services/api';
 
 const AdminLogin: React.FC = () => {
-  const { user, setUserProfile, setUserRole } = useTelegram();
+  const { user, setUserProfile, setUserRole, login } = useTelegram();
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -14,10 +14,14 @@ const AdminLogin: React.FC = () => {
     setError('');
 
     try {
-      // Check admin password from environment
-      const adminPassword = config.ADMIN_PASSWORD;
+      // Use proper API authentication
+      const response = await login({
+        telegramId: user?.id.toString() || '',
+        role: 'ADMIN',
+        password: password
+      });
       
-      if (password === adminPassword) {
+      if (response.data?.access_token) {
         // Admin login successful
         setUserProfile({
           id: 1,
@@ -43,10 +47,11 @@ const AdminLogin: React.FC = () => {
         // Redirect to admin dashboard
         window.location.href = '/admin';
       } else {
-        setError('Invalid password');
+        setError('Invalid credentials');
       }
-    } catch (err) {
-      setError('Login failed. Please try again.');
+    } catch (err: any) {
+      console.error('Admin login error:', err);
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

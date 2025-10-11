@@ -7,6 +7,7 @@ import { useTelegram } from '../contexts/TelegramContext';
 import { ordersApi } from '../services/api';
 import Notification, { NotificationProps } from '../components/Notification';
 import { useNotifications } from '../contexts/NotificationContext';
+import MapView from '../components/MapView';
 
 const ProductDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -274,6 +275,17 @@ const ProductDetail: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Seller Location Map */}
+        {product.seller?.location && (
+          <div className="mt-6">
+            <MapView
+              latitude={product.seller.location.latitude}
+              longitude={product.seller.location.longitude}
+              sellerName={product.seller.businessName}
+            />
+          </div>
+        )}
 
         {/* Order Form */}
         <div className="border-t pt-4">
