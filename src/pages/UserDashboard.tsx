@@ -210,7 +210,7 @@ const UserDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 pb-20">
       {/* Location Permission Modal - with error boundary */}
       {typeof window !== 'undefined' && (
         <LocationPermission 
@@ -224,48 +224,70 @@ const UserDashboard: React.FC = () => {
           }}
         />
       )}
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-md mx-auto px-4 py-4">
+      
+      {/* Modern Header with Glassmorphism */}
+      <div className="bg-white/80 backdrop-blur-md shadow-lg border-b border-orange-100 sticky top-0 z-50">
+        <div className="max-w-md mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-400 via-orange-500 to-amber-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-xl">
+                    {userProfile?.firstName?.charAt(0) || user?.first_name?.charAt(0) || 'U'}
+                  </span>
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">
+                  {t('discover')} 🛍️
+                </h1>
+                <p className="text-sm text-gray-600 flex items-center">
+                  <MapPin className="w-4 h-4 mr-1 text-orange-500" />
+                  {location ? `${t('nearby')} ${t('deals')}` : t('findBestDeals')}
+                </p>
+              </div>
+            </div>
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => navigate('/user/notifications')}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
+                className="relative p-3 bg-white/60 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
               >
-                <Bell className="w-5 h-5 text-gray-600" />
+                <Bell className="w-6 h-6 text-gray-700" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  <span className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg animate-pulse">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
               </button>
-              <h1 className="text-lg font-semibold text-gray-900">{t('discover')}</h1>
+              <button
+                onClick={() => setActiveTab('search')}
+                className="p-3 bg-white/60 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
+              >
+                <Search className="w-6 h-6 text-gray-700" />
+              </button>
             </div>
-            <button
-              onClick={() => setActiveTab('search')}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Search className="w-5 h-5 text-gray-600" />
-            </button>
           </div>
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="bg-white px-4 py-3 border-b">
+      {/* Modern Search Bar */}
+      <div className="bg-white/60 backdrop-blur-sm px-6 py-4 border-b border-orange-100">
         <div className="max-w-md mx-auto">
-          <div className="flex space-x-2">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
             <input
               type="text"
               placeholder={t("searchProductsAndStores")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              className="w-full pl-12 pr-4 py-4 bg-white/80 backdrop-blur-sm border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-md transition-all duration-200"
             />
             <button
               onClick={handleSearch}
-              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+              className="absolute right-2 top-2 bottom-2 px-6 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all duration-200 shadow-lg font-medium"
             >
               {t('searchButton')}
             </button>
@@ -273,20 +295,27 @@ const UserDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Category Filter */}
-      <div className="bg-white px-4 py-3 border-b">
+      {/* Modern Category Filter */}
+      <div className="bg-white/60 backdrop-blur-sm px-6 py-4 border-b border-orange-100">
         <div className="max-w-md mx-auto">
+          <div className="relative">
             <select
               value={selectedCategory}
               onChange={(e) => handleCategoryChange(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              className="w-full pl-4 pr-10 py-4 bg-white/80 backdrop-blur-sm border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-md transition-all duration-200 appearance-none cursor-pointer"
             >
-            {categories.map((category) => (
-              <option key={category.value} value={category.value}>
-                {category.label}
-              </option>
-            ))}
-          </select>
+              {categories.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {getCategoryEmoji(category.value)} {category.label}
+                </option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -296,73 +325,110 @@ const UserDashboard: React.FC = () => {
           <div className="space-y-4">
             {/* Featured Products */}
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('featuredProducts')}</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                  <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                    {t('featuredProducts')}
+                  </span>
+                  <span className="ml-2">✨</span>
+                </h2>
+                <div className="text-sm text-gray-500 bg-orange-100 px-3 py-1 rounded-full">
+                  {filteredProducts.length} {t('items')}
+                </div>
+              </div>
+              
               {filteredProducts.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="text-gray-400 mb-4">
-                    <Search className="w-12 h-12 mx-auto" />
+                <div className="text-center py-12">
+                  <div className="w-24 h-24 bg-gradient-to-br from-orange-100 to-amber-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <Search className="w-12 h-12 text-orange-500" />
                   </div>
-                  <p className="text-gray-600 mb-2">{t('noProductsFound')}</p>
-                  <p className="text-sm text-gray-500">{t('tryDifferentSearch')}</p>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('noProductsFound')}</h3>
+                  <p className="text-gray-600 mb-4">{t('tryDifferentSearch')}</p>
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl hover:from-orange-600 hover:to-amber-600 transition-all duration-200 shadow-lg"
+                  >
+                    {t('clearSearch')}
+                  </button>
                 </div>
               ) : (
-                <div className="grid gap-4">
+                <div className="grid gap-6">
                   {filteredProducts.slice(0, 6).map((product) => (
-                  <div
-                    key={product.id}
-                    onClick={() => handleProductClick(product.id)}
-                    className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow cursor-pointer"
-                  >
-                    <div className="flex space-x-3">
-                      <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center relative overflow-hidden">
-                        {product.imageUrl || ((product as any).seller?.id || (product as any).store?.id) ? (
-                          <img
-                            src={
-                              product.imageUrl || `${config.API_BASE_URL}/webapp/sellers/${((product as any).seller?.id ?? (product as any).store?.id)}/photo`
-                            }
-                            alt={product.description || product.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                          />
-                        ) : (
-                          <div className="text-orange-600 text-2xl font-bold">
-                            {getCategoryEmoji(product.category)}
-                          </div>
-                        )}
-                        {product.originalPrice && (
-                          <div className="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 py-0.5 rounded">
-                            -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-medium text-gray-900">{product.description || product.name}</h3>
-                        <p className="text-sm text-gray-600">{product.store?.businessName || t('store')}</p>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-sm text-gray-600">{product.stats?.averageRating || 0}</span>
-                          <MapPin className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-600">{product.store?.distance || 0} {t('distance')}</span>
-                        </div>
-                        <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-lg font-semibold text-gray-900">
-                              {product.price} {t('so_m')}
-                            </span>
-                            {product.originalPrice && (
-                              <span className="text-sm text-gray-500 line-through">
-                                {product.originalPrice} {t('so_m')}
-                              </span>
+                    <div
+                      key={product.id}
+                      onClick={() => handleProductClick(product.id)}
+                      className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-orange-100 p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group"
+                    >
+                      <div className="flex space-x-4">
+                        <div className="relative">
+                          <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-md">
+                            {product.imageUrl || ((product as any).seller?.id || (product as any).store?.id) ? (
+                              <img
+                                src={
+                                  product.imageUrl || `${config.API_BASE_URL}/webapp/sellers/${((product as any).seller?.id ?? (product as any).store?.id)}/photo`
+                                }
+                                alt={product.description || product.name}
+                                className="w-full h-full object-cover rounded-2xl"
+                                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                              />
+                            ) : (
+                              <div className="text-orange-600 text-3xl">
+                                {getCategoryEmoji(product.category)}
+                              </div>
                             )}
                           </div>
-                          <button className="p-1 hover:bg-gray-100 rounded">
-                            <Heart className="w-4 h-4 text-gray-400" />
-                          </button>
+                          {product.originalPrice && (
+                            <div className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                              -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-gray-900 text-lg mb-1 line-clamp-2 group-hover:text-orange-600 transition-colors">
+                            {product.description || product.name}
+                          </h3>
+                          <p className="text-sm text-gray-600 mb-2 flex items-center">
+                            <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                            {product.store?.businessName || t('store')}
+                          </p>
+                          
+                          <div className="flex items-center space-x-4 mb-3">
+                            <div className="flex items-center space-x-1">
+                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                              <span className="text-sm font-medium text-gray-700">{product.stats?.averageRating || 0}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <MapPin className="w-4 h-4 text-blue-500" />
+                              <span className="text-sm text-gray-600">{product.store?.distance || 0} {t('distance')}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <span className="text-xl font-bold text-gray-900">
+                                {product.price.toLocaleString()} {t('so_m')}
+                              </span>
+                              {product.originalPrice && (
+                                <span className="text-sm text-gray-500 line-through">
+                                  {product.originalPrice.toLocaleString()} {t('so_m')}
+                                </span>
+                              )}
+                            </div>
+                            <button 
+                              className="p-2 bg-orange-100 hover:bg-orange-200 rounded-xl transition-all duration-200 group-hover:scale-110"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Handle favorite
+                              }}
+                            >
+                              <Heart className="w-5 h-5 text-orange-500" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
                 </div>
               )}
             </div>

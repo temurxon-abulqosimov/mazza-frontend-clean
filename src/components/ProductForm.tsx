@@ -176,7 +176,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 pb-20">
       {/* Notification */}
       <Notification
         type={notification.type}
@@ -187,40 +187,56 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
         duration={4000}
       />
 
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-md mx-auto px-4 py-4">
-          <div className="flex items-center">
+      {/* Modern Header */}
+      <div className="bg-white/80 backdrop-blur-md shadow-lg border-b border-orange-100 sticky top-0 z-50">
+        <div className="max-w-md mx-auto px-6 py-4">
+          <div className="flex items-center space-x-4">
             <button
               onClick={() => navigate('/seller')}
-              className="mr-3 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-3 bg-white/60 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
             >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
+              <ArrowLeft className="w-6 h-6 text-gray-700" />
             </button>
-            <h1 className="text-lg font-semibold text-gray-900">
-              {mode === 'create' ? t('addProduct') : t('editProduct')}
-            </h1>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-900 flex items-center">
+                <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                  {mode === 'create' ? t('addProduct') : t('editProduct')}
+                </span>
+                <span className="ml-2">{mode === 'create' ? '➕' : '✏️'}</span>
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                {mode === 'create' ? t('createNewProduct') : t('updateProductInfo')}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Form */}
-      <div className="max-w-md mx-auto p-4">
+      {/* Modern Form */}
+      <div className="max-w-md mx-auto p-6">
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-600">{error}</p>
+          <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-2xl shadow-md">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-red-100 rounded-xl flex items-center justify-center">
+                <span className="text-red-600 text-sm">⚠️</span>
+              </div>
+              <p className="text-sm text-red-600 font-medium">{error}</p>
+            </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Business Image Preview */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Product Image
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Modern Business Image Preview */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-orange-100 p-6">
+            <label className="block text-lg font-bold text-gray-900 mb-4 flex items-center">
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                Product Image
+              </span>
+              <span className="ml-2">🖼️</span>
             </label>
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-6">
+              <div className="flex items-center space-x-4">
+                <div className="w-20 h-20 bg-white rounded-2xl shadow-md overflow-hidden">
                   {seller?.businessImageUrl ? (
                     <img
                       src={seller.businessImageUrl}
@@ -229,15 +245,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Store className="w-8 h-8 text-gray-400" />
+                      <Store className="w-10 h-10 text-orange-500" />
                     </div>
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-700 font-medium mb-1">
                     {t('productImageDescription')}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-600 bg-white/60 px-3 py-1 rounded-full inline-block">
                     {seller?.businessName || t('yourBusiness')}
                   </p>
                 </div>
@@ -245,10 +261,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
             </div>
           </div>
 
-          {/* Product Description */}
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-              {t('productDescription') || 'Product Description'} *
+          {/* Modern Product Description */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-orange-100 p-6">
+            <label htmlFor="description" className="block text-lg font-bold text-gray-900 mb-4 flex items-center">
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                {t('productDescription') || 'Product Description'}
+              </span>
+              <span className="ml-2">📝</span>
+              <span className="ml-2 text-red-500">*</span>
             </label>
             <textarea
               id="description"
@@ -256,139 +276,186 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
               value={formData.description}
               onChange={handleInputChange}
               required
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              rows={4}
+              className="w-full px-4 py-4 bg-white/80 backdrop-blur-sm border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-md transition-all duration-200 resize-none"
               placeholder={t('productDescriptionPlaceholder') || 'Enter product description'}
             />
           </div>
 
-          {/* Price Fields */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-                {t('salePrice') || 'Sale Price'}
-              </label>
-              <div className="relative">
+          {/* Modern Price Fields */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-orange-100 p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                Pricing
+              </span>
+              <span className="ml-2">💰</span>
+            </h3>
+            <div className="grid grid-cols-1 gap-6">
+              <div>
+                <label htmlFor="price" className="block text-sm font-semibold text-gray-700 mb-3">
+                  {t('salePrice') || 'Sale Price'} <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    id="price"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    required
+                    min="0"
+                    step="0.01"
+                    className="w-full px-4 py-4 pl-12 bg-white/80 backdrop-blur-sm border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-md transition-all duration-200 text-lg font-semibold"
+                    placeholder="0.00"
+                  />
+                  <span className="absolute left-4 top-4 text-gray-500 text-sm font-medium">{language === 'uz' ? 'so\'m' : 'сум'}</span>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="originalPrice" className="block text-sm font-semibold text-gray-700 mb-3">
+                  {t('originalPrice') || 'Original Price (Optional)'}
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    id="originalPrice"
+                    name="originalPrice"
+                    value={formData.originalPrice}
+                    onChange={handleInputChange}
+                    min="0"
+                    step="0.01"
+                    className="w-full px-4 py-4 pl-12 bg-white/80 backdrop-blur-sm border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-md transition-all duration-200 text-lg font-semibold"
+                    placeholder="0.00"
+                  />
+                  <span className="absolute left-4 top-4 text-gray-500 text-sm font-medium">{language === 'uz' ? 'so\'m' : 'сум'}</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">💡 {t('originalPriceHelp') || 'Set original price to show discount'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Modern Quantity & Category */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-orange-100 p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                Product Details
+              </span>
+              <span className="ml-2">📦</span>
+            </h3>
+            <div className="grid grid-cols-1 gap-6">
+              <div>
+                <label htmlFor="quantity" className="block text-sm font-semibold text-gray-700 mb-3">
+                  {t('quantityAvailable')} <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="number"
-                  id="price"
-                  name="price"
-                  value={formData.price}
+                  id="quantity"
+                  name="quantity"
+                  value={formData.quantity}
                   onChange={handleInputChange}
                   required
-                  min="0"
-                  step="0.01"
-                  className="w-full px-3 py-2 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="0.00"
+                  min="1"
+                  className="w-full px-4 py-4 bg-white/80 backdrop-blur-sm border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-md transition-all duration-200 text-lg font-semibold"
+                  placeholder="1"
                 />
-                <span className="absolute left-3 top-2.5 text-gray-400 text-sm">{language === 'uz' ? 'so\'m' : 'сум'}</span>
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="originalPrice" className="block text-sm font-medium text-gray-700 mb-2">
-                {t('originalPrice') || 'Original Price (Optional)'}
-              </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  id="originalPrice"
-                  name="originalPrice"
-                  value={formData.originalPrice}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                  className="w-full px-3 py-2 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="0.00"
-                />
-                <span className="absolute left-3 top-2.5 text-gray-400 text-sm">{language === 'uz' ? 'so\'m' : 'сум'}</span>
+              <div>
+                <label htmlFor="category" className="block text-sm font-semibold text-gray-700 mb-3">
+                  {t('category')} <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <select
+                    id="category"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-4 bg-white/80 backdrop-blur-sm border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-md transition-all duration-200 appearance-none cursor-pointer text-lg font-semibold"
+                  >
+                    {categoryOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Quantity */}
-          <div>
-            <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
-              {t('quantityAvailable')}
-            </label>
-            <input
-              type="number"
-              id="quantity"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleInputChange}
-              required
-              min="1"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            />
+          {/* Modern Availability Dates */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-orange-100 p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                Availability
+              </span>
+              <span className="ml-2">⏰</span>
+            </h3>
+            <div className="grid grid-cols-1 gap-6">
+              <div>
+                <label htmlFor="availableFrom" className="block text-sm font-semibold text-gray-700 mb-3">
+                  {t('availableFrom')} (Optional)
+                </label>
+                <div className="relative">
+                  <input
+                    type="datetime-local"
+                    id="availableFrom"
+                    name="availableFrom"
+                    value={formData.availableFrom}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-4 pl-12 bg-white/80 backdrop-blur-sm border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-md transition-all duration-200 text-lg font-semibold"
+                  />
+                  <Clock className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="availableUntil" className="block text-sm font-semibold text-gray-700 mb-3">
+                  {t('availableUntil')} <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="datetime-local"
+                    id="availableUntil"
+                    name="availableUntil"
+                    value={formData.availableUntil}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-4 pl-12 bg-white/80 backdrop-blur-sm border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-md transition-all duration-200 text-lg font-semibold"
+                  />
+                  <Clock className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
+                </div>
+                <p className="text-xs text-gray-500 mt-2">⏰ {t('availabilityHelp') || 'When should this product expire?'}</p>
+              </div>
+            </div>
           </div>
 
-          {/* Category */}
-          <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-              {t('category')}
-            </label>
-            <select
-              id="category"
-              name="category"
-              value={formData.category}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+          {/* Modern Submit Button */}
+          <div className="pt-4">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white py-6 px-8 rounded-3xl hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-[1.02] font-bold text-lg"
             >
-              {categoryOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              {loading ? (
+                <div className="flex items-center justify-center space-x-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                  <span>{t('loading')}</span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center space-x-3">
+                  <span>{mode === 'create' ? t('addProduct') : t('updateProduct')}</span>
+                  <span>{mode === 'create' ? '✨' : '💾'}</span>
+                </div>
+              )}
+            </button>
           </div>
-
-          {/* Availability Dates */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="availableFrom" className="block text-sm font-medium text-gray-700 mb-2">
-                {t('availableFrom')}
-              </label>
-              <div className="relative">
-                <input
-                  type="datetime-local"
-                  id="availableFrom"
-                  name="availableFrom"
-                  value={formData.availableFrom}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                />
-                <Clock className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="availableUntil" className="block text-sm font-medium text-gray-700 mb-2">
-                {t('availableUntil')}
-              </label>
-              <div className="relative">
-                <input
-                  type="datetime-local"
-                  id="availableUntil"
-                  name="availableUntil"
-                  value={formData.availableUntil}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                />
-                <Clock className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-              </div>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? t('loading') : mode === 'create' ? t('addProduct') : t('updateProduct')}
-          </button>
         </form>
       </div>
     </div>
