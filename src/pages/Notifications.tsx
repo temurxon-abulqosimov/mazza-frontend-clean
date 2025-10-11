@@ -52,8 +52,10 @@ const Notifications: React.FC = () => {
   const handleNotificationClick = (notification: any) => {
     markAsRead(notification.id);
     
-    // Navigate based on notification type
-    if (notification.orderId) {
+    // Navigate based on actionUrl if available, otherwise fallback to type-based navigation
+    if (notification.actionUrl) {
+      navigate(notification.actionUrl);
+    } else if (notification.orderId) {
       navigate(`/orders`);
     } else if (notification.productId) {
       navigate(`/product/${notification.productId}`);

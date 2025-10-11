@@ -13,6 +13,7 @@ export interface Notification {
   productId?: string;
   sellerId?: string;
   userId?: string;
+  actionUrl?: string;
 }
 
 interface NotificationContextType {

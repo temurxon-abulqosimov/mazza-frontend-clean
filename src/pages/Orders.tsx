@@ -149,9 +149,19 @@ const Orders: React.FC = () => {
     socket.on('connect', () => {
       socket.emit('subscribe', { type: 'user', id: user.id });
     });
+    
+    // Handle order status change notifications
+    socket.on('notification', (notificationData: any) => {
+      if (notificationData.type === 'order_confirmed' || notificationData.type === 'order_cancelled' || notificationData.type === 'order_completed') {
+        // You can add notification handling here if needed
+        console.log('Order notification received:', notificationData);
+      }
+    });
+    
     socket.on('orderStatusChanged', (updated: any) => {
       setOrders(prev => prev.map(o => o.id === updated.id ? { ...o, status: updated.status } : o));
     });
+    
     return () => { socket.disconnect(); };
   }, [user?.id]);
 

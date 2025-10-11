@@ -46,17 +46,34 @@ const SellerDashboard: React.FC = () => {
     socket.on('connect', () => {
       socket.emit('subscribe', { type: 'seller', id: seller.id });
     });
+    
+    // Handle new order notifications
+    socket.on('notification', (notificationData: any) => {
+      if (notificationData.type === 'order_created') {
+        addNotification({
+          type: 'order',
+          title: notificationData.title,
+          message: notificationData.message,
+          sellerId: String(seller.id),
+          orderId: notificationData.orderId,
+          productId: notificationData.productId,
+          actionUrl: notificationData.actionUrl
+        });
+      }
+    });
+    
+    // Handle order data updates
     socket.on('orderCreated', (order: any) => {
       setOrders((prev) => [order, ...prev]);
-      addNotification({ type: 'order', title: t('newOrderReceived'), message: t('newOrderReceivedMessage'), sellerId: String(seller.id) });
     });
     socket.on('orderStatusChanged', (order: any) => {
       setOrders((prev) => prev.map(o => o.id === order.id ? order : o));
     });
+    
     return () => {
       socket.disconnect();
     };
-  }, [seller?.id]);
+  }, [seller?.id, addNotification, t]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newOrdersCount, setNewOrdersCount] = useState(0);
