@@ -17,7 +17,10 @@ const MapView: React.FC<MapViewProps> = ({ latitude, longitude, sellerName, clas
   
   // Create static map image URL (using Google Maps Static API)
   // Note: This is a placeholder key - you need to replace with your actual Google Maps API key
-  const staticMapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=15&size=300x200&markers=color:red%7C${latitude},${longitude}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY'}`;
+  const hasApiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY && process.env.REACT_APP_GOOGLE_MAPS_API_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY';
+  const staticMapUrl = hasApiKey 
+    ? `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=15&size=300x200&markers=color:red%7C${latitude},${longitude}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
+    : null;
 
   const handleMapClick = () => {
     // Open in new tab
@@ -46,10 +49,10 @@ const MapView: React.FC<MapViewProps> = ({ latitude, longitude, sellerName, clas
         <div className="space-y-3">
           {/* Static Map Preview */}
           <div 
-            className="w-full h-32 bg-gray-100 rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center"
+            className="w-full h-32 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center border-2 border-dashed border-blue-200"
             onClick={handleMapClick}
           >
-            {process.env.REACT_APP_GOOGLE_MAPS_API_KEY ? (
+            {hasApiKey && staticMapUrl ? (
               <img
                 src={staticMapUrl}
                 alt={`Map showing ${sellerName || 'seller'} location`}
@@ -60,26 +63,26 @@ const MapView: React.FC<MapViewProps> = ({ latitude, longitude, sellerName, clas
                   const parent = e.currentTarget.parentElement;
                   if (parent) {
                     parent.innerHTML = `
-                      <div class="w-full h-full flex flex-col items-center justify-center text-gray-500">
-                        <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div class="w-full h-full flex flex-col items-center justify-center text-blue-600">
+                        <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
-                        <span class="text-sm font-medium">Map Unavailable</span>
-                        <span class="text-xs">Click to open in external map</span>
+                        <span class="text-sm font-semibold">Map Preview</span>
+                        <span class="text-xs text-blue-500">Tap to open in external map</span>
                       </div>
                     `;
                   }
                 }}
               />
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-gray-500">
-                <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-full h-full flex flex-col items-center justify-center text-blue-600">
+                <svg className="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 </svg>
-                <span className="text-sm font-medium">Map Unavailable</span>
-                <span className="text-xs">Click to open in external map</span>
+                <span className="text-sm font-semibold">Map Preview</span>
+                <span className="text-xs text-blue-500">Tap to open in external map</span>
               </div>
             )}
           </div>

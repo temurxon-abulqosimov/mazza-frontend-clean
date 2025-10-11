@@ -228,48 +228,49 @@ const UserDashboard: React.FC = () => {
       
       {/* Beautiful Header */}
       <div className="bg-white shadow-sm border-b border-orange-100 sticky top-0 z-50 w-full">
-        <div className="w-full max-w-md mx-auto px-4 sm:px-6 py-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              {/* Logo */}
-              <Logo size="md" showText={true} />
-              
-              <div className="relative">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-lg">
-                    {userProfile?.firstName?.charAt(0) || user?.first_name?.charAt(0) || 'U'}
-                  </span>
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">
-                  {t('discover')}
-                </h1>
-                <p className="text-sm text-gray-600 flex items-center">
-                  <MapPin className="w-4 h-4 mr-1 text-orange-500" />
-                  {location ? t('nearby') : t('findBestDeals')}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
+        <div className="w-full max-w-md mx-auto px-4 sm:px-6 py-3">
+          {/* Top Row - Logo and Actions */}
+          <div className="flex items-center justify-between mb-2">
+            <Logo size="sm" showText={true} />
+            <div className="flex items-center space-x-2">
               <button
                 onClick={() => navigate('/user/notifications')}
-                className="relative p-3 bg-orange-50 rounded-2xl hover:bg-orange-100 transition-all duration-200"
+                className="relative p-2 bg-orange-50 rounded-xl hover:bg-orange-100 transition-all duration-200"
               >
-                <Bell className="w-5 h-5 text-orange-600" />
+                <Bell className="w-4 h-4 text-orange-600" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
               </button>
               <button
                 onClick={() => setActiveTab('search')}
-                className="p-3 bg-orange-50 rounded-2xl hover:bg-orange-100 transition-all duration-200"
+                className="p-2 bg-orange-50 rounded-xl hover:bg-orange-100 transition-all duration-200"
               >
-                <Search className="w-5 h-5 text-orange-600" />
+                <Search className="w-4 h-4 text-orange-600" />
               </button>
+            </div>
+          </div>
+          
+          {/* Bottom Row - User Info */}
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center shadow-md">
+                <span className="text-white font-bold text-sm">
+                  {userProfile?.firstName?.charAt(0) || user?.first_name?.charAt(0) || 'U'}
+                </span>
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border border-white"></div>
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-gray-900">
+                {t('discover')}
+              </h1>
+              <p className="text-xs text-gray-600 flex items-center">
+                <MapPin className="w-3 h-3 mr-1 text-orange-500" />
+                {location ? t('nearby') : t('findBestDeals')}
+              </p>
             </div>
           </div>
         </div>
