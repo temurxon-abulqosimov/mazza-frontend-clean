@@ -320,6 +320,11 @@ const translations: Record<Language, TranslationKeys> = {
     daysAgo: 'kun oldin',
     all: 'Barchasi',
     unread: 'O\'qilmagan',
+    
+    // Order details
+    contactSeller: 'Sotuvchi bilan bog\'lanish',
+    reorder: 'Qayta buyurtma berish',
+    loadingOrders: 'Buyurtmalar yuklanmoqda...',
   },
   ru: {
     // Navigation
@@ -623,6 +628,11 @@ const translations: Record<Language, TranslationKeys> = {
     daysAgo: 'дней назад',
     all: 'Все',
     unread: 'Непрочитанные',
+    
+    // Order details
+    contactSeller: 'Связаться с продавцом',
+    reorder: 'Повторить заказ',
+    loadingOrders: 'Загрузка заказов...',
   }
 };
 

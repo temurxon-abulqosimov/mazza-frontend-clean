@@ -213,7 +213,7 @@ const Orders: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">{t('loading') || 'Loading orders...'}</p>
+          <p className="mt-4 text-gray-600">{t('loadingOrders') || 'Loading orders...'}</p>
         </div>
       </div>
     );
@@ -274,97 +274,115 @@ const Orders: React.FC = () => {
             {orders.map((order) => {
               const savings = calculateSavings(order);
               return (
-                <div key={order.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                  {/* Order Header */}
-                  <div className="p-4 border-b border-gray-100">
+                <div key={order.id} className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transform hover:scale-[1.02] transition-all duration-300 hover:shadow-xl">
+                  {/* Order Header with Gradient */}
+                  <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-5 border-b border-orange-100">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center">
-                        {getStatusIcon(order.status)}
-                        <div className="ml-3">
-                          <p className="font-semibold text-gray-900">{t('order') || 'Order'} #{order.code}</p>
-                          <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
+                        <div className="p-2 bg-white rounded-full shadow-sm">
+                          {getStatusIcon(order.status)}
+                        </div>
+                        <div className="ml-4">
+                          <p className="font-bold text-gray-900 text-lg">{t('order')} #{order.code}</p>
+                          <p className="text-sm text-gray-600 flex items-center">
+                            <Clock className="w-4 h-4 mr-1" />
+                            {new Date(order.createdAt).toLocaleDateString('uz-UZ', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </p>
                         </div>
                       </div>
-                      <span className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(order.status)}`}>
+                      <span className={`px-4 py-2 text-sm font-semibold rounded-full shadow-sm ${getStatusColor(order.status)}`}>
                         {getStatusText(order.status)}
                       </span>
                     </div>
                   </div>
 
                   {/* Product Details */}
-                  <div className="p-4">
+                  <div className="p-5">
                     <div className="flex space-x-4">
-                      <img 
-                        src={order.product.imageUrl || order.product.seller.businessImageUrl} 
-                        alt={order.product.description}
-                        className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 text-sm leading-tight mb-1">
-                          {order.product.description}
-                        </h3>
-                        <div className="flex items-center space-x-2 text-xs text-gray-500 mb-2">
-                          <User className="w-3 h-3" />
-                          <span>{order.product.seller.businessName}</span>
-                        </div>
-                        <div className="flex items-center space-x-4 text-xs text-gray-500">
-                          <div className="flex items-center">
-                            <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
-                            <span>{order.product.seller.averageRating}</span>
-                          </div>
-                          <div className="flex items-center">
-                            <MapPin className="w-3 h-3 mr-1" />
-                            <span>{order.product.seller.distance} km</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Order Summary */}
-                  <div className="px-4 pb-4">
-                    <div className="bg-gray-50 rounded-lg p-3">
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">{t('quantity') || 'Quantity'}:</span>
-                          <span className="font-medium">{order.quantity}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">{t('unitPrice') || 'Unit Price'}:</span>
-                          <span className="font-medium">{order.product.price.toLocaleString()} {t('so_m') || 'so\'m'}</span>
-                        </div>
+                      <div className="relative">
+                        <img 
+                          src={order.product.imageUrl || order.product.seller.businessImageUrl} 
+                          alt={order.product.description}
+                          className="w-20 h-20 rounded-xl object-cover flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200 shadow-md"
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400';
+                          }}
+                        />
                         {savings > 0 && (
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">{t('savings') || 'Savings'}:</span>
-                            <span className="font-medium text-green-600">-{savings.toLocaleString()} {t('so_m') || 'so\'m'}</span>
+                          <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                            -{Math.round((savings / (order.product.originalPrice * order.quantity)) * 100)}%
                           </div>
                         )}
-                        <hr className="border-gray-200" />
-                        <div className="flex justify-between text-base font-semibold">
-                          <span className="text-gray-900">{t('total') || 'Total'}:</span>
-                          <span className="text-orange-500">{order.totalPrice.toLocaleString()} {t('so_m') || 'so\'m'}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2">
+                          {order.product.description}
+                        </h3>
+                        <div className="flex items-center space-x-3 text-sm text-gray-600">
+                          <div className="flex items-center space-x-1">
+                            <User className="w-4 h-4 text-orange-500" />
+                            <span className="font-medium">{order.product.seller.businessName}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                            <span>{order.product.seller.averageRating}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <MapPin className="w-4 h-4 text-blue-500" />
+                            <span>{order.product.seller.distance} {t('distance')}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="px-4 pb-4">
+                  {/* Enhanced Order Summary */}
+                  <div className="px-5 pb-5">
+                    <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 font-medium">{t('quantity')}:</span>
+                        <span className="font-bold text-gray-900 bg-white px-3 py-1 rounded-full text-sm">{order.quantity}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 font-medium">{t('unitPrice')}:</span>
+                        <span className="font-semibold text-gray-900">{order.product.price.toLocaleString()} {t('so_m')}</span>
+                      </div>
+                      {savings > 0 && (
+                        <div className="flex justify-between items-center bg-green-50 p-2 rounded-lg">
+                          <span className="text-green-700 font-medium">💚 {t('savings') || 'Savings'}:</span>
+                          <span className="font-bold text-green-700">{savings.toLocaleString()} {t('so_m')}</span>
+                        </div>
+                      )}
+                      <div className="border-t border-gray-200 pt-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-900 font-bold text-lg">{t('total')}:</span>
+                          <span className="text-orange-600 font-bold text-xl">{order.totalPrice.toLocaleString()} {t('so_m')}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Enhanced Action Buttons */}
+                  <div className="px-5 pb-5">
                     <div className="flex space-x-3">
                       <button
                         onClick={() => navigate(`/seller-detail/${order.product.seller.id}`)}
-                        className="flex-1 flex items-center justify-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                        className="flex-1 flex items-center justify-center space-x-2 py-3 px-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 transition-all duration-200 shadow-sm font-medium"
                       >
-                        <Phone className="w-4 h-4 mr-2" />
-                        {t('contactSeller') || 'Contact Seller'}
+                        <Phone className="w-5 h-5" />
+                        <span>{t('contactSeller')}</span>
                       </button>
                       {order.status === 'completed' && (
                         <button
                           onClick={() => navigate(`/product-detail/${order.product.id}`)}
-                          className="flex-1 flex items-center justify-center px-4 py-2 bg-orange-100 text-orange-700 rounded-lg text-sm font-medium hover:bg-orange-200 transition-colors"
+                          className="flex-1 flex items-center justify-center space-x-2 py-3 px-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-lg font-medium"
                         >
-                          <Package className="w-4 h-4 mr-2" />
-                          {t('reorder') || 'Reorder'}
+                          <Package className="w-5 h-5" />
+                          <span>{t('reorder')}</span>
                         </button>
                       )}
                     </div>
