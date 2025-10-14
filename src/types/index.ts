@@ -51,6 +51,7 @@ export interface Product {
     distance: number;
     location: Location;
     imageUrl?: string;
+    averageRating?: number;
   };
   stats?: {
     averageRating: number;

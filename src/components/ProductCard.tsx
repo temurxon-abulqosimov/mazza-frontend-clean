@@ -108,7 +108,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
           <div className="flex items-center">
             <Star className="w-4 h-4 mr-1 text-yellow-400" />
-            <span>{product.stats?.averageRating || product.seller?.averageRating || 0}</span>
+            <span>{((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating ?? 0)}</span>
           </div>
         </div>
 

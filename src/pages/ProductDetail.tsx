@@ -1,10 +1,10 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, Star, MapPin, CheckCircle } from 'lucide-react';
-import { productsApi } from '../services/api';
+import { productsApi, ratingsApi } from '../services/api';
+import * as Api from '../services/api';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { useTelegram } from '../contexts/TelegramContext';
-import { ordersApi } from '../services/api';
 import Notification, { NotificationProps } from '../components/Notification';
 import { useNotifications } from '../contexts/NotificationContext';
 import MapView from '../components/MapView';
@@ -30,12 +30,20 @@ const ProductDetail: React.FC = () => {
     onClose: () => setNotification(prev => ({ ...prev, isVisible: false }))
   });
 
+  // New UI/logic state
+  const [distanceKm, setDistanceKm] = useState<number | null>(null);
+  const [reviews, setReviews] = useState<Array<any>>([]);
+  const [newRating, setNewRating] = useState<number>(5);
+  const [newComment, setNewComment] = useState<string>('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+
   useEffect(() => {
     const fetchProduct = async () => {
       if (id) {
         try {
           const response = await productsApi.getProductById(id);
           setProduct(response.data);
+          setReviews(response.data?.reviews || []);
           const p = response.data;
           if ((!p?.imageUrl || p.imageUrl.length === 0) && p?.seller?.id) {
             try {
@@ -47,6 +55,41 @@ const ProductDetail: React.FC = () => {
           } else {
             setSellerImageUrl(null);
           }
+
+          // Compute distance from user to seller if possible
+          try {
+            const computeDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+              const toRad = (v: number) => (v * Math.PI) / 180;
+              const R = 6371;
+              const dLat = toRad(lat2 - lat1);
+              const dLon = toRad(lon2 - lon1);
+              const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+              const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+              return Math.round(R * c * 10) / 10;
+            };
+            const sellerLoc = p?.seller?.location;
+            if (sellerLoc?.latitude && sellerLoc?.longitude) {
+              let userLatLng: { lat: number; lng: number } | null = null;
+              const storedProfile = localStorage.getItem('userProfile');
+              if (storedProfile) {
+                try {
+                  const parsed = JSON.parse(storedProfile);
+                  if (parsed?.location?.latitude && parsed?.location?.longitude) {
+                    userLatLng = { lat: parsed.location.latitude, lng: parsed.location.longitude };
+                  }
+                } catch {}
+              }
+              if (!userLatLng && navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                  const d = computeDistance(pos.coords.latitude, pos.coords.longitude, sellerLoc.latitude, sellerLoc.longitude);
+                  setDistanceKm(d);
+                });
+              } else if (userLatLng) {
+                const d = computeDistance(userLatLng.lat, userLatLng.lng, sellerLoc.latitude, sellerLoc.longitude);
+                setDistanceKm(d);
+              }
+            }
+          } catch {}
         } catch (error) {
           console.error('Failed to fetch product:', error);
           showNotification('error', t('error'), t('failedToLoadProduct'));
@@ -118,7 +161,7 @@ const ProductDetail: React.FC = () => {
 
       console.log('Creating order:', orderData);
       
-      const response = await ordersApi.createOrder(orderData);
+      const response = await Api.ordersApi.createOrder(orderData);
       const order = response.data;
       
       console.log('Order created successfully:', order);
@@ -166,6 +209,23 @@ const ProductDetail: React.FC = () => {
     }
   };
 
+  const handleSubmitReview = async () => {
+    if (!id || !newRating) return;
+    try {
+      setSubmittingReview(true);
+      const payload: any = { productId: Number(id), rating: newRating, comment: newComment };
+      await ratingsApi.createRating(payload);
+      setReviews([{ id: Date.now(), rating: newRating, comment: newComment, createdAt: new Date().toISOString(), user }, ...reviews]);
+      setNewComment('');
+      setNewRating(5);
+      showNotification('success', t('thankYou'), t('reviewSubmitted'));
+    } catch (e) {
+      showNotification('error', t('error'), t('failedToSubmitReview'));
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   if (!product) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -209,8 +269,10 @@ const ProductDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* Product Image */}
-      <div className="w-full h-64 bg-gradient-to-br from-orange-100 to-orange-200 relative overflow-hidden">
+      {/* Product Image - larger hero with 3:2 ratio */}
+      <div className="w-full relative overflow-hidden" style={{ aspectRatio: '3 / 2' }}>
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-orange-200">
+        </div>
         {product.imageUrl || sellerImageUrl ? (
           <img
             src={product.imageUrl || sellerImageUrl || ''}
@@ -225,7 +287,7 @@ const ProductDetail: React.FC = () => {
             }}
           />
         ) : null}
-        <div className={`w-full h-full flex flex-col items-center justify-center text-orange-600 ${(product.imageUrl || sellerImageUrl) ? 'hidden' : 'flex'}`}>
+        <div className={`absolute inset-0 w-full h-full flex flex-col items-center justify-center text-orange-600 ${(product.imageUrl || sellerImageUrl) ? 'hidden' : 'flex'}`}>
           <div className="text-6xl font-bold mb-2">
             {getCategoryEmoji(product.category)}
           </div>
@@ -247,7 +309,7 @@ const ProductDetail: React.FC = () => {
               <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
               <span className="mr-2">{product.seller.averageRating}</span>
               <span></span>
-              <span className="ml-2">{product.seller.distance || 0} {t('distance')}</span>
+              <span className="ml-2">{(product.seller.distance ?? distanceKm ?? 0)} {t('distance')}</span>
             </div>
           </div>
           <div className="text-right">
@@ -270,7 +332,7 @@ const ProductDetail: React.FC = () => {
               <h3 className="font-medium text-gray-900">{product.seller.businessName}</h3>
               <div className="flex items-center text-sm text-gray-600">
                 <MapPin className="w-4 h-4 mr-1" />
-                <span>{product.seller.distance || 0} {t('kmAway')}</span>
+                <span>{(product.seller.distance ?? distanceKm ?? 0)} {t('kmAway')}</span>
               </div>
             </div>
           </div>
@@ -348,6 +410,53 @@ const ProductDetail: React.FC = () => {
             className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
           >
             {loading ? t('placingOrder') : t('confirmOrder')}
+          </button>
+        </div>
+      </div>
+
+      {/* Reviews */}
+      <div className="bg-white p-4 mt-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('reviews')}</h3>
+        {reviews.length === 0 ? (
+          <p className="text-sm text-gray-600">{t('noReviewsYet')}</p>
+        ) : (
+          <div className="space-y-3">
+            {reviews.map((r) => (
+              <div key={r.id} className="border rounded-lg p-3">
+                <div className="flex items-center mb-1">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className={`w-4 h-4 mr-1 ${i < (r.rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                  ))}
+                </div>
+                {r.comment && <p className="text-sm text-gray-700">{r.comment}</p>}
+                <div className="text-xs text-gray-400 mt-1">{new Date(r.createdAt).toLocaleDateString()}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Add Review */}
+        <div className="mt-4 border-t pt-4">
+          <div className="flex items-center mb-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <button key={i} onClick={() => setNewRating(i + 1)} className="mr-1">
+                <Star className={`w-5 h-5 ${i < newRating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+              </button>
+            ))}
+          </div>
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder={t('shareYourThoughts')}
+            className="w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
+            rows={3}
+          />
+          <button
+            disabled={submittingReview}
+            onClick={handleSubmitReview}
+            className="mt-2 bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 disabled:opacity-50"
+          >
+            {submittingReview ? t('submitting') : t('submitReview')}
           </button>
         </div>
       </div>

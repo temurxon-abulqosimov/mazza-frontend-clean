@@ -9,11 +9,9 @@ interface MapViewProps {
 }
 
 const MapView: React.FC<MapViewProps> = ({ latitude, longitude, sellerName, className = '' }) => {
-  // Create Google Maps URL
+  // Create external map URLs
   const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
-  
-  // Create OpenStreetMap URL
-  const openStreetMapUrl = `https://www.openstreetmap.org/?mlat=${latitude}&mlon=${longitude}&zoom=15`;
+  const yandexMapsUrl = `https://yandex.com/maps/?ll=${longitude}%2C${latitude}&z=15&pt=${longitude}%2C${latitude},pm2rdm`;
   
   // Create static map image URL (using Google Maps Static API)
   // Note: This is a placeholder key - you need to replace with your actual Google Maps API key
@@ -24,7 +22,7 @@ const MapView: React.FC<MapViewProps> = ({ latitude, longitude, sellerName, clas
 
   const handleMapClick = () => {
     // Open in new tab
-    window.open(googleMapsUrl, '_blank');
+    window.open(yandexMapsUrl, '_blank');
   };
 
   return (
@@ -87,35 +85,21 @@ const MapView: React.FC<MapViewProps> = ({ latitude, longitude, sellerName, clas
             )}
           </div>
           
-          {/* Coordinates */}
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="text-sm text-gray-600 space-y-1">
-              <div className="flex justify-between">
-                <span className="font-medium">Latitude:</span>
-                <span className="font-mono text-xs">{latitude.toFixed(6)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Longitude:</span>
-                <span className="font-mono text-xs">{longitude.toFixed(6)}</span>
-              </div>
-            </div>
-          </div>
-          
           {/* Action Buttons */}
           <div className="flex space-x-2">
+            <button
+              onClick={() => window.open(yandexMapsUrl, '_blank')}
+              className="flex-1 flex items-center justify-center space-x-2 py-2 px-3 bg-[#FFCC00] text-black rounded-lg hover:opacity-90 transition-colors text-sm font-medium"
+            >
+              <MapPin className="w-4 h-4" />
+              <span>Yandex Maps</span>
+            </button>
             <button
               onClick={() => window.open(googleMapsUrl, '_blank')}
               className="flex-1 flex items-center justify-center space-x-2 py-2 px-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
             >
               <MapPin className="w-4 h-4" />
               <span>Google Maps</span>
-            </button>
-            <button
-              onClick={() => window.open(openStreetMapUrl, '_blank')}
-              className="flex-1 flex items-center justify-center space-x-2 py-2 px-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
-            >
-              <MapPin className="w-4 h-4" />
-              <span>OpenStreetMap</span>
             </button>
           </div>
         </div>
