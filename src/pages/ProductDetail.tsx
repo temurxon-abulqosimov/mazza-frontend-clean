@@ -346,8 +346,8 @@ const ProductDetail: React.FC = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-1">{product.description || product.name}</h2>
             <div className="flex items-center text-sm text-gray-600">
               <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-              <span className="mr-2">{(product.seller?.averageRating ?? product.stats?.averageRating ?? 0).toFixed ? ((product.seller?.averageRating ?? product.stats?.averageRating ?? 0) as number).toFixed(1) : (product.seller?.averageRating ?? product.stats?.averageRating ?? 0)}</span>
-              <span className="ml-2">{((product.seller?.distance ?? distanceKm) ? `${((product.seller?.distance ?? distanceKm) as number).toFixed(1)} km` : t('nearby'))}</span>
+              <span className="mr-2">{(((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating) ?? 0).toFixed ? (((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating) as number).toFixed(1) : ((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating ?? 0)}</span>
+              <span className="ml-2">{((product.seller?.distance ?? (product as any)?.store?.distance ?? distanceKm) ? `${(((product.seller?.distance ?? (product as any)?.store?.distance ?? distanceKm) as number)).toFixed(1)} km` : t('nearby'))}</span>
             </div>
           </div>
           <div className="text-right">
@@ -370,7 +370,7 @@ const ProductDetail: React.FC = () => {
               <h3 className="font-medium text-gray-900">{product.seller.businessName}</h3>
               <div className="flex items-center text-sm text-gray-600">
                 <MapPin className="w-4 h-4 mr-1" />
-                <span>{((product.seller?.distance ?? distanceKm) ? `${((product.seller?.distance ?? distanceKm) as number).toFixed(1)} km` : t('nearby'))}</span>
+                <span>{((product.seller?.distance ?? (product as any)?.store?.distance ?? distanceKm) ? `${(((product.seller?.distance ?? (product as any)?.store?.distance ?? distanceKm) as number)).toFixed(1)} km` : t('nearby'))}</span>
               </div>
             </div>
           </div>

@@ -400,11 +400,13 @@ const UserDashboard: React.FC = () => {
                           <div className="flex items-center space-x-2 sm:space-x-4 mb-3">
                             <div className="flex items-center space-x-1">
                               <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-current flex-shrink-0" />
-                              <span className="text-sm sm:text-base font-medium text-gray-700">{product.stats?.averageRating || 0}</span>
+                              <span className="text-sm sm:text-base font-medium text-gray-700">
+                                {(((product as any)?.store?.averageRating ?? (product as any)?.seller?.averageRating ?? product.stats?.averageRating) ?? 0).toFixed ? (((product as any)?.store?.averageRating ?? (product as any)?.seller?.averageRating ?? product.stats?.averageRating) as number).toFixed(1) : ((product as any)?.store?.averageRating ?? (product as any)?.seller?.averageRating ?? product.stats?.averageRating ?? 0)}
+                              </span>
                             </div>
                             <div className="flex items-center space-x-1">
                               <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 flex-shrink-0" />
-                              <span className="text-sm sm:text-base text-gray-600">{product.store?.distance || 0} {t('distance')}</span>
+                              <span className="text-sm sm:text-base text-gray-600">{(((product as any)?.store?.distance ?? (product as any)?.seller?.distance) ?? 0).toFixed ? (((product as any)?.store?.distance ?? (product as any)?.seller?.distance) as number).toFixed(1) : ((product as any)?.store?.distance ?? (product as any)?.seller?.distance ?? 0)} {t('distance')}</span>
                             </div>
                           </div>
                           
@@ -485,9 +487,11 @@ const UserDashboard: React.FC = () => {
                       <p className="text-sm text-gray-600">{product.store?.businessName || t('store')}</p>
                       <div className="flex items-center space-x-2 mt-1">
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="text-sm text-gray-600">{product.stats?.averageRating || 0}</span>
+                        <span className="text-sm text-gray-600">
+                          {(((product as any)?.store?.averageRating ?? (product as any)?.seller?.averageRating ?? product.stats?.averageRating) ?? 0).toFixed ? (((product as any)?.store?.averageRating ?? (product as any)?.seller?.averageRating ?? product.stats?.averageRating) as number).toFixed(1) : ((product as any)?.store?.averageRating ?? (product as any)?.seller?.averageRating ?? product.stats?.averageRating ?? 0)}
+                        </span>
                         <MapPin className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">{product.store?.distance || 0} {t('distance')}</span>
+                        <span className="text-sm text-gray-600">{(((product as any)?.store?.distance ?? (product as any)?.seller?.distance) ?? 0).toFixed ? (((product as any)?.store?.distance ?? (product as any)?.seller?.distance) as number).toFixed(1) : ((product as any)?.store?.distance ?? (product as any)?.seller?.distance ?? 0)} {t('distance')}</span>
                       </div>
                       <div className="flex items-center justify-between mt-2">
                         <div className="flex items-center space-x-2">
