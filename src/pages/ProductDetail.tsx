@@ -292,7 +292,7 @@ const ProductDetail: React.FC = () => {
             }}
           />
         ) : null}
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-orange-200"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-orange-200 -z-10"></div>
         <div className={`absolute inset-0 w-full h-full flex flex-col items-center justify-center text-orange-600 ${(product.imageUrl || sellerImageUrl) ? 'hidden' : 'flex'}`}>
           <div className="text-6xl font-bold mb-2">
             {getCategoryEmoji(product.category)}
