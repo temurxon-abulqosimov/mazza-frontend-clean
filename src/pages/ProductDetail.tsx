@@ -20,7 +20,9 @@ const ProductDetail: React.FC = () => {
   const [sellerImageUrl, setSellerImageUrl] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [showOrderConfirm, setShowOrderConfirm] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // placing order
+  const [productLoading, setProductLoading] = useState(true);
+  const [productError, setProductError] = useState<string | null>(null);
   
   // Notification state
   const [notification, setNotification] = useState<NotificationProps>({
@@ -42,6 +44,8 @@ const ProductDetail: React.FC = () => {
     const fetchProduct = async () => {
       if (id) {
         try {
+          setProductLoading(true);
+          setProductError(null);
           const response = await productsApi.getProductById(id);
           setProduct(response.data);
           // Load reviews for this product for everyone (seller and users)
@@ -99,8 +103,11 @@ const ProductDetail: React.FC = () => {
           } catch {}
         } catch (error) {
           console.error('Failed to fetch product:', error);
-          showNotification('error', t('error'), t('failedToLoadProduct'));
+          setProductError(t('failedToLoadProduct'));
           setProduct(null);
+        }
+        finally {
+          setProductLoading(false);
         }
       }
     };
@@ -233,11 +240,37 @@ const ProductDetail: React.FC = () => {
     }
   };
 
-  if (!product) {
+  if (productLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-md mx-auto px-4 py-4">
+            <div className="flex items-center">
+              <button onClick={() => navigate(-1)} className="mr-3 p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <ArrowLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              <h1 className="text-lg font-semibold text-gray-900">{t('productDetails')}</h1>
+            </div>
+          </div>
+        </div>
+        {/* Skeleton */}
+        <div className="w-full bg-gradient-to-br from-orange-100 to-orange-200" style={{ aspectRatio: '3 / 2' }} />
+        <div className="bg-white p-4 animate-pulse">
+          <div className="h-5 w-1/2 bg-gray-200 rounded mb-3" />
+          <div className="h-4 w-1/3 bg-gray-200 rounded mb-6" />
+          <div className="h-10 w-full bg-gray-200 rounded" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!product && !productLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('productNotFound')}</h2>
+          <p className="text-gray-600 mb-4">{productError || ''}</p>
           <button onClick={() => navigate(-1)} className="text-orange-500 hover:text-orange-600">
             {t('goBack')}
           </button>
