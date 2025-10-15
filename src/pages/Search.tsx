@@ -170,7 +170,7 @@ const Search: React.FC = () => {
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
       <div className="bg-white shadow-sm">
-        <div className="px-4 py-4">
+        <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center">
             <button
               onClick={() => navigate(-1)}
@@ -185,7 +185,7 @@ const Search: React.FC = () => {
 
       {/* Search Bar */}
       <div className="px-4 py-3 bg-white border-b">
-        <div className="relative">
+        <div className="max-w-md mx-auto relative">
           <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
             type="text"
@@ -199,7 +199,7 @@ const Search: React.FC = () => {
 
       {/* Filter Bar */}
       <div className="px-4 py-3 bg-white border-b">
-        <div className="flex items-center justify-between">
+        <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -231,7 +231,7 @@ const Search: React.FC = () => {
       {/* Advanced Filters */}
       {showFilters && (
         <div className="px-4 py-4 bg-white border-b">
-          <div className="space-y-4">
+          <div className="max-w-md mx-auto space-y-4">
             {/* Business Type Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Business Type</label>
@@ -300,7 +300,7 @@ const Search: React.FC = () => {
       )}
 
       {/* Results */}
-      <div className="p-4">
+      <div className="max-w-md mx-auto p-4">
         {loading && (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>

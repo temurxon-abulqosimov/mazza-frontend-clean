@@ -356,12 +356,12 @@ const UserDashboard: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <div className="grid gap-5">
+                <div className="grid gap-5 justify-center">
                   {filteredProducts.slice(0, 6).map((product) => (
                     <div
                       key={product.id}
                       onClick={() => handleProductClick(product.id)}
-                      className="bg-white rounded-2xl shadow-lg border border-orange-100 p-4 sm:p-5 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group w-full"
+                      className="bg-white rounded-2xl shadow-lg border border-orange-100 p-4 sm:p-5 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group w-full max-w-md mx-auto"
                     >
                       <div className="flex space-x-3 sm:space-x-4">
                         <div className="relative flex-shrink-0">

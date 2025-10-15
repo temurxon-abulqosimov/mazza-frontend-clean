@@ -222,15 +222,16 @@ const Home: React.FC = () => {
         {/* Featured Products */}
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-gray-900">{t('featuredProducts')}</h2>
-          <div className="grid gap-5">
+          <div className="grid gap-5 justify-center">
             {displayedProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product as any}
-                distance={(product as any)?.store?.distance ?? (product as any)?.seller?.distance}
-                onProductClick={() => handleProductClick(product.id)}
-                onSellerClick={() => handleSellerClick((product as any)?.store?.id ?? (product as any)?.seller?.id)}
-              />
+              <div key={product.id} className="w-full max-w-md mx-auto">
+                <ProductCard
+                  product={product as any}
+                  distance={(product as any)?.store?.distance ?? (product as any)?.seller?.distance}
+                  onProductClick={() => handleProductClick(product.id)}
+                  onSellerClick={() => handleSellerClick((product as any)?.store?.id ?? (product as any)?.seller?.id)}
+                />
+              </div>
             ))}
           </div>
         </div>
