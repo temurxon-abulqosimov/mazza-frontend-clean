@@ -300,6 +300,13 @@ const translations: Record<Language, TranslationKeys> = {
     userNotFound: 'Foydalanuvchi topilmadi. Sahifani yangilang va qayta urinib ko\'ring.',
     failedToLoadProduct: 'Mahsulotni yuklashda xatolik. Qayta urinib ko\'ring.',
     kmAway: 'km uzoqlikda',
+    reviews: 'Sharhlar',
+    noReviewsYet: 'Hozircha sharhlar yo\'q',
+    shareYourThoughts: 'Fikringizni yozing... (ixtiyoriy)',
+    submitReview: 'Sharhni yuborish',
+    reviewSubmitted: 'Sharhingiz yuborildi',
+    thankYou: 'Rahmat!',
+    failedToSubmitReview: 'Sharh yuborishda xatolik',
     
     // Account Settings
     accountSettings: 'Hisob sozlamalari',
@@ -646,6 +653,13 @@ const translations: Record<Language, TranslationKeys> = {
     userNotFound: 'Пользователь не найден. Обновите страницу и попробуйте еще раз.',
     failedToLoadProduct: 'Ошибка загрузки товара. Попробуйте еще раз.',
     kmAway: 'км от вас',
+    reviews: 'Отзывы',
+    noReviewsYet: 'Пока нет отзывов',
+    shareYourThoughts: 'Поделитесь своим мнением... (необязательно)',
+    submitReview: 'Отправить отзыв',
+    reviewSubmitted: 'Ваш отзыв отправлен',
+    thankYou: 'Спасибо!',
+    failedToSubmitReview: 'Не удалось отправить отзыв',
     
     // Account Settings
     accountSettings: 'Настройки аккаунта',

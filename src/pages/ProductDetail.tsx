@@ -8,6 +8,7 @@ import { useTelegram } from '../contexts/TelegramContext';
 import Notification, { NotificationProps } from '../components/Notification';
 import { useNotifications } from '../contexts/NotificationContext';
 import MapView from '../components/MapView';
+import { config } from '../config/env';
 
 const ProductDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -43,7 +44,13 @@ const ProductDetail: React.FC = () => {
         try {
           const response = await productsApi.getProductById(id);
           setProduct(response.data);
-          setReviews(response.data?.reviews || []);
+          // Load reviews for this product for everyone (seller and users)
+          try {
+            const ratingsRes = await ratingsApi.getRatingsByProduct(id);
+            setReviews(ratingsRes.data || []);
+          } catch {
+            setReviews(response.data?.reviews || []);
+          }
           const p = response.data;
           if ((!p?.imageUrl || p.imageUrl.length === 0) && p?.seller?.id) {
             try {
@@ -269,15 +276,13 @@ const ProductDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* Product Image - larger hero with 3:2 ratio */}
+      {/* Product Image - maintain 3:2 ratio, cover-fit */}
       <div className="w-full relative overflow-hidden" style={{ aspectRatio: '3 / 2' }}>
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-orange-200">
-        </div>
         {product.imageUrl || sellerImageUrl ? (
           <img
-            src={product.imageUrl || sellerImageUrl || ''}
-            alt={product.description}
-            className="w-full h-full object-cover"
+            src={(product.imageUrl && product.imageUrl.length > 0) ? product.imageUrl : (sellerImageUrl || '')}
+            alt={product.description || product.name}
+            className="absolute inset-0 w-full h-full object-cover"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
               const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
@@ -287,6 +292,7 @@ const ProductDetail: React.FC = () => {
             }}
           />
         ) : null}
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-orange-200"></div>
         <div className={`absolute inset-0 w-full h-full flex flex-col items-center justify-center text-orange-600 ${(product.imageUrl || sellerImageUrl) ? 'hidden' : 'flex'}`}>
           <div className="text-6xl font-bold mb-2">
             {getCategoryEmoji(product.category)}
@@ -304,12 +310,11 @@ const ProductDetail: React.FC = () => {
       <div className="bg-white p-4">
         <div className="flex items-start justify-between mb-3">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-1">{product.description}</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-1">{product.description || product.name}</h2>
             <div className="flex items-center text-sm text-gray-600">
               <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-              <span className="mr-2">{product.seller.averageRating}</span>
-              <span></span>
-              <span className="ml-2">{(product.seller.distance ?? distanceKm ?? 0)} {t('distance')}</span>
+              <span className="mr-2">{(product.seller?.averageRating ?? product.stats?.averageRating ?? 0).toFixed ? ((product.seller?.averageRating ?? product.stats?.averageRating ?? 0) as number).toFixed(1) : (product.seller?.averageRating ?? product.stats?.averageRating ?? 0)}</span>
+              <span className="ml-2">{((product.seller?.distance ?? distanceKm) ? `${((product.seller?.distance ?? distanceKm) as number).toFixed(1)} km` : t('nearby'))}</span>
             </div>
           </div>
           <div className="text-right">
@@ -332,7 +337,7 @@ const ProductDetail: React.FC = () => {
               <h3 className="font-medium text-gray-900">{product.seller.businessName}</h3>
               <div className="flex items-center text-sm text-gray-600">
                 <MapPin className="w-4 h-4 mr-1" />
-                <span>{(product.seller.distance ?? distanceKm ?? 0)} {t('kmAway')}</span>
+                <span>{((product.seller?.distance ?? distanceKm) ? `${((product.seller?.distance ?? distanceKm) as number).toFixed(1)} km` : t('nearby'))}</span>
               </div>
             </div>
           </div>

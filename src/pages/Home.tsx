@@ -1,15 +1,11 @@
 ﻿import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Star, 
-  MapPin, 
-  Search,
-  Heart
-} from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useTelegram } from '../contexts/TelegramContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { productsApi, sellersApi } from '../services/api';
 import { Product, Seller } from '../types';
+import ProductCard from '../components/ProductCard';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -226,47 +222,15 @@ const Home: React.FC = () => {
         {/* Featured Products */}
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-gray-900">{t('featuredProducts')}</h2>
-          <div className="grid gap-4">
+          <div className="grid gap-5">
             {displayedProducts.map((product) => (
-              <div
+              <ProductCard
                 key={product.id}
-                onClick={() => handleProductClick(product.id)}
-                className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow cursor-pointer"
-              >
-                <div className="flex space-x-3">
-                  <img
-                    src={product.imageUrl || product.store?.imageUrl || 'https://via.placeholder.com/64x64'}
-                    alt={product.description || product.name}
-                    className="w-16 h-16 object-cover rounded-lg"
-                    loading="lazy"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{product.description || product.name}</h3>
-                    <p className="text-sm text-gray-600">{product.store?.businessName || t('store')}</p>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm text-gray-600">{product.stats?.averageRating || 0}</span>
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{product.store?.distance || 0} km</span>
-                    </div>
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg font-semibold text-gray-900">
-                          {product.price} {t('so_m')}
-                        </span>
-                        {product.originalPrice && (
-                          <span className="text-sm text-gray-500 line-through">
-                            {product.originalPrice} {t('so_m')}
-                          </span>
-                        )}
-                      </div>
-                      <button className="p-1 hover:bg-gray-100 rounded">
-                        <Heart className="w-4 h-4 text-gray-400" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                product={product as any}
+                distance={(product as any)?.store?.distance ?? (product as any)?.seller?.distance}
+                onProductClick={() => handleProductClick(product.id)}
+                onSellerClick={() => handleSellerClick((product as any)?.store?.id ?? (product as any)?.seller?.id)}
+              />
             ))}
           </div>
         </div>
@@ -279,31 +243,20 @@ const Home: React.FC = () => {
               <div
                 key={seller.id}
                 onClick={() => handleSellerClick(seller.id)}
-                className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow cursor-pointer"
+                className="bg-white rounded-2xl shadow-lg border border-orange-100 p-4 hover:shadow-xl transition-all cursor-pointer"
               >
                 <div className="flex space-x-3">
                   <img
                     src={seller.businessImageUrl || 'https://via.placeholder.com/64x64'}
                     alt={seller.businessName}
-                    className="w-16 h-16 object-cover rounded-lg"
+                    className="w-16 h-16 object-cover rounded-xl"
                     loading="lazy"
                   />
                   <div className="flex-1">
                     <h3 className="font-medium text-gray-900">{seller.businessName}</h3>
                     <p className="text-sm text-gray-600 capitalize">{seller.businessType}</p>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm text-gray-600">{seller.averageRating}</span>
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{seller.distance} km</span>
-                    </div>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-sm text-gray-600">
-                        {seller.isOpen ? t('open') : t('closed')}
-                      </span>
-                      <button className="p-1 hover:bg-gray-100 rounded">
-                        <Heart className="w-4 h-4 text-gray-400" />
-                      </button>
+                    <div className="text-sm text-gray-600 mt-1">
+                      {seller.averageRating?.toFixed ? seller.averageRating.toFixed(1) : seller.averageRating} · {seller.distance?.toFixed ? seller.distance.toFixed(1) : seller.distance} km
                     </div>
                   </div>
                 </div>

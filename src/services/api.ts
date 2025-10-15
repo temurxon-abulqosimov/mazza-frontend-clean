@@ -568,12 +568,12 @@ export const productsApi = {
       return devApi.products.searchProducts(query, category);
     }
     
-    const cacheKey = `get:${api.defaults.baseURL}/webapp/products?q=${query}&category=${category || ''}`;
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products/search?q=${encodeURIComponent(query)}&category=${category || ''}`;
     const cachedData = getCachedData(cacheKey);
     if (cachedData) return Promise.resolve({ data: cachedData });
     
     try {
-      const response = await api.get('/webapp/products', { 
+      const response = await api.get('/webapp/products/search', { 
         params: { q: query, category } 
       });
       return response;

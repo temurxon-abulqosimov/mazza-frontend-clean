@@ -4,11 +4,12 @@ import { ArrowLeft, Search as SearchIcon, Filter } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
 import ProductCard from '../components/ProductCard';
 import { productsApi } from '../services/api';
-import { Product, BusinessType } from '../types';
+import { Product, BusinessType, ProductCategory } from '../types';
 import { useLocalization } from '../contexts/LocalizationContext';
 
 interface SearchFilters {
-  category: BusinessType | 'all';
+  category: BusinessType | 'all'; // business type
+  productCategory: ProductCategory | 'all';
   priceRange: { min: number; max: number };
   distance: number;
   availability: 'all' | 'open' | 'closing_soon';
@@ -25,6 +26,7 @@ const Search: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({
     category: 'all',
+    productCategory: 'all',
     priceRange: { min: 0, max: 100000 },
     distance: 10,
     availability: 'all',
@@ -40,10 +42,24 @@ const Search: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await productsApi.searchProducts(searchQuery, filters.category);
+      const categoryParam = filters.productCategory === 'all' ? undefined : (filters.productCategory as any);
+      const response = await productsApi.searchProducts(searchQuery, categoryParam);
       let filteredProducts: Product[] = response.data || [];
 
       // Apply additional filters
+      // Business type filter (optional)
+      if (filters.category !== 'all') {
+        filteredProducts = filteredProducts.filter((product: any) => {
+          const type = product.store?.businessType || product.seller?.businessType;
+          return type === filters.category;
+        });
+      }
+
+      // Product category filter (drinks/beverages, etc.)
+      if (filters.productCategory !== 'all') {
+        filteredProducts = filteredProducts.filter((product: any) => (product.category as string) === filters.productCategory);
+      }
+
       if (filters.priceRange.min > 0 || filters.priceRange.max < 100000) {
         filteredProducts = filteredProducts.filter((product: Product) => 
           product.price >= filters.priceRange.min && product.price <= filters.priceRange.max
@@ -52,7 +68,11 @@ const Search: React.FC = () => {
 
       // Apply availability filter
       if (filters.availability === 'open') {
-        filteredProducts = filteredProducts.filter((product: Product) => product.seller.isOpen);
+        // If explicit open/closed info is not available, treat items with future availability as open
+        filteredProducts = filteredProducts.filter((product: any) => {
+          const until = new Date(product.availableUntil).getTime();
+          return until > Date.now();
+        });
       } else if (filters.availability === 'closing_soon') {
         const now = new Date();
         const twoHoursFromNow = new Date(now.getTime() + 2 * 60 * 60 * 1000);
@@ -61,18 +81,30 @@ const Search: React.FC = () => {
         );
       }
 
+      // Distance filter (<= selected distance in km when distance is available)
+      if (filters.distance && Number.isFinite(filters.distance)) {
+        filteredProducts = filteredProducts.filter((product: any) => {
+          const d = (product.store?.distance ?? product.seller?.distance) as number | undefined;
+          return d === undefined || d <= filters.distance; // keep if unknown, otherwise filter
+        });
+      }
+
       // Sort products
       filteredProducts.sort((a: Product, b: Product) => {
         switch (filters.sortBy) {
           case 'price':
             return a.price - b.price;
           case 'rating':
-            return (b.seller.averageRating || 0) - (a.seller.averageRating || 0);
+            const ar = (a as any).stats?.averageRating ?? (a as any).seller?.averageRating ?? 0;
+            const br = (b as any).stats?.averageRating ?? (b as any).seller?.averageRating ?? 0;
+            return br - ar;
           case 'newest':
             return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
           case 'distance':
           default:
-            return (a.seller.distance || 0) - (b.seller.distance || 0);
+            const ad = ((a as any).store?.distance ?? (a as any).seller?.distance ?? Number.POSITIVE_INFINITY) as number;
+            const bd = ((b as any).store?.distance ?? (b as any).seller?.distance ?? Number.POSITIVE_INFINITY) as number;
+            return ad - bd;
         }
       });
 
@@ -109,6 +141,7 @@ const Search: React.FC = () => {
   const clearFilters = () => {
     setFilters({
       category: 'all',
+      productCategory: 'all',
       priceRange: { min: 0, max: 100000 },
       distance: 10,
       availability: 'all',
@@ -122,6 +155,15 @@ const Search: React.FC = () => {
     { value: 'restaurant', label: t('restaurant') },
     { value: 'cafe', label: t('cafe') },
     { value: 'market', label: t('market') }
+  ];
+
+  const productCategories = [
+    { value: 'all', label: t('allCategories') },
+    { value: 'bread_bakery', label: t('breadBakery') },
+    { value: 'pastry', label: t('pastry') },
+    { value: 'main_dishes', label: t('mainDishes') },
+    { value: 'desserts', label: t('desserts') },
+    { value: 'beverages', label: t('beverages') }
   ];
 
   return (
@@ -190,9 +232,9 @@ const Search: React.FC = () => {
       {showFilters && (
         <div className="px-4 py-4 bg-white border-b">
           <div className="space-y-4">
-            {/* Category Filter */}
+            {/* Business Type Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Business Type</label>
               <select
                 value={filters.category}
                 onChange={(e) => handleFilterChange('category', e.target.value)}
@@ -200,6 +242,20 @@ const Search: React.FC = () => {
               >
                 {businessTypes.map(type => (
                   <option key={type.value} value={type.value}>{type.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Product Category Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('category')}</label>
+              <select
+                value={filters.productCategory}
+                onChange={(e) => handleFilterChange('productCategory', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                {productCategories.map(cat => (
+                  <option key={cat.value} value={cat.value}>{cat.label}</option>
                 ))}
               </select>
             </div>

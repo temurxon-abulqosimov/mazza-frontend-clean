@@ -365,7 +365,7 @@ const UserDashboard: React.FC = () => {
                     >
                       <div className="flex space-x-3 sm:space-x-4">
                         <div className="relative flex-shrink-0">
-                          <div className="w-16 h-16 sm:w-18 sm:h-18 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-md">
+                          <div className="w-24 h-24 sm:w-28 sm:h-28 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-md">
                             {product.imageUrl || ((product as any).seller?.id || (product as any).store?.id) ? (
                               <img
                                 src={
@@ -376,7 +376,7 @@ const UserDashboard: React.FC = () => {
                                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                               />
                             ) : (
-                              <div className="text-orange-600 text-2xl">
+                              <div className="text-orange-600 text-3xl">
                                 {getCategoryEmoji(product.category)}
                               </div>
                             )}
@@ -389,7 +389,7 @@ const UserDashboard: React.FC = () => {
                         </div>
                         
                         <div className="flex-1 min-w-0 overflow-hidden">
-                          <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 line-clamp-2 group-hover:text-orange-600 transition-colors">
+                          <h3 className="font-bold text-gray-900 text-lg sm:text-xl mb-1 line-clamp-2 group-hover:text-orange-600 transition-colors">
                             {product.description || product.name}
                           </h3>
                           <p className="text-xs sm:text-sm text-gray-600 mb-2 flex items-center truncate">
@@ -399,34 +399,34 @@ const UserDashboard: React.FC = () => {
                           
                           <div className="flex items-center space-x-2 sm:space-x-4 mb-3">
                             <div className="flex items-center space-x-1">
-                              <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-current flex-shrink-0" />
-                              <span className="text-xs sm:text-sm font-medium text-gray-700">{product.stats?.averageRating || 0}</span>
+                              <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-current flex-shrink-0" />
+                              <span className="text-sm sm:text-base font-medium text-gray-700">{product.stats?.averageRating || 0}</span>
                             </div>
                             <div className="flex items-center space-x-1">
-                              <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500 flex-shrink-0" />
-                              <span className="text-xs sm:text-sm text-gray-600">{product.store?.distance || 0} {t('distance')}</span>
+                              <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 flex-shrink-0" />
+                              <span className="text-sm sm:text-base text-gray-600">{product.store?.distance || 0} {t('distance')}</span>
                             </div>
                           </div>
                           
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                              <span className="text-lg sm:text-xl font-bold text-gray-900 truncate">
+                              <span className="text-xl sm:text-2xl font-bold text-gray-900 truncate">
                                 {product.price.toLocaleString()} {t('so_m')}
                               </span>
                               {product.originalPrice && (
-                                <span className="text-xs sm:text-sm text-gray-500 line-through truncate">
+                                <span className="text-sm sm:text-base text-gray-500 line-through truncate">
                                   {product.originalPrice.toLocaleString()} {t('so_m')}
                                 </span>
                               )}
                             </div>
                             <button 
-                              className="p-1.5 sm:p-2 bg-orange-100 hover:bg-orange-200 rounded-xl transition-all duration-200 group-hover:scale-110 flex-shrink-0 ml-2"
+                              className="p-2 sm:p-3 bg-orange-100 hover:bg-orange-200 rounded-xl transition-all duration-200 group-hover:scale-110 flex-shrink-0 ml-2"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 // Handle favorite
                               }}
                             >
-                              <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
+                              <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500" />
                             </button>
                           </div>
                         </div>
