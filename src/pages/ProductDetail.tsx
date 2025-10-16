@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, Star, MapPin, CheckCircle } from 'lucide-react';
 import { productsApi, ratingsApi } from '../services/api';
@@ -40,6 +40,11 @@ const ProductDetail: React.FC = () => {
   const [newRating, setNewRating] = useState<number>(5);
   const [newComment, setNewComment] = useState<string>('');
   const [submittingReview, setSubmittingReview] = useState(false);
+  // Collapsible header image height
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const baseHeaderHeight = 260; // px
+  const minHeaderHeight = 140; // px
+  const [headerHeight, setHeaderHeight] = useState(baseHeaderHeight);
   const [showOrderSheet, setShowOrderSheet] = useState(false);
 
   useEffect(() => {
@@ -115,6 +120,19 @@ const ProductDetail: React.FC = () => {
     };
     fetchProduct();
   }, [id]);
+
+  // Attach scroll listener to shrink/expand image (must be before any early returns)
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const y = el.scrollTop;
+      const next = Math.max(minHeaderHeight, baseHeaderHeight - y);
+      setHeaderHeight(next);
+    };
+    el.addEventListener('scroll', onScroll);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
 
   const showNotification = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
     setNotification({
@@ -284,8 +302,9 @@ const ProductDetail: React.FC = () => {
   const totalPrice = product.price * quantity;
   const savings = (product.originalPrice - product.price) * quantity;
 
+
   return (
-    <div className="min-h-screen bg-[#F6F7FB] pb-24">
+    <div ref={scrollContainerRef} className="min-h-screen bg-[#F6F7FB] pb-24 overflow-y-auto">
       {/* Notification */}
       <Notification
         type={notification.type}
@@ -312,12 +331,15 @@ const ProductDetail: React.FC = () => {
       </div>
 
       {/* Product Image - maintain 3:2 ratio, cover-fit */}
-      <div className="w-full relative overflow-hidden rounded-b-2xl" style={{ aspectRatio: '3 / 2' }}>
+      <div className="w-full relative overflow-hidden rounded-b-2xl" style={{ height: `${headerHeight}px` }}>
         {product.imageUrl || sellerImageUrl ? (
           <img
             src={(product.imageUrl && product.imageUrl.length > 0) ? product.imageUrl : (sellerImageUrl || '')}
             alt={product.description || product.name}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-200"
+            style={{
+              transform: `scale(${0.95 + 0.05 * ((headerHeight - minHeaderHeight) / (baseHeaderHeight - minHeaderHeight))})`
+            }}
             onError={(e) => {
               e.currentTarget.style.display = 'none';
               const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
@@ -457,18 +479,18 @@ const ProductDetail: React.FC = () => {
               </button>
             ))}
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="space-y-3">
             <textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder={t('shareYourThoughts')}
-              className="flex-1 border rounded-2xl p-3 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-200"
+              className="w-full border rounded-2xl p-3 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-200"
               rows={3}
             />
             <button
               disabled={submittingReview}
               onClick={handleSubmitReview}
-              className="h-[42px] px-4 bg-orange-500 text-white rounded-2xl hover:bg-orange-600 disabled:opacity-50"
+              className="w-full h-[44px] bg-orange-500 text-white rounded-2xl hover:bg-orange-600 disabled:opacity-50"
             >
               {submittingReview ? t('submitting') : t('submitReview')}
             </button>

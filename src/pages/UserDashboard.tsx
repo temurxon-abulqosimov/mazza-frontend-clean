@@ -16,6 +16,7 @@ import { useLocalization } from '../contexts/LocalizationContext';
 import { useLocation } from '../contexts/LocationContext';
 import { useNotifications } from '../contexts/NotificationContext';
 import { productsApi, ordersApi } from '../services/api';
+import { formatSom } from '../utils/format';
 import { Product, Seller } from '../types';
 import LocationPermission from '../components/LocationPermission';
 
@@ -356,81 +357,38 @@ const UserDashboard: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <div className="grid gap-5 justify-center">
-                  {filteredProducts.slice(0, 6).map((product) => (
-                    <div
-                      key={product.id}
-                      onClick={() => handleProductClick(product.id)}
-                      className="bg-white rounded-2xl shadow-lg border border-orange-100 p-4 sm:p-5 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group w-full max-w-md mx-auto"
-                    >
-                      <div className="flex space-x-3 sm:space-x-4">
-                        <div className="relative flex-shrink-0">
-                          <div className="w-24 h-24 sm:w-28 sm:h-28 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-md">
-                            {product.imageUrl || ((product as any).seller?.id || (product as any).store?.id) ? (
-                              <img
-                                src={
-                                  product.imageUrl || `${config.API_BASE_URL}/webapp/sellers/${((product as any).seller?.id ?? (product as any).store?.id)}/photo`
-                                }
-                                alt={product.description || product.name}
-                                className="w-full h-full object-cover rounded-2xl"
-                                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                              />
-                            ) : (
-                              <div className="text-orange-600 text-3xl">
-                                {getCategoryEmoji(product.category)}
-                              </div>
-                            )}
-                          </div>
-                          {product.originalPrice && (
-                            <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                              -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-                            </div>
-                          )}
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  {filteredProducts.slice(0, 12).map((product) => (
+                    <div key={product.id} onClick={() => handleProductClick(product.id)} className="bg-white rounded-2xl shadow-sm border hover:shadow-md transition-all cursor-pointer overflow-hidden">
+                      <div className="relative w-full h-28 sm:h-32 bg-gray-100">
+                        {(product.imageUrl || (product as any).seller?.id || (product as any).store?.id) ? (
+                          <img
+                            src={product.imageUrl || `${config.API_BASE_URL}/webapp/sellers/${((product as any).seller?.id ?? (product as any).store?.id)}/photo`}
+                            alt={product.description || product.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-3xl">{getCategoryEmoji(product.category)}</div>
+                        )}
+                        {product.originalPrice && product.originalPrice > product.price && (
+                          <div className="absolute top-2 right-2 bg-orange-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">-{Math.round(((product.originalPrice - product.price)/product.originalPrice)*100)}%</div>
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <h3 className="text-[13px] font-semibold text-gray-900 leading-5 line-clamp-2">{product.description || product.name}</h3>
+                        <div className="mt-1 flex items-center text-[12px] text-gray-600">
+                          <Star className="w-3.5 h-3.5 text-yellow-400 fill-current mr-1" />
+                          <span>{(((product as any)?.store?.averageRating ?? (product as any)?.seller?.averageRating ?? product.stats?.averageRating) ?? 0).toFixed ? (((product as any)?.store?.averageRating ?? (product as any)?.seller?.averageRating ?? product.stats?.averageRating) as number).toFixed(1) : ((product as any)?.store?.averageRating ?? (product as any)?.seller?.averageRating ?? product.stats?.averageRating ?? 0)}</span>
+                          <span className="mx-1">•</span>
+                          <MapPin className="w-3.5 h-3.5 text-gray-400 mr-1" />
+                          <span>{(((product as any)?.store?.distance ?? (product as any)?.seller?.distance) ?? 0).toFixed ? (((product as any)?.store?.distance ?? (product as any)?.seller?.distance) as number).toFixed(1) : ((product as any)?.store?.distance ?? (product as any)?.seller?.distance ?? 0)} {t('distance')}</span>
                         </div>
-                        
-                        <div className="flex-1 min-w-0 overflow-hidden">
-                          <h3 className="font-bold text-gray-900 text-lg sm:text-xl mb-1 line-clamp-2 group-hover:text-orange-600 transition-colors">
-                            {product.description || product.name}
-                          </h3>
-                          <p className="text-xs sm:text-sm text-gray-600 mb-2 flex items-center truncate">
-                            <span className="w-2 h-2 bg-orange-500 rounded-full mr-2 flex-shrink-0"></span>
-                            <span className="truncate">{product.store?.businessName || t('store')}</span>
-                          </p>
-                          
-                          <div className="flex items-center space-x-2 sm:space-x-4 mb-3">
-                            <div className="flex items-center space-x-1">
-                              <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-current flex-shrink-0" />
-                              <span className="text-sm sm:text-base font-medium text-gray-700">
-                                {(((product as any)?.store?.averageRating ?? (product as any)?.seller?.averageRating ?? product.stats?.averageRating) ?? 0).toFixed ? (((product as any)?.store?.averageRating ?? (product as any)?.seller?.averageRating ?? product.stats?.averageRating) as number).toFixed(1) : ((product as any)?.store?.averageRating ?? (product as any)?.seller?.averageRating ?? product.stats?.averageRating ?? 0)}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 flex-shrink-0" />
-                              <span className="text-sm sm:text-base text-gray-600">{(((product as any)?.store?.distance ?? (product as any)?.seller?.distance) ?? 0).toFixed ? (((product as any)?.store?.distance ?? (product as any)?.seller?.distance) as number).toFixed(1) : ((product as any)?.store?.distance ?? (product as any)?.seller?.distance ?? 0)} {t('distance')}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                              <span className="text-xl sm:text-2xl font-bold text-gray-900 truncate">
-                                {product.price.toLocaleString()} {t('so_m')}
-                              </span>
-                              {product.originalPrice && (
-                                <span className="text-sm sm:text-base text-gray-500 line-through truncate">
-                                  {product.originalPrice.toLocaleString()} {t('so_m')}
-                                </span>
-                              )}
-                            </div>
-                            <button 
-                              className="p-2 sm:p-3 bg-orange-100 hover:bg-orange-200 rounded-xl transition-all duration-200 group-hover:scale-110 flex-shrink-0 ml-2"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // Handle favorite
-                              }}
-                            >
-                              <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500" />
-                            </button>
-                          </div>
+                        <div className="mt-1 flex items-center space-x-2">
+                          <span className="text-[18px] font-extrabold text-orange-500">{formatSom(product.price)} {t('so_m')}</span>
+                          {product.originalPrice && product.originalPrice > product.price && (
+                            <span className="text-[12px] text-gray-500 line-through">{formatSom(product.originalPrice)} {t('so_m')}</span>
+                          )}
                         </div>
                       </div>
                     </div>
