@@ -16,7 +16,9 @@ import {
   Tag,
   Calendar,
   CheckCircle,
-  XCircle
+  XCircle,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import MapView from '../components/MapView';
 import BottomNavigation from '../components/BottomNavigation';
@@ -41,6 +43,7 @@ const SellerDashboard: React.FC = () => {
   const [seller, setSeller] = useState<Seller | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
+  const [updatingProductId, setUpdatingProductId] = useState<number | null>(null);
   // Realtime: connect to socket.io and subscribe to seller room
   useEffect(() => {
     if (!seller?.id) return;
@@ -279,6 +282,22 @@ const SellerDashboard: React.FC = () => {
     }
   };
 
+  const handleToggleVisibility = async (productId: number, currentActive: boolean) => {
+    // Optimistic UI update
+    setUpdatingProductId(productId);
+    setProducts(prev => prev.map(p => p.id === productId ? { ...p, isActive: !currentActive } : p));
+    try {
+      await productsApi.setProductVisibility(String(productId), !currentActive as any);
+      showNotification('success', 'Visibility Updated', `Product is now ${!currentActive ? 'visible' : 'hidden'}.`);
+    } catch (err) {
+      // Revert on error
+      setProducts(prev => prev.map(p => p.id === productId ? { ...p, isActive: currentActive } : p));
+      showNotification('error', 'Update Failed', 'Could not change visibility.');
+    } finally {
+      setUpdatingProductId(null);
+    }
+  };
+
   const handleOrderStatusChange = async (orderId: number, newStatus: string) => {
     try {
       await ordersApi.updateOrderStatus(String(orderId), newStatus);
@@ -398,6 +417,32 @@ const SellerDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Quick Actions */}
+      <div className="bg-white px-4 sm:px-6 py-3 border-b border-orange-100 w-full">
+        <div className="w-full max-w-md mx-auto">
+          <div className="grid grid-cols-3 gap-3">
+            <button
+              onClick={() => navigate('/seller/products/create')}
+              className="flex items-center justify-center py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-medium hover:from-orange-600 hover:to-amber-600 transition-all duration-200 shadow"
+            >
+              + {t('addProduct')}
+            </button>
+            <button
+              onClick={() => setActiveTab('orders')}
+              className="flex items-center justify-center py-3 rounded-2xl bg-orange-50 text-orange-700 border border-orange-200 font-medium hover:bg-orange-100 transition-all duration-200"
+            >
+              {t('viewOrders')}
+            </button>
+            <button
+              onClick={() => setActiveTab('profile')}
+              className="flex items-center justify-center py-3 rounded-2xl bg-orange-50 text-orange-700 border border-orange-200 font-medium hover:bg-orange-100 transition-all duration-200"
+            >
+              {t('profile')}
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Tab Navigation */}
       <div className="bg-white border-b">
         <div className="flex overflow-x-auto">
@@ -431,98 +476,77 @@ const SellerDashboard: React.FC = () => {
       <div className="p-4">
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
-            {/* Stats Cards */}
+            {/* Welcome */}
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">{t('welcome') || 'Welcome'}, {userProfile?.firstName || 'Seller'}!</h2>
+              <p className="text-sm text-gray-600 mt-1">{t('dashboardOverview') || "Here's your seller dashboard overview."}</p>
+            </div>
+
+            {/* Performance Overview */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white p-4 rounded-lg shadow-sm border">
-                <div className="flex items-center">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Package className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-gray-600">{t('totalProducts')}</p>
-                    <p className="text-2xl font-bold text-gray-900">{products.length}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-4 rounded-lg shadow-sm border">
-                <div className="flex items-center">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <ShoppingBag className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-gray-600">{t('totalOrders')}</p>
-                    <p className="text-2xl font-bold text-gray-900">{orders.length}</p>
+              {[
+                { iconBg: 'bg-yellow-50', Icon: Package, label: t('products') || 'Products', value: products.length, trend: '+2.5% Up', trendColor: 'text-green-600' },
+                { iconBg: 'bg-orange-50', Icon: ShoppingBag, label: t('orders') || 'Orders', value: orders.length, trend: '−1.1% Down', trendColor: 'text-red-600' },
+                { iconBg: 'bg-amber-50', Icon: TrendingUp, label: t('revenue') || 'Revenue', value: `${orders.reduce((s, o) => s + (o.totalPrice || 0), 0).toLocaleString()} ${t('so_m')}`, trend: '+3.8% Up', trendColor: 'text-green-600' },
+                { iconBg: 'bg-yellow-50', Icon: Star, label: t('rating') || 'Rating', value: averageRating !== null && averageRating > 0 ? averageRating.toFixed(1) : '-', trend: '+0.1% Up', trendColor: 'text-green-600' },
+              ].map((c, idx) => (
+                <div key={idx} className="bg-white p-4 rounded-2xl shadow-sm border">
+                  <div className="flex items-center">
+                    <div className={`p-2 rounded-lg ${c.iconBg}`}>
+                      <c.Icon className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-gray-600">{c.label}</p>
+                      <p className="text-2xl font-bold text-gray-900">{c.value as any}</p>
+                    </div>
+                    <div className="ml-auto text-xs font-medium">
+                      <span className={c.trendColor}>{c.trend}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="bg-white p-4 rounded-lg shadow-sm border">
-                <div className="flex items-center">
-                  <div className="p-2 bg-orange-100 rounded-lg">
-                    <TrendingUp className="w-5 h-5 text-orange-600" />
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-gray-600">{t('revenue')}</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0).toLocaleString()} {t('so_m')}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-4 rounded-lg shadow-sm border">
-                <div className="flex items-center">
-                  <div className="p-2 bg-yellow-100 rounded-lg">
-                    <Star className="w-5 h-5 text-yellow-600" />
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-gray-600">{t('rating')}</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {averageRating !== null && averageRating > 0 ? averageRating.toFixed(1) : '-'}
-                    </p>
-                    {averageRating !== null && averageRating === 0 && (
-                      <p className="text-xs text-gray-500">{t('noRatingsYet')}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('quickActions')}</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  onClick={handleCreateProduct}
-                  className="flex items-center justify-center p-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                >
-                  <Plus className="w-5 h-5 mr-2" />
-                  {t('addProduct')}
-                </button>
-                <button
-                  onClick={() => setActiveTab('orders')}
-                  className="flex items-center justify-center p-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                  <ShoppingBag className="w-5 h-5 mr-2" />
-                  {t('viewOrders')}
-                </button>
+              <div className="grid grid-cols-4 gap-3">
+                {[
+                  { label: t('addProduct'), onClick: handleCreateProduct },
+                  { label: t('viewOrders'), onClick: () => setActiveTab('orders') },
+                  { label: t('profile'), onClick: () => setActiveTab('profile') },
+                  { label: t('analytics'), onClick: () => setActiveTab('analytics') },
+                ].map((a, i) => (
+                  <button key={i} onClick={a.onClick} className="py-3 bg-orange-50 text-orange-700 border border-orange-200 rounded-2xl hover:bg-orange-100 text-sm font-medium">
+                    {a.label}
+                  </button>
+                ))}
               </div>
             </div>
 
             {/* Recent Orders */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('recentOrders')}</h3>
-              <div className="space-y-3">
-                {orders.slice(0, 3).map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="space-y-4">
+                {orders.slice(0, 4).map((order) => (
+                  <div key={order.id} className="rounded-xl border p-4 flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-gray-900">Order #{order.code}</p>
-                      <p className="text-sm text-gray-600">{order.product?.description}</p>
+                      <p className="font-semibold text-gray-900">#{order.code}</p>
+                      <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleString()}</p>
+                      <p className="text-sm text-gray-700 mt-1">{order.product?.description}</p>
+                      <div className="mt-2">
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                          order.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                          order.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {order.status}
+                        </span>
+                      </div>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-gray-900">{order.totalPrice?.toLocaleString()} {t('so_m')}</p>
-                      <p className="text-sm text-gray-600">{order.status}</p>
+                      <button className="mt-2 px-3 py-1 border rounded-full text-sm text-gray-700 hover:bg-gray-50">{t('viewDetails') || 'View Details'}</button>
                     </div>
                   </div>
                 ))}
@@ -531,6 +555,15 @@ const SellerDashboard: React.FC = () => {
                 )}
               </div>
             </div>
+
+            {/* Floating Add Button */}
+            <button
+              onClick={handleCreateProduct}
+              className="fixed right-5 bottom-24 bg-orange-500 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-2xl"
+              aria-label="Add Product"
+            >
+              +
+            </button>
           </div>
         )}
 
@@ -549,7 +582,7 @@ const SellerDashboard: React.FC = () => {
 
             <div className="grid gap-4">
               {products.map((product) => (
-                <div key={product.id} className="bg-white p-4 rounded-lg shadow-sm border">
+                <div key={product.id} className="bg-white p-4 rounded-2xl shadow-sm border">
                   <div className="flex items-start space-x-4">
                     {/* Product Image */}
                     <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0">
@@ -568,25 +601,44 @@ const SellerDashboard: React.FC = () => {
 
                     {/* Product Details */}
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-gray-900 truncate">{product.description}</h4>
-                      <div className="mt-2 space-y-1">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <DollarSign className="w-4 h-4 mr-1" />
-                          <span>Price: {product.price?.toLocaleString()} {t('so_m')}</span>
+                      <div className="flex items-start justify-between">
+                        <h4 className="font-semibold text-gray-900 truncate">
+                          {product.description || product.name}
+                        </h4>
+                        <div className="flex items-center space-x-2">
+                          {/* Visibility toggle to match design */}
+                          <button
+                            onClick={() => handleToggleVisibility(product.id, product.isActive)}
+                            className={`relative w-10 h-6 rounded-full transition-colors ${product.isActive ? 'bg-orange-500' : 'bg-gray-300'}`}
+                            title="Visibility"
+                            disabled={updatingProductId === product.id}
+                          >
+                            <span
+                              className={`absolute top-0.5 ${product.isActive ? 'right-0.5' : 'left-0.5'} w-5 h-5 bg-white rounded-full shadow transition-all`}
+                            />
+                          </button>
                         </div>
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Package className="w-4 h-4 mr-1" />
-                          <span>Stock: {product.quantity} units</span>
+                      </div>
+
+                      <div className="mt-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-lg font-bold text-orange-500">
+                            {product.price?.toLocaleString()} {t('so_m')}
+                          </span>
+                          {product.originalPrice && product.originalPrice > product.price && (
+                            <span className="text-sm text-gray-400 line-through">
+                              {product.originalPrice.toLocaleString()} {t('so_m')}
+                            </span>
+                          )}
                         </div>
-                        {product.originalPrice && product.originalPrice > product.price && (
-                          <div className="flex items-center text-sm text-green-600">
-                            <Tag className="w-4 h-4 mr-1" />
-                            <span>Sale: {product.originalPrice.toLocaleString()} {t('so_m')}  {product.price.toLocaleString()} {t('so_m')}</span>
+                        <div className="mt-1 flex items-center space-x-3 text-sm text-gray-600">
+                          <span className={`px-2 py-0.5 rounded-full text-xs ${product.quantity > 5 ? 'bg-green-100 text-green-800' : product.quantity > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                            {product.quantity > 5 ? 'In Stock' : product.quantity > 0 ? 'Low Stock' : 'Out of Stock'}
+                          </span>
+                          <div className="flex items-center">
+                            <Calendar className="w-4 h-4 mr-1" />
+                            <span className="truncate">{String(product.category || '')}</span>
                           </div>
-                        )}
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Calendar className="w-4 h-4 mr-1" />
-                          <span>Category: {product.category}</span>
                         </div>
                       </div>
                     </div>

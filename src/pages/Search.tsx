@@ -337,22 +337,24 @@ const Search: React.FC = () => {
         )}
 
         {!loading && !error && products.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Search Results</h3>
-              <span className="text-sm text-gray-500">{products.length} items</span>
+          <>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold text-gray-900">{t('search')}</h3>
+              <span className="text-sm text-gray-500">{products.length} {t('items') || 'items'}</span>
             </div>
-            
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                distance={product.seller.distance}
-                onProductClick={() => handleProductClick(product)}
-                onSellerClick={() => handleSellerClick(product.seller)}
-              />
-            ))}
-          </div>
+            {/* Grid cards to match new design */}
+            <div className="grid grid-cols-2 gap-4">
+              {products.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  distance={(product as any)?.seller?.distance}
+                  onProductClick={() => handleProductClick(product)}
+                  onSellerClick={() => handleSellerClick((product as any).seller)}
+                />
+              ))}
+            </div>
+          </>
         )}
       </div>
 

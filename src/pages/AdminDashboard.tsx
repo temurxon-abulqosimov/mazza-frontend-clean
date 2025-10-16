@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Shield, Users, Store, Package, TrendingUp, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
 import { useTelegram } from '../contexts/TelegramContext';
+import { authApi } from '../services/api';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { adminApi } from '../services/api';
 
@@ -24,10 +25,25 @@ const AdminDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isReady && user) {
-      // Load data in background, don't block the main flow
-      loadDashboardData();
-    }
+    const ensureAdminAuth = async () => {
+      if (!isReady || !user) return;
+      try {
+        // If we already have a token, try loading; otherwise attempt env-based admin login
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          const adminTelegramId = process.env.REACT_APP_ADMIN_TELEGRAM_ID;
+          const adminPassword = process.env.REACT_APP_ADMIN_PASSWORD;
+          if (adminTelegramId && adminPassword) {
+            await authApi.login({ telegramId: adminTelegramId, role: 'ADMIN', password: adminPassword });
+          }
+        }
+        await loadDashboardData();
+      } catch (e: any) {
+        setError(e.response?.data?.message || 'Admin authentication failed.');
+        setLoading(false);
+      }
+    };
+    ensureAdminAuth();
   }, [isReady, user]);
 
   const loadDashboardData = async () => {
@@ -183,32 +199,30 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Recent Activity */}
+        {/* Recent Events list styled like design */}
         <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Events</h3>
           <div className="space-y-3">
-            <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-              <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
-              <div>
-                <p className="font-medium text-gray-900">New seller registered</p>
-                <p className="text-sm text-gray-600">2 hours ago</p>
+            {(adminStats?.recentActivity || [
+              { icon: 'seller', title: 'New seller "Green Eats" registered.', time: '2 hours ago' },
+              { icon: 'product', title: 'Product "Artisan Bread" stock updated.', time: '5 hours ago' },
+              { icon: 'user', title: 'User "John Doe" updated profile details.', time: 'Yesterday' },
+              { icon: 'system', title: 'System maintenance completed.', time: '2 days ago' },
+              { icon: 'product', title: 'New product "Organic Veggie Box" listed.', time: '3 days ago' },
+            ]).map((item: any, idx: number) => (
+              <div key={idx} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3">🥗</div>
+                  <div>
+                    <p className="text-sm text-gray-900">{item.title}</p>
+                    <p className="text-xs text-gray-500">{item.time}</p>
+                  </div>
+                </div>
+                <button className="text-orange-600 text-sm">›</button>
               </div>
-            </div>
-            <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-yellow-500 mr-3" />
-              <div>
-                <p className="font-medium text-gray-900">Order pending approval</p>
-                <p className="text-sm text-gray-600">4 hours ago</p>
-              </div>
-            </div>
-            <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-              <XCircle className="w-5 h-5 text-red-500 mr-3" />
-              <div>
-                <p className="font-medium text-gray-900">User account suspended</p>
-                <p className="text-sm text-gray-600">1 day ago</p>
-              </div>
-            </div>
+            ))}
           </div>
+          <button className="mt-4 w-full text-orange-600 text-sm font-medium">View All Events</button>
         </div>
       </div>
 

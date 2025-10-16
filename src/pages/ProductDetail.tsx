@@ -283,7 +283,7 @@ const ProductDetail: React.FC = () => {
   const savings = (product.originalPrice - product.price) * quantity;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F6F7FB] pb-24">
       {/* Notification */}
       <Notification
         type={notification.type}
@@ -302,9 +302,9 @@ const ProductDetail: React.FC = () => {
               onClick={() => navigate(-1)}
               className="mr-3 p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
+              <ArrowLeft className="w-5 h-5 text-gray-700" />
             </button>
-            <h1 className="text-lg font-semibold text-gray-900">{t('productDetails')}</h1>
+            <h1 className="text-sm font-medium text-gray-900 truncate">{product?.description || product?.name || t('productDetails')}</h1>
           </div>
         </div>
       </div>
@@ -340,50 +340,76 @@ const ProductDetail: React.FC = () => {
       </div>
 
       {/* Product Info */}
-      <div className="bg-white p-4">
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-1">{product.description || product.name}</h2>
-            <div className="flex items-center text-sm text-gray-600">
-              <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-              <span className="mr-2">{(((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating) ?? 0).toFixed ? (((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating) as number).toFixed(1) : ((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating ?? 0)}</span>
-              <span className="ml-2">{((product.seller?.distance ?? (product as any)?.store?.distance ?? distanceKm) ? `${(((product.seller?.distance ?? (product as any)?.store?.distance ?? distanceKm) as number)).toFixed(1)} km` : t('nearby'))}</span>
-            </div>
+      <div className="px-4 pt-4">
+        <h2 className="text-[17px] leading-6 font-semibold text-gray-900">{product.description || product.name}</h2>
+        {/* Price row */}
+        <div className="mt-1 flex items-center space-x-2">
+          <span className="text-[18px] font-extrabold text-orange-500">{product.price?.toFixed ? Number(product.price).toFixed(2) : product.price} {t('so_m')}</span>
+          {product.originalPrice && product.originalPrice > product.price && (
+            <span className="text-sm text-gray-500 line-through">{product.originalPrice?.toFixed ? Number(product.originalPrice).toFixed(2) : product.originalPrice} {t('so_m')}</span>
+          )}
+          {product.originalPrice && product.originalPrice > product.price && (
+            <span className="ml-1 px-2 py-[2px] rounded-full bg-orange-500 text-white text-[10px] font-bold">{Math.round(((product.originalPrice - product.price)/product.originalPrice)*100)}% OFF</span>
+          )}
+        </div>
+        {/* meta row */}
+        <div className="mt-1 flex items-center text-[12px] text-gray-600">
+          <div className="flex items-center">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star key={i} className={`w-3.5 h-3.5 mr-0.5 ${i < Math.round(((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating) ?? 0) ? 'text-orange-500 fill-current' : 'text-gray-300'}`} />
+            ))}
           </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-gray-900">{product.price.toLocaleString()} {t('so_m')}</div>
-            {product.originalPrice && product.originalPrice > product.price && (
-              <div className="text-sm text-gray-500 line-through">
-                {product.originalPrice.toLocaleString()} {t('so_m')}
-              </div>
-            )}
+          <span className="ml-1">{(((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating) ?? 0).toFixed ? (((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating) as number).toFixed(1) : ((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating ?? 0)}</span>
+          <span className="ml-1">({reviews.length} {t('reviews')})</span>
+          <span className="mx-2">•</span>
+          <span>{((product.seller?.distance ?? (product as any)?.store?.distance ?? distanceKm) ? `${(((product.seller?.distance ?? (product as any)?.store?.distance ?? distanceKm) as number)).toFixed(1)} km ${t('away') || 'Away'}` : t('nearby'))}</span>
+        </div>
+      </div>
+
+      <div className="px-4 mt-3">
+        <div className="bg-white rounded-2xl shadow-sm px-4 py-3 flex items-start">
+          <div className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center mr-3">
+            <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+          </div>
+          <div className="flex-1">
+            <div className="text-gray-900 font-semibold text-[13px]">Pickup</div>
+            <div className="text-[12px] text-gray-600">Today, 4:00 PM - 6:00 PM</div>
           </div>
         </div>
+      </div>
 
         {/* Seller Info */}
-        <div className="border-t pt-3 mb-4">
-          <div className="flex items-center">
-            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-              <ShoppingBag className="w-5 h-5 text-gray-600" />
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900">{product.seller.businessName}</h3>
-              <div className="flex items-center text-sm text-gray-600">
-                <MapPin className="w-4 h-4 mr-1" />
-                <span>{((product.seller?.distance ?? (product as any)?.store?.distance ?? distanceKm) ? `${(((product.seller?.distance ?? (product as any)?.store?.distance ?? distanceKm) as number)).toFixed(1)} km` : t('nearby'))}</span>
+        <div className="px-4 mt-3">
+          <div className="bg-white rounded-2xl px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                <ShoppingBag className="w-5 h-5 text-gray-600" />
+              </div>
+              <div>
+                <div className="font-semibold text-gray-900">{product.seller.businessName}</div>
+                <div className="text-xs text-gray-500">Local artisan bakery</div>
               </div>
             </div>
+            <button className="px-3 py-1 bg-white border border-gray-200 rounded-full text-sm font-medium shadow-sm" onClick={() => navigate(`/seller/${product.seller?.id || (product as any)?.store?.id}`)}>
+              View Store
+            </button>
           </div>
         </div>
 
         {/* Seller Location Map */}
         {product.seller?.location && (
-          <div className="mt-6">
-            <MapView
-              latitude={product.seller.location.latitude}
-              longitude={product.seller.location.longitude}
-              sellerName={product.seller.businessName}
-            />
+          <div className="mt-3 px-4">
+            <div className="overflow-hidden rounded-2xl">
+              <MapView
+                latitude={product.seller.location.latitude}
+                longitude={product.seller.location.longitude}
+                sellerName={product.seller.businessName}
+              />
+            </div>
+            <div className="bg-white rounded-b-2xl -mt-2 px-4 py-3 flex items-center text-gray-700">
+              <svg className="w-4 h-4 mr-2 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 1 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+              <span className="text-sm">123 Bakery Lane, Cityville</span>
+            </div>
           </div>
         )}
 
@@ -450,24 +476,33 @@ const ProductDetail: React.FC = () => {
             {loading ? t('placingOrder') : t('confirmOrder')}
           </button>
         </div>
-      </div>
-
       {/* Reviews */}
-      <div className="bg-white p-4 mt-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('reviews')}</h3>
+      <div className="bg-white p-4 mt-3">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-[13px] font-semibold text-gray-900">Customer Reviews ({reviews.length})</h3>
+          <div className="flex items-center text-sm text-gray-600">
+            <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+            <span>{(((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating) ?? 0).toFixed ? (((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating) as number).toFixed(1) : ((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating ?? 0)}</span>
+          </div>
+        </div>
+
         {reviews.length === 0 ? (
           <p className="text-sm text-gray-600">{t('noReviewsYet')}</p>
         ) : (
           <div className="space-y-3">
             {reviews.map((r) => (
-              <div key={r.id} className="border rounded-lg p-3">
-                <div className="flex items-center mb-1">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className={`w-4 h-4 mr-1 ${i < (r.rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
-                  ))}
+              <div key={r.id} className="rounded-2xl p-3 bg-white border flex">
+                <div className="w-9 h-9 rounded-full bg-gray-200 mr-3" />
+                <div className="flex-1">
+                  <div className="text-sm font-semibold text-gray-900">{r.user?.first_name || 'Customer'}</div>
+                  <div className="flex items-center mb-1">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className={`w-4 h-4 mr-1 ${i < (r.rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                    ))}
+                  </div>
+                  {r.comment && <p className="text-sm text-gray-700">{r.comment}</p>}
+                  <div className="text-xs text-gray-400 mt-1">{new Date(r.createdAt).toLocaleDateString()}</div>
                 </div>
-                {r.comment && <p className="text-sm text-gray-700">{r.comment}</p>}
-                <div className="text-xs text-gray-400 mt-1">{new Date(r.createdAt).toLocaleDateString()}</div>
               </div>
             ))}
           </div>
@@ -475,27 +510,29 @@ const ProductDetail: React.FC = () => {
 
         {/* Add Review */}
         <div className="mt-4 border-t pt-4">
-          <div className="flex items-center mb-2">
+          <div className="flex items-center justify-center mb-3">
             {Array.from({ length: 5 }).map((_, i) => (
-              <button key={i} onClick={() => setNewRating(i + 1)} className="mr-1">
-                <Star className={`w-5 h-5 ${i < newRating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+              <button key={i} onClick={() => setNewRating(i + 1)} className="mx-1">
+                <Star className={`w-6 h-6 ${i < newRating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
               </button>
             ))}
           </div>
-          <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder={t('shareYourThoughts')}
-            className="w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
-            rows={3}
-          />
-          <button
-            disabled={submittingReview}
-            onClick={handleSubmitReview}
-            className="mt-2 bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 disabled:opacity-50"
-          >
-            {submittingReview ? t('submitting') : t('submitReview')}
-          </button>
+          <div className="flex items-center space-x-2">
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder={t('shareYourThoughts')}
+              className="flex-1 border rounded-2xl p-3 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-200"
+              rows={3}
+            />
+            <button
+              disabled={submittingReview}
+              onClick={handleSubmitReview}
+              className="h-[42px] px-4 bg-orange-500 text-white rounded-2xl hover:bg-orange-600 disabled:opacity-50"
+            >
+              {submittingReview ? t('submitting') : t('submitReview')}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -531,6 +568,12 @@ const ProductDetail: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Sticky CTA */}
+      <div className="fixed bottom-0 left-0 right-0 bg-transparent">
+        <div className="max-w-md mx-auto px-4 py-3">
+          <button onClick={() => setShowOrderConfirm(true)} className="w-full bg-orange-500 text-white py-3 rounded-full font-semibold shadow-md">Reserve Now</button>
+        </div>
+      </div>
     </div>
   );
 };

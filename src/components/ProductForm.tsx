@@ -38,6 +38,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
     category: ProductCategory.OTHER,
   });
 
+  // Multi-step form state
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
   const loadSellerData = async () => {
     try {
       const response = await sellersApi.getSellerProfile();
@@ -161,6 +164,29 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
     }
   };
 
+  // Step navigation with lightweight per-step validation to match UX
+  const nextStep = () => {
+    if (step === 1) {
+      if (!formData.description.trim()) {
+        setError(t('productDescriptionRequired'));
+        return;
+      }
+    }
+    if (step === 2) {
+      if (!formData.price || parseFloat(formData.price) <= 0) {
+        setError(t('validPriceRequired'));
+        return;
+      }
+    }
+    setError(null);
+    setStep((prev => (prev + 1) as 2 | 3));
+  };
+
+  const prevStep = () => {
+    setError(null);
+    setStep((prev => (prev - 1) as 1 | 2));
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -224,229 +250,228 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Business Image Preview */}
-          <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
-                <Store className="w-4 h-4 text-white" />
+        {/* Stepper */}
+        <div className="bg-white rounded-3xl shadow-sm border p-4 mb-4">
+          <div className="flex items-center justify-between">
+            {[
+              { id: 1, label: t('details') || 'Details' },
+              { id: 2, label: t('pricing') || 'Pricing' },
+              { id: 3, label: t('availability') || 'Availability' },
+            ].map((s, idx) => (
+              <div key={s.id} className="flex-1 flex items-center">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${step >= (s.id as number) ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-600'}`}>{s.id}</div>
+                <span className={`ml-2 text-sm ${step === (s.id as number) ? 'font-semibold text-gray-900' : 'text-gray-500'}`}>{s.label}</span>
+                {idx < 2 && <div className={`flex-1 h-px mx-2 ${step > (s.id as number) ? 'bg-orange-300' : 'bg-gray-200'}`}></div>}
               </div>
-              <h3 className="text-lg font-bold text-gray-900">{t('productImage')}</h3>
-            </div>
-            <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl overflow-hidden shadow-md">
-                  {seller?.businessImageUrl ? (
-                    <img
-                      src={seller.businessImageUrl}
-                      alt={seller.businessName}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Store className="w-10 h-10 text-orange-500" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-700 font-medium mb-1">
-                    {t('productImageDescription')}
-                  </p>
-                  <p className="text-xs text-gray-600 bg-white px-3 py-1 rounded-full inline-block">
-                    {seller?.businessName || t('yourBusiness')}
-                  </p>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
+        </div>
 
-          {/* Product Description */}
-          <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
-                <span className="text-white text-sm">📝</span>
-              </div>
-              <h3 className="text-lg font-bold text-gray-900">{t('productDescription') || 'Product Description'}</h3>
-              <span className="text-red-500 text-sm font-medium">*</span>
-            </div>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              required
-              rows={4}
-              className="w-full px-4 py-3 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200 resize-none"
-              placeholder={t('productDescriptionPlaceholder') || 'Enter product description'}
-            />
-          </div>
-
-          {/* Price Fields */}
-          <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
-            <div className="flex items-center space-x-2 mb-6">
-              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
-                <DollarSign className="w-4 h-4 text-white" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900">{t('pricing') || 'Pricing'}</h3>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-3">
-                  {t('salePrice') || 'Sale Price'}
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    id="price"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    required
-                    min="0"
-                    step="0.01"
-                    className="w-full px-4 py-3 pl-12 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
-                    placeholder="0.00"
-                  />
-                  <span className="absolute left-4 top-3.5 text-gray-500 text-sm font-medium">{t('so_m')}</span>
+        <form onSubmit={handleSubmit} className="space-y-8 pb-24">
+          {/* STEP 1: Details */}
+          {step === 1 && (
+            <>
+              <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
+                    <span className="text-white text-sm">📝</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">{t('productDescription') || 'Product Description'}</h3>
+                  <span className="text-red-500 text-sm font-medium">*</span>
                 </div>
-              </div>
-
-              <div>
-                <label htmlFor="originalPrice" className="block text-sm font-medium text-gray-700 mb-3">
-                  {t('originalPrice') || 'Original Price'}
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    id="originalPrice"
-                    name="originalPrice"
-                    value={formData.originalPrice}
-                    onChange={handleInputChange}
-                    min="0"
-                    step="0.01"
-                    className="w-full px-4 py-3 pl-12 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
-                    placeholder="0.00"
-                  />
-                  <span className="absolute left-4 top-3.5 text-gray-500 text-sm font-medium">{t('so_m')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Quantity & Category */}
-          <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
-            <div className="flex items-center space-x-2 mb-6">
-              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
-                <span className="text-white text-sm">📦</span>
-              </div>
-              <h3 className="text-lg font-bold text-gray-900">{t('productDetails') || 'Product Details'}</h3>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-3">
-                  {t('quantityAvailable')}
-                </label>
-                <input
-                  type="number"
-                  id="quantity"
-                  name="quantity"
-                  value={formData.quantity}
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
                   onChange={handleInputChange}
                   required
-                  min="1"
-                  className="w-full px-4 py-3 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
+                  rows={4}
+                  className="w-full px-4 py-3 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200 resize-none"
+                  placeholder={t('productDescriptionPlaceholder') || 'Enter product description'}
                 />
               </div>
 
-              <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-3">
-                  {t('category')}
-                </label>
-                <select
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200 appearance-none cursor-pointer"
-                >
-                  {categoryOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+              <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
+                <div className="flex items-center space-x-2 mb-6">
+                  <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
+                    <span className="text-white text-sm">📦</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">{t('productDetails') || 'Product Details'}</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-3">
+                      {t('quantityAvailable')}
+                    </label>
+                    <input
+                      type="number"
+                      id="quantity"
+                      name="quantity"
+                      value={formData.quantity}
+                      onChange={handleInputChange}
+                      required
+                      min="1"
+                      className="w-full px-4 py-3 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-3">
+                      {t('category')}
+                    </label>
+                    <select
+                      id="category"
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200 appearance-none cursor-pointer"
+                    >
+                      {categoryOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* STEP 2: Pricing */}
+          {step === 2 && (
+            <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
+              <div className="flex items-center space-x-2 mb-6">
+                <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
+                  <DollarSign className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">{t('pricing') || 'Pricing'}</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-3">
+                    {t('salePrice') || 'Sale Price'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      id="price"
+                      name="price"
+                      value={formData.price}
+                      onChange={handleInputChange}
+                      required
+                      min="0"
+                      step="0.01"
+                      className="w-full px-4 py-3 pl-12 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
+                      placeholder="0.00"
+                    />
+                    <span className="absolute left-4 top-3.5 text-gray-500 text-sm font-medium">{t('so_m')}</span>
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="originalPrice" className="block text-sm font-medium text-gray-700 mb-3">
+                    {t('originalPrice') || 'Original Price'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      id="originalPrice"
+                      name="originalPrice"
+                      value={formData.originalPrice}
+                      onChange={handleInputChange}
+                      min="0"
+                      step="0.01"
+                      className="w-full px-4 py-3 pl-12 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
+                      placeholder="0.00"
+                    />
+                    <span className="absolute left-4 top-3.5 text-gray-500 text-sm font-medium">{t('so_m')}</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Availability Dates */}
-          <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
-            <div className="flex items-center space-x-2 mb-6">
-              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
-                <Clock className="w-4 h-4 text-white" />
+          {/* STEP 3: Availability */}
+          {step === 3 && (
+            <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
+              <div className="flex items-center space-x-2 mb-6">
+                <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center">
+                  <Clock className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">{t('availability') || 'Availability'}</h3>
               </div>
-              <h3 className="text-lg font-bold text-gray-900">{t('availability') || 'Availability'}</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label htmlFor="availableFrom" className="block text-sm font-medium text-gray-700 mb-3">
+                    {t('availableFrom')}
+                  </label>
+                  <div className="relative flex-1">
+                    <input
+                      type="datetime-local"
+                      id="availableFrom"
+                      name="availableFrom"
+                      value={formData.availableFrom}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 pl-12 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
+                    />
+                    <Clock className="absolute left-4 top-3.5 w-4 h-4 text-gray-500" />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label htmlFor="availableUntil" className="block text-sm font-medium text-gray-700 mb-3">
+                    {t('availableUntil')} <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative flex-1">
+                    <input
+                      type="datetime-local"
+                      id="availableUntil"
+                      name="availableUntil"
+                      value={formData.availableUntil}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-4 py-3 pl-12 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
+                    />
+                    <Clock className="absolute left-4 top-3.5 w-4 h-4 text-gray-500" />
+                  </div>
+                </div>
+              </div>
             </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col">
-                <label htmlFor="availableFrom" className="block text-sm font-medium text-gray-700 mb-3">
-                  {t('availableFrom')}
-                </label>
-                <div className="relative flex-1">
-                  <input
-                    type="datetime-local"
-                    id="availableFrom"
-                    name="availableFrom"
-                    value={formData.availableFrom}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 pl-12 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
-                  />
-                  <Clock className="absolute left-4 top-3.5 w-4 h-4 text-gray-500" />
-                </div>
-              </div>
+          )}
 
-              <div className="flex flex-col">
-                <label htmlFor="availableUntil" className="block text-sm font-medium text-gray-700 mb-3">
-                  {t('availableUntil')} <span className="text-red-500">*</span>
-                </label>
-                <div className="relative flex-1">
-                  <input
-                    type="datetime-local"
-                    id="availableUntil"
-                    name="availableUntil"
-                    value={formData.availableUntil}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 pl-12 bg-gray-50 border border-orange-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white transition-all duration-200"
-                  />
-                  <Clock className="absolute left-4 top-3.5 w-4 h-4 text-gray-500" />
-                </div>
+          {/* Sticky Step Controls */}
+          <div className="fixed left-0 right-0 bottom-0 z-40">
+            <div className="mx-auto max-w-md px-4 pb-safe pt-2">
+              <div className="bg-white border-t border-orange-200 rounded-t-2xl shadow-lg p-3 flex items-center space-x-3">
+                {step > 1 && (
+                  <button type="button" onClick={prevStep} className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50">
+                    {t('previous') || 'Previous'}
+                  </button>
+                )}
+                {step < 3 && (
+                  <button type="button" onClick={nextStep} className="flex-[2] bg-gradient-to-r from-orange-500 to-amber-500 text-white py-3.5 px-6 rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all duration-200 shadow">
+                    {t('next') || 'Next'}
+                  </button>
+                )}
+                {step === 3 && (
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white py-3.5 px-6 rounded-xl hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow"
+                  >
+                    {loading ? (
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>{t('loading')}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center space-x-2">
+                        <span>{mode === 'create' ? (t('addProduct') || 'Add Product') : (t('updateProduct') || 'Update Product')}</span>
+                        <span className="text-xl">✨</span>
+                      </div>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-6">
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white py-4 px-6 rounded-2xl hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] font-semibold text-lg"
-            >
-              {loading ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>{t('loading')}</span>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center space-x-2">
-                  <span>{mode === 'create' ? t('addProduct') : t('updateProduct')}</span>
-                  <span className="text-xl">✨</span>
-                </div>
-              )}
-            </button>
           </div>
         </form>
       </div>

@@ -168,7 +168,10 @@ const Home: React.FC = () => {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold text-gray-900">{t('discover')}</h1>
+            <div className="flex items-center space-x-2">
+              <h1 className="text-lg font-semibold text-gray-900">{t('discover')}</h1>
+              <span className="px-3 py-1 bg-gray-100 rounded-full text-xs text-gray-700">San Francisco, CA</span>
+            </div>
             <button
               onClick={() => navigate('/search')}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -200,38 +203,37 @@ const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* Category Filter */}
+      {/* Category Chips */}
       <div className="bg-white px-4 py-3 border-b">
-        <div className="max-w-md mx-auto">
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-          >
+        <div className="max-w-md mx-auto overflow-x-auto">
+          <div className="flex space-x-2">
             {categories.map((category) => (
-              <option key={category.value} value={category.value}>
+              <button
+                key={category.value}
+                onClick={() => setSelectedCategory(category.value)}
+                className={`px-3 py-1 rounded-full border text-sm whitespace-nowrap ${selectedCategory === category.value ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-700 border-gray-300'}`}
+              >
                 {category.label}
-              </option>
+              </button>
             ))}
-          </select>
+          </div>
         </div>
       </div>
 
       {/* Content */}
       <div className="max-w-md mx-auto p-4">
-        {/* Featured Products */}
+        {/* Discover Grid */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">{t('featuredProducts')}</h2>
-          <div className="grid gap-5 justify-center">
+          <h2 className="text-lg font-semibold text-gray-900">{t('discover')}</h2>
+          <div className="grid grid-cols-2 gap-4">
             {displayedProducts.map((product) => (
-              <div key={product.id} className="w-full max-w-md mx-auto">
-                <ProductCard
-                  product={product as any}
-                  distance={(product as any)?.store?.distance ?? (product as any)?.seller?.distance}
-                  onProductClick={() => handleProductClick(product.id)}
-                  onSellerClick={() => handleSellerClick((product as any)?.store?.id ?? (product as any)?.seller?.id)}
-                />
-              </div>
+              <ProductCard
+                key={product.id}
+                product={product as any}
+                distance={(product as any)?.store?.distance ?? (product as any)?.seller?.distance}
+                onProductClick={() => handleProductClick(product.id)}
+                onSellerClick={() => handleSellerClick((product as any)?.store?.id ?? (product as any)?.seller?.id)}
+              />
             ))}
           </div>
         </div>

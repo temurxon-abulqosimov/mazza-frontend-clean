@@ -97,9 +97,9 @@ const AdminSellers: React.FC = () => {
 
       {/* Sellers List */}
       <div className="p-4">
-        <div className="space-y-3">
+        <div className="space-y-4">
           {filteredSellers.map((seller) => (
-            <div key={seller.id} className="bg-white p-4 rounded-lg shadow-sm border">
+            <div key={seller.id} className="bg-white p-4 rounded-2xl shadow-sm border">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
@@ -120,50 +120,10 @@ const AdminSellers: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    seller.status === 'approved' ? 'bg-green-100 text-green-800' :
-                    seller.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {seller.status}
-                  </span>
+                  <span className={`px-2 py-1 text-xs rounded-full ${seller.status === 'approved' ? 'bg-green-100 text-green-800' : seller.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>{seller.status === 'pending' ? 'Pending' : seller.status === 'approved' ? 'Approved' : 'Rejected'}</span>
                   <div className="flex space-x-2">
-                    {seller.status === 'pending' && (
-                      <>
-                        <button
-                          onClick={() => handleSellerStatusChange(seller.id, 'approved')}
-                          className="flex items-center px-3 py-1 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600"
-                        >
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleSellerStatusChange(seller.id, 'rejected')}
-                          className="flex items-center px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600"
-                        >
-                          <XCircle className="w-4 h-4 mr-1" />
-                          Reject
-                        </button>
-                      </>
-                    )}
-                    {seller.status === 'approved' && (
-                      <button
-                        onClick={() => handleSellerStatusChange(seller.id, 'rejected')}
-                        className="flex items-center px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600"
-                      >
-                        <XCircle className="w-4 h-4 mr-1" />
-                        Reject
-                      </button>
-                    )}
-                    {seller.status === 'rejected' && (
-                      <button
-                        onClick={() => handleSellerStatusChange(seller.id, 'approved')}
-                        className="flex items-center px-3 py-1 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        Approve
-                      </button>
-                    )}
+                    <button onClick={() => handleSellerStatusChange(seller.id, 'rejected')} className="px-4 py-2 rounded-full border text-sm text-gray-700 hover:bg-gray-50">Reject</button>
+                    <button onClick={() => handleSellerStatusChange(seller.id, 'approved')} className="px-4 py-2 rounded-full bg-orange-500 text-white text-sm hover:bg-orange-600">Approve</button>
                   </div>
                 </div>
               </div>

@@ -610,6 +610,17 @@ export const productsApi = {
     const cacheKey = `get:${api.defaults.baseURL}/webapp/products`;
     cache.delete(cacheKey); // Invalidate cache
     return api.delete(`/webapp/products/${id}`);
+  },
+  // Explicit visibility setter used by seller's products list
+  setProductVisibility: async (id: string, isActive: boolean) => {
+    const cacheKey = `get:${api.defaults.baseURL}/webapp/products`;
+    cache.delete(cacheKey);
+    try {
+      return await api.put(`/webapp/products/${id}`, { isActive });
+    } catch (error) {
+      console.error('Failed to update product visibility:', error);
+      throw error;
+    }
   }
 };
 
