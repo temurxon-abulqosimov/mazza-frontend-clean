@@ -6,6 +6,7 @@ import * as Api from '../services/api';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { useTelegram } from '../contexts/TelegramContext';
 import Notification, { NotificationProps } from '../components/Notification';
+import { formatSom } from '../utils/format';
 import { useNotifications } from '../contexts/NotificationContext';
 import MapView from '../components/MapView';
 import { config } from '../config/env';
@@ -342,19 +343,19 @@ const ProductDetail: React.FC = () => {
 
       {/* Product Info */}
       <div className="px-4 pt-4">
-        <h2 className="text-[17px] leading-6 font-semibold text-gray-900">{product.description || product.name}</h2>
+        <h2 className="text-[18px] leading-7 font-semibold text-gray-900">{product.description || product.name}</h2>
         {/* Price row */}
         <div className="mt-1 flex items-center space-x-2">
-          <span className="text-[18px] font-extrabold text-orange-500">{product.price?.toFixed ? Number(product.price).toFixed(2) : product.price} {t('so_m')}</span>
+          <span className="text-[20px] font-extrabold text-orange-500">{formatSom(product.price)} {t('so_m')}</span>
           {product.originalPrice && product.originalPrice > product.price && (
-            <span className="text-sm text-gray-500 line-through">{product.originalPrice?.toFixed ? Number(product.originalPrice).toFixed(2) : product.originalPrice} {t('so_m')}</span>
+            <span className="text-[14px] text-gray-500 line-through">{formatSom(product.originalPrice)} {t('so_m')}</span>
           )}
           {product.originalPrice && product.originalPrice > product.price && (
             <span className="ml-1 px-2 py-[2px] rounded-full bg-orange-500 text-white text-[10px] font-bold">{Math.round(((product.originalPrice - product.price)/product.originalPrice)*100)}% OFF</span>
           )}
         </div>
         {/* meta row */}
-        <div className="mt-1 flex items-center text-[12px] text-gray-600">
+        <div className="mt-1 flex items-center text-[13px] text-gray-600">
           <div className="flex items-center">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star key={i} className={`w-3.5 h-3.5 mr-0.5 ${i < Math.round(((product as any)?.store?.averageRating ?? product.seller?.averageRating ?? product.stats?.averageRating) ?? 0) ? 'text-orange-500 fill-current' : 'text-gray-300'}`} />
@@ -407,9 +408,9 @@ const ProductDetail: React.FC = () => {
                 sellerName={product.seller.businessName}
               />
             </div>
-            <div className="bg-white rounded-b-2xl -mt-2 px-4 py-3 flex items-center text-gray-700">
+              <div className="bg-white rounded-b-2xl -mt-2 px-4 py-3 flex items-center text-gray-700">
               <svg className="w-4 h-4 mr-2 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 1 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-              <span className="text-sm">{product?.seller?.address || '—'}</span>
+              <span className="text-[14px]">{product?.seller?.address || '—'}</span>
             </div>
           </div>
         )}
@@ -516,47 +517,65 @@ const ProductDetail: React.FC = () => {
 
       {/* Bottom Sheet - Order */}
       {showOrderSheet && (
-        <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setShowOrderSheet(false)} />
+        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowOrderSheet(false)} />
           <div className="absolute left-0 right-0 bottom-0">
-            <div className="max-w-md mx-auto bg-white rounded-t-3xl shadow-xl p-4">
-              <div className="mx-auto mb-3 h-1 w-12 rounded-full bg-gray-300" />
-              <h3 className="text-[16px] font-semibold text-gray-900 mb-3">{t('confirmYourOrder')}</h3>
+            <div className="max-w-md mx-auto bg-white rounded-t-[28px] shadow-2xl p-4">
+              <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-gray-300" />
+              <div className="flex items-center mb-3">
+                <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 mr-3">
+                  {(product.imageUrl || sellerImageUrl) ? (
+                    <img src={(product.imageUrl && product.imageUrl.length>0) ? product.imageUrl : (sellerImageUrl || '')} alt={product.description} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-orange-500">{getCategoryEmoji(product.category)}</div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <div className="text-[14px] font-semibold text-gray-900 line-clamp-1">{product.description}</div>
+                  <div className="text-[12px] text-gray-500">{product.seller?.businessName}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[16px] font-extrabold text-gray-900">{formatSom(product.price)} {t('so_m')}</div>
+                  {product.originalPrice && product.originalPrice > product.price && (
+                    <div className="text-[11px] text-gray-400 line-through">{formatSom(product.originalPrice)} {t('so_m')}</div>
+                  )}
+                </div>
+              </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-[13px]">
                   <span className="text-gray-600">{t('product')}</span>
-                  <span className="font-medium text-gray-900 text-right ml-4 truncate">{product.description}</span>
+                  <span className="font-medium text-gray-900 text-right ml-4 truncate text-[14px]">{product.description}</span>
                 </div>
-                <div className="flex items-center justify-between text-[13px]">
+                <div className="flex items-center justify-between text-[14px]">
                   <span className="text-gray-600">{t('unitPrice')}</span>
-                  <span className="font-medium text-gray-900">{product.price.toLocaleString()} {t('so_m')}</span>
+                  <span className="font-medium text-gray-900">{formatSom(product.price)} {t('so_m')}</span>
                 </div>
                 {savings > 0 && (
-                  <div className="flex items-center justify-between text-[13px] text-green-600">
+                  <div className="flex items-center justify-between text-[14px] text-green-600">
                     <span>{t('savings')}</span>
                     <span className="font-semibold">-{savings.toLocaleString()} {t('so_m')}</span>
                   </div>
                 )}
-                <div className="flex items-center justify-between text-[13px]">
+                <div className="flex items-center justify-between text-[14px]">
                   <div className="flex items-center">
                     <span className="text-gray-600">{t('quantity')}</span>
                     <span className="text-xs text-gray-500 ml-2">({t('available')}: {product.quantity || 1})</span>
                   </div>
-                  <div className="flex items-center">
-                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50">−</button>
-                    <span className="w-10 text-center text-gray-900 font-medium">{quantity}</span>
-                    <button onClick={() => setQuantity(Math.min(product.quantity || 1, quantity + 1))} disabled={quantity >= (product.quantity || 1)} className={`w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 ${quantity >= (product.quantity || 1) ? 'opacity-50 cursor-not-allowed' : ''}`}>+</button>
+                  <div className="flex items-center bg-gray-100 rounded-full p-1">
+                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-11 h-11 rounded-full bg-white border border-gray-300 flex items-center justify-center hover:bg-gray-50">−</button>
+                    <span className="mx-3 w-8 text-center text-gray-900 font-semibold text-[16px]">{quantity}</span>
+                    <button onClick={() => setQuantity(Math.min(product.quantity || 1, quantity + 1))} disabled={quantity >= (product.quantity || 1)} className={`w-11 h-11 rounded-full bg-white border border-gray-300 flex items-center justify-center hover:bg-gray-50 ${quantity >= (product.quantity || 1) ? 'opacity-50 cursor-not-allowed' : ''}`}>+</button>
                   </div>
                 </div>
                 <div className="border-t pt-3 mt-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[15px] font-semibold text-gray-900">{t('total')}</span>
-                    <span className="text-[18px] font-extrabold text-gray-900">{totalPrice.toLocaleString()} {t('so_m')}</span>
+                    <span className="text-[16px] font-semibold text-gray-900">{t('total')}</span>
+                    <span className="text-[20px] font-extrabold text-gray-900">{formatSom(totalPrice)} {t('so_m')}</span>
                   </div>
                 </div>
                 <div className="flex gap-3 pt-2">
-                  <button onClick={() => setShowOrderSheet(false)} className="flex-1 py-3 rounded-full border border-gray-300 text-gray-700">{t('cancel')}</button>
-                  <button onClick={() => { setShowOrderSheet(false); setShowOrderConfirm(true); }} disabled={loading} className="flex-1 py-3 rounded-full bg-orange-500 text-white font-semibold hover:bg-orange-600 disabled:opacity-50">{loading ? t('placingOrder') : t('confirmOrder')}</button>
+                  <button onClick={() => setShowOrderSheet(false)} className="flex-1 py-3 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50">{t('cancel')}</button>
+                  <button onClick={() => { setShowOrderSheet(false); setShowOrderConfirm(true); }} disabled={loading} className="flex-1 py-3 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold shadow hover:from-orange-600 hover:to-amber-600 disabled:opacity-50">{loading ? t('placingOrder') : t('confirmOrder')}</button>
                 </div>
               </div>
             </div>
