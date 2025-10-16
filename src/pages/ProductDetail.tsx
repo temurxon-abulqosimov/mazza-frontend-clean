@@ -130,8 +130,8 @@ const ProductDetail: React.FC = () => {
       const next = Math.max(minHeaderHeight, baseHeaderHeight - y);
       setHeaderHeight(next);
     };
-    el.addEventListener('scroll', onScroll);
-    return () => el.removeEventListener('scroll', onScroll);
+    el.addEventListener('scroll', onScroll, { passive: true } as any);
+    return () => el.removeEventListener('scroll', onScroll as any);
   }, []);
 
   const showNotification = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
@@ -304,7 +304,11 @@ const ProductDetail: React.FC = () => {
 
 
   return (
-    <div ref={scrollContainerRef} className="min-h-screen bg-[#F6F7FB] pb-24 overflow-y-auto">
+    <div
+      ref={scrollContainerRef}
+      className="min-h-screen bg-[#F6F7FB] overflow-y-auto"
+      style={{ WebkitOverflowScrolling: 'touch' as any, overscrollBehavior: 'contain', paddingBottom: 'calc(96px + env(safe-area-inset-bottom))' }}
+    >
       {/* Notification */}
       <Notification
         type={notification.type}
@@ -531,7 +535,7 @@ const ProductDetail: React.FC = () => {
         </div>
       )}
       {/* Sticky CTA */}
-      <div className="fixed bottom-0 left-0 right-0 bg-transparent">
+      <div className="fixed bottom-0 left-0 right-0 bg-transparent" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="max-w-md mx-auto px-4 py-3">
           <button onClick={() => setShowOrderSheet(true)} className="w-full bg-orange-500 text-white py-3 rounded-full font-semibold shadow-md">Reserve Now</button>
         </div>
