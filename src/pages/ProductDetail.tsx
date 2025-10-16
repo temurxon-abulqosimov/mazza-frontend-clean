@@ -39,6 +39,7 @@ const ProductDetail: React.FC = () => {
   const [newRating, setNewRating] = useState<number>(5);
   const [newComment, setNewComment] = useState<string>('');
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [showOrderSheet, setShowOrderSheet] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -408,74 +409,12 @@ const ProductDetail: React.FC = () => {
             </div>
             <div className="bg-white rounded-b-2xl -mt-2 px-4 py-3 flex items-center text-gray-700">
               <svg className="w-4 h-4 mr-2 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 1 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-              <span className="text-sm">123 Bakery Lane, Cityville</span>
+              <span className="text-sm">{product?.seller?.address || '—'}</span>
             </div>
           </div>
         )}
 
-        {/* Order Form */}
-        <div className="border-t pt-4">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('confirmYourOrder')}</h3>
-          
-          <div className="space-y-3 mb-4">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">{t('product')}</span>
-              <span className="font-medium">{product.description}</span>
-            </div>
-            
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">{t('unitPrice')}</span>
-              <span className="font-medium">{product.price.toLocaleString()} {t('so_m')}</span>
-            </div>
-            
-            {savings > 0 && (
-              <div className="flex justify-between text-sm text-green-600">
-                <span>{t('savings')}</span>
-                <span className="font-medium">-{savings.toLocaleString()} {t('so_m')}</span>
-              </div>
-            )}
-            
-            <div className="flex justify-between text-sm">
-              <div>
-                <span className="text-gray-600">{t('quantity')}</span>
-                <span className="text-xs text-gray-500 ml-2">({t('available')}: {product.quantity || 1})</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
-                >
-                  -
-                </button>
-                <span className="w-8 text-center">{quantity}</span>
-                <button
-                  onClick={() => setQuantity(Math.min(product.quantity || 1, quantity + 1))}
-                  disabled={quantity >= (product.quantity || 1)}
-                  className={`w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 ${
-                    quantity >= (product.quantity || 1) ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  +
-                </button>
-              </div>
-            </div>
-            
-            <div className="border-t pt-2">
-              <div className="flex justify-between text-lg font-semibold">
-                <span>{t('total')}</span>
-                <span>{totalPrice.toLocaleString()} {t('so_m')}</span>
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setShowOrderConfirm(true)}
-            disabled={loading}
-            className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-          >
-            {loading ? t('placingOrder') : t('confirmOrder')}
-          </button>
-        </div>
+        {/* Order Form moved to bottom sheet (opens via CTA) */}
       {/* Reviews */}
       <div className="bg-white p-4 mt-3">
         <div className="flex items-center justify-between mb-3">
@@ -571,9 +510,59 @@ const ProductDetail: React.FC = () => {
       {/* Sticky CTA */}
       <div className="fixed bottom-0 left-0 right-0 bg-transparent">
         <div className="max-w-md mx-auto px-4 py-3">
-          <button onClick={() => setShowOrderConfirm(true)} className="w-full bg-orange-500 text-white py-3 rounded-full font-semibold shadow-md">Reserve Now</button>
+          <button onClick={() => setShowOrderSheet(true)} className="w-full bg-orange-500 text-white py-3 rounded-full font-semibold shadow-md">Reserve Now</button>
         </div>
       </div>
+
+      {/* Bottom Sheet - Order */}
+      {showOrderSheet && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowOrderSheet(false)} />
+          <div className="absolute left-0 right-0 bottom-0">
+            <div className="max-w-md mx-auto bg-white rounded-t-3xl shadow-xl p-4">
+              <div className="mx-auto mb-3 h-1 w-12 rounded-full bg-gray-300" />
+              <h3 className="text-[16px] font-semibold text-gray-900 mb-3">{t('confirmYourOrder')}</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-[13px]">
+                  <span className="text-gray-600">{t('product')}</span>
+                  <span className="font-medium text-gray-900 text-right ml-4 truncate">{product.description}</span>
+                </div>
+                <div className="flex items-center justify-between text-[13px]">
+                  <span className="text-gray-600">{t('unitPrice')}</span>
+                  <span className="font-medium text-gray-900">{product.price.toLocaleString()} {t('so_m')}</span>
+                </div>
+                {savings > 0 && (
+                  <div className="flex items-center justify-between text-[13px] text-green-600">
+                    <span>{t('savings')}</span>
+                    <span className="font-semibold">-{savings.toLocaleString()} {t('so_m')}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between text-[13px]">
+                  <div className="flex items-center">
+                    <span className="text-gray-600">{t('quantity')}</span>
+                    <span className="text-xs text-gray-500 ml-2">({t('available')}: {product.quantity || 1})</span>
+                  </div>
+                  <div className="flex items-center">
+                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50">−</button>
+                    <span className="w-10 text-center text-gray-900 font-medium">{quantity}</span>
+                    <button onClick={() => setQuantity(Math.min(product.quantity || 1, quantity + 1))} disabled={quantity >= (product.quantity || 1)} className={`w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 ${quantity >= (product.quantity || 1) ? 'opacity-50 cursor-not-allowed' : ''}`}>+</button>
+                  </div>
+                </div>
+                <div className="border-t pt-3 mt-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[15px] font-semibold text-gray-900">{t('total')}</span>
+                    <span className="text-[18px] font-extrabold text-gray-900">{totalPrice.toLocaleString()} {t('so_m')}</span>
+                  </div>
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button onClick={() => setShowOrderSheet(false)} className="flex-1 py-3 rounded-full border border-gray-300 text-gray-700">{t('cancel')}</button>
+                  <button onClick={() => { setShowOrderSheet(false); setShowOrderConfirm(true); }} disabled={loading} className="flex-1 py-3 rounded-full bg-orange-500 text-white font-semibold hover:bg-orange-600 disabled:opacity-50">{loading ? t('placingOrder') : t('confirmOrder')}</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

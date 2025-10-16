@@ -13,12 +13,14 @@ const MapView: React.FC<MapViewProps> = ({ latitude, longitude, sellerName, clas
   const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
   const yandexMapsUrl = `https://yandex.com/maps/?ll=${longitude}%2C${latitude}&z=15&pt=${longitude}%2C${latitude},pm2rdm`;
   
-  // Create static map image URL (using Google Maps Static API)
-  // Note: This is a placeholder key - you need to replace with your actual Google Maps API key
-  const hasApiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY && process.env.REACT_APP_GOOGLE_MAPS_API_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY';
-  const staticMapUrl = hasApiKey 
-    ? `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=15&size=300x200&markers=color:red%7C${latitude},${longitude}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
-    : null;
+  // OpenStreetMap embedded preview (no API key required)
+  // Build a small bbox around the point for the iframe
+  const bboxPad = 0.01;
+  const left = (longitude - bboxPad).toFixed(6);
+  const bottom = (latitude - bboxPad).toFixed(6);
+  const right = (longitude + bboxPad).toFixed(6);
+  const top = (latitude + bboxPad).toFixed(6);
+  const osmEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${left}%2C${bottom}%2C${right}%2C${top}&layer=mapnik&marker=${latitude}%2C${longitude}`;
 
   const handleMapClick = () => {
     // Open in new tab
@@ -45,44 +47,16 @@ const MapView: React.FC<MapViewProps> = ({ latitude, longitude, sellerName, clas
         </div>
         
         <div className="space-y-3">
-          {/* Static Map Preview */}
-          <div 
-            className="w-full h-32 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center border-2 border-dashed border-blue-200"
-            onClick={handleMapClick}
-          >
-            {hasApiKey && staticMapUrl ? (
-              <img
-                src={staticMapUrl}
-                alt={`Map showing ${sellerName || 'seller'} location`}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  // Fallback to a placeholder if the static map fails
-                  e.currentTarget.style.display = 'none';
-                  const parent = e.currentTarget.parentElement;
-                  if (parent) {
-                    parent.innerHTML = `
-                      <div class="w-full h-full flex flex-col items-center justify-center text-blue-600">
-                        <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        <span class="text-sm font-semibold">Map Preview</span>
-                        <span class="text-xs text-blue-500">Tap to open in external map</span>
-                      </div>
-                    `;
-                  }
-                }}
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-blue-600">
-                <svg className="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-                <span className="text-sm font-semibold">Map Preview</span>
-                <span className="text-xs text-blue-500">Tap to open in external map</span>
-              </div>
-            )}
+          {/* OpenStreetMap Preview (embedded) */}
+          <div className="w-full h-40 rounded-xl overflow-hidden border border-blue-200">
+            <iframe
+              title={`OpenStreetMap - ${sellerName || 'seller'}`}
+              src={osmEmbedUrl}
+              className="w-full h-full"
+              style={{ border: 0 }}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
           </div>
           
           {/* Action Buttons */}
