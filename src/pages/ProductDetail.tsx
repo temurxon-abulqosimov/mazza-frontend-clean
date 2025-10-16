@@ -312,7 +312,7 @@ const ProductDetail: React.FC = () => {
       </div>
 
       {/* Product Image - maintain 3:2 ratio, cover-fit */}
-      <div className="w-full relative overflow-hidden" style={{ aspectRatio: '3 / 2' }}>
+      <div className="w-full relative overflow-hidden rounded-b-2xl" style={{ aspectRatio: '3 / 2' }}>
         {product.imageUrl || sellerImageUrl ? (
           <img
             src={(product.imageUrl && product.imageUrl.length > 0) ? product.imageUrl : (sellerImageUrl || '')}
@@ -431,17 +431,17 @@ const ProductDetail: React.FC = () => {
         ) : (
           <div className="space-y-3">
             {reviews.map((r) => (
-              <div key={r.id} className="rounded-2xl p-3 bg-white border flex">
+              <div key={r.id} className="rounded-2xl p-4 bg-white border flex">
                 <div className="w-9 h-9 rounded-full bg-gray-200 mr-3" />
                 <div className="flex-1">
-                  <div className="text-sm font-semibold text-gray-900">{r.user?.first_name || 'Customer'}</div>
+                  <div className="text-[15px] font-semibold text-gray-900">{r.user?.first_name || 'Customer'}</div>
                   <div className="flex items-center mb-1">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className={`w-4 h-4 mr-1 ${i < (r.rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                      <Star key={i} className={`w-4.5 h-4.5 mr-1 ${i < (r.rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
                     ))}
                   </div>
-                  {r.comment && <p className="text-sm text-gray-700">{r.comment}</p>}
-                  <div className="text-xs text-gray-400 mt-1">{new Date(r.createdAt).toLocaleDateString()}</div>
+                  {r.comment && <p className="text-[14px] text-gray-800 leading-5">{r.comment}</p>}
+                  <div className="text-[12px] text-gray-400 mt-1">{new Date(r.createdAt).toLocaleDateString()}</div>
                 </div>
               </div>
             ))}
