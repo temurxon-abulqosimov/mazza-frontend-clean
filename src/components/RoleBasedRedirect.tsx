@@ -36,10 +36,13 @@ const RoleBasedRedirect: React.FC = () => {
     return <BrowserFallback />;
   }
 
-  // Show admin login if admin needs password
-  if (userProfile && userProfile.role === 'ADMIN' && userProfile.needsPassword) {
-    console.log('RoleBasedRedirect: Admin needs password - showing admin login');
-    return <AdminLogin />;
+  // Show admin login if admin needs password or if no token exists
+  if (userProfile && userProfile.role === 'ADMIN') {
+    const token = localStorage.getItem('access_token');
+    if (!token || userProfile.needsPassword) {
+      console.log('RoleBasedRedirect: Admin needs authentication - showing admin login');
+      return <AdminLogin />;
+    }
   }
 
   // Show registration required if user is not registered

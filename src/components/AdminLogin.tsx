@@ -23,26 +23,22 @@ const AdminLogin: React.FC = () => {
       
       if (response.data?.access_token) {
         // Admin login successful
-        setUserProfile({
+        const adminProfile = {
           id: 1,
           telegramId: user?.id.toString() || '',
           firstName: user?.first_name || 'Admin',
           lastName: user?.last_name,
           username: user?.username,
-          role: 'ADMIN',
-          isRegistered: true
-        });
+          role: 'ADMIN' as const,
+          isRegistered: true,
+          needsPassword: false
+        };
         
+        setUserProfile(adminProfile);
         setUserRole('ADMIN');
-        localStorage.setItem('userProfile', JSON.stringify({
-          id: 1,
-          telegramId: user?.id.toString() || '',
-          firstName: user?.first_name || 'Admin',
-          lastName: user?.last_name,
-          username: user?.username,
-          role: 'ADMIN',
-          isRegistered: true
-        }));
+        localStorage.setItem('userProfile', JSON.stringify(adminProfile));
+        
+        console.log('✅ Admin login successful, redirecting to dashboard');
         
         // Redirect to admin dashboard
         window.location.href = '/admin';

@@ -28,18 +28,26 @@ const AdminDashboard: React.FC = () => {
     const ensureAdminAuth = async () => {
       if (!isReady || !user) return;
       try {
-        // If we already have a token, try loading; otherwise attempt env-based admin login
+        // Check if we have a valid token
         const token = localStorage.getItem('access_token');
         if (!token) {
-          const adminTelegramId = process.env.REACT_APP_ADMIN_TELEGRAM_ID;
-          const adminPassword = process.env.REACT_APP_ADMIN_PASSWORD;
-          if (adminTelegramId && adminPassword) {
-            await authApi.login({ telegramId: adminTelegramId, role: 'ADMIN', password: adminPassword });
-          }
+          setError('No authentication token found. Please login first.');
+          setLoading(false);
+          return;
         }
+        
+        // Try to load dashboard data to verify authentication
         await loadDashboardData();
       } catch (e: any) {
-        setError(e.response?.data?.message || 'Admin authentication failed.');
+        console.error('Admin authentication error:', e);
+        if (e.response?.status === 401) {
+          setError('Authentication expired. Please login again.');
+          // Clear invalid tokens
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+        } else {
+          setError(e.response?.data?.message || 'Failed to load admin dashboard.');
+        }
         setLoading(false);
       }
     };

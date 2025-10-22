@@ -307,7 +307,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 username: telegramUser?.username,
                 role: backendRole as "USER" | "SELLER" | "ADMIN",
                 isRegistered: true,
-                needsPassword: backendRole === 'ADMIN',
+                needsPassword: false, // Admin password is handled separately
                 businessName: backendUser?.businessName,
                 phoneNumber: backendUser?.phoneNumber,
                 businessType: backendUser?.businessType,
@@ -437,7 +437,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 username: telegramUser?.username,
                 role: backendRole as "USER" | "SELLER" | "ADMIN",
                 isRegistered: true,
-                needsPassword: backendRole === 'ADMIN',
+                needsPassword: false, // Admin password is handled separately
                 businessName: backendUser?.businessName,
                 phoneNumber: backendUser?.phoneNumber,
                 businessType: backendUser?.businessType,
