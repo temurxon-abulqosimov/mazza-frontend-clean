@@ -44,6 +44,26 @@ const SellerDashboard: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [updatingProductId, setUpdatingProductId] = useState<number | null>(null);
+  const [stats, setStats] = useState<any>(null);
+  const [previousStats, setPreviousStats] = useState<any>(null);
+
+  // Calculate trend percentage
+  const calculateTrend = (current: number, previous: number): { percentage: string; color: string; direction: string } => {
+    if (!previous || previous === 0) {
+      return { percentage: '0%', color: 'text-gray-600', direction: 'neutral' };
+    }
+    
+    const change = ((current - previous) / previous) * 100;
+    const percentage = Math.abs(change).toFixed(1);
+    
+    if (change > 0) {
+      return { percentage: `+${percentage}%`, color: 'text-green-600', direction: 'up' };
+    } else if (change < 0) {
+      return { percentage: `-${percentage}%`, color: 'text-red-600', direction: 'down' };
+    } else {
+      return { percentage: '0%', color: 'text-gray-600', direction: 'neutral' };
+    }
+  };
   // Realtime: connect to socket.io and subscribe to seller room
   useEffect(() => {
     if (!seller?.id) return;
@@ -190,10 +210,16 @@ const SellerDashboard: React.FC = () => {
         return { data: [] };
       });
       
-      const [sellerResponse, productsResponse, ordersResponse] = await Promise.all([
+      const statsPromise = dashboardApi.getSellerStats().catch(err => {
+        console.error('❌ Failed to load stats:', err);
+        return { data: null };
+      });
+      
+      const [sellerResponse, productsResponse, ordersResponse, statsResponse] = await Promise.all([
         sellerPromise,
         productsPromise,
-        ordersPromise
+        ordersPromise,
+        statsPromise
       ]);
 
       console.log('✅ Seller data loaded:', {
@@ -215,6 +241,16 @@ const SellerDashboard: React.FC = () => {
       }
       setProducts(productsResponse?.data || []);
       setOrders(ordersResponse?.data || []);
+      
+      // Store previous stats for trend calculation
+      if (stats) {
+        setPreviousStats(stats);
+      }
+      
+      // Set new stats
+      if (statsResponse?.data) {
+        setStats(statsResponse.data);
+      }
       
       console.log('🔧 State updated:', {
         seller: sellerResponse?.data,
@@ -478,18 +514,54 @@ const SellerDashboard: React.FC = () => {
           <div className="space-y-6">
             {/* Welcome */}
             <div>
-              <h2 className="text-xl font-bold text-gray-900">{t('welcome') || 'Welcome'}, {userProfile?.firstName || 'Seller'}!</h2>
-              <p className="text-sm text-gray-600 mt-1">{t('dashboardOverview') || "Here's your seller dashboard overview."}</p>
+              <h2 className="text-xl font-bold text-gray-900">{t('welcome')}, {userProfile?.firstName || t('seller')}!</h2>
+              <p className="text-sm text-gray-600 mt-1">{t('dashboardOverview')}</p>
             </div>
 
             {/* Performance Overview */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { iconBg: 'bg-yellow-50', Icon: Package, label: t('products') || 'Products', value: products.length, trend: '+2.5% Up', trendColor: 'text-green-600' },
-                { iconBg: 'bg-orange-50', Icon: ShoppingBag, label: t('orders') || 'Orders', value: orders.length, trend: '−1.1% Down', trendColor: 'text-red-600' },
-                { iconBg: 'bg-amber-50', Icon: TrendingUp, label: t('revenue') || 'Revenue', value: `${orders.reduce((s, o) => s + (o.totalPrice || 0), 0).toLocaleString()} ${t('so_m')}`, trend: '+3.8% Up', trendColor: 'text-green-600' },
-                { iconBg: 'bg-yellow-50', Icon: Star, label: t('rating') || 'Rating', value: averageRating !== null && averageRating > 0 ? averageRating.toFixed(1) : '-', trend: '+0.1% Up', trendColor: 'text-green-600' },
-              ].map((c, idx) => (
+              {(() => {
+                // Calculate trends from real data
+                const productsTrend = calculateTrend(stats?.totalProducts || 0, previousStats?.totalProducts || 0);
+                const ordersTrend = calculateTrend(stats?.totalOrders || 0, previousStats?.totalOrders || 0);
+                const revenueTrend = calculateTrend(stats?.totalRevenue || 0, previousStats?.totalRevenue || 0);
+                const ratingTrend = calculateTrend(averageRating || 0, previousStats?.averageRating || 0);
+                
+                return [
+                  { 
+                    iconBg: 'bg-yellow-50', 
+                    Icon: Package, 
+                    label: t('products'), 
+                    value: stats?.totalProducts || products.length, 
+                    trend: `${productsTrend.percentage} ${productsTrend.direction === 'up' ? t('up') : productsTrend.direction === 'down' ? t('down') : ''}`, 
+                    trendColor: productsTrend.color 
+                  },
+                  { 
+                    iconBg: 'bg-orange-50', 
+                    Icon: ShoppingBag, 
+                    label: t('orders'), 
+                    value: stats?.totalOrders || orders.length, 
+                    trend: `${ordersTrend.percentage} ${ordersTrend.direction === 'up' ? t('up') : ordersTrend.direction === 'down' ? t('down') : ''}`, 
+                    trendColor: ordersTrend.color 
+                  },
+                  { 
+                    iconBg: 'bg-amber-50', 
+                    Icon: TrendingUp, 
+                    label: t('revenue'), 
+                    value: `${(stats?.totalRevenue || orders.reduce((s, o) => s + (o.totalPrice || 0), 0)).toLocaleString()} ${t('so_m')}`, 
+                    trend: `${revenueTrend.percentage} ${revenueTrend.direction === 'up' ? t('up') : revenueTrend.direction === 'down' ? t('down') : ''}`, 
+                    trendColor: revenueTrend.color 
+                  },
+                  { 
+                    iconBg: 'bg-yellow-50', 
+                    Icon: Star, 
+                    label: t('rating'), 
+                    value: averageRating !== null && averageRating > 0 ? averageRating.toFixed(1) : '-', 
+                    trend: `${ratingTrend.percentage} ${ratingTrend.direction === 'up' ? t('up') : ratingTrend.direction === 'down' ? t('down') : ''}`, 
+                    trendColor: ratingTrend.color 
+                  },
+                ];
+              })().map((c, idx) => (
                 <div key={idx} className="bg-white p-4 rounded-2xl shadow-sm border">
                   <div className="flex items-center">
                     <div className={`p-2 rounded-lg ${c.iconBg}`}>
@@ -583,82 +655,89 @@ const SellerDashboard: React.FC = () => {
             <div className="grid gap-4">
               {products.map((product) => (
                 <div key={product.id} className="bg-white p-4 rounded-2xl shadow-sm border">
-                  <div className="flex items-start space-x-4">
+                  <div className="flex items-start space-x-3">
                     {/* Product Image */}
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0">
+                    <div className="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0">
                       {product.imageUrl ? (
                         <img
                           src={product.imageUrl}
                           alt={product.description}
-                          className="w-full h-full object-cover rounded-lg"
+                          className="w-full h-full object-cover rounded-xl"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <Package className="w-6 h-6" />
+                          <Package className="w-8 h-8" />
                         </div>
                       )}
                     </div>
 
                     {/* Product Details */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <h4 className="font-semibold text-gray-900 truncate">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-semibold text-gray-900 text-sm leading-5 line-clamp-2 pr-2">
                           {product.description || product.name}
                         </h4>
-                        <div className="flex items-center space-x-2">
-                          {/* Visibility toggle to match design */}
+                        <div className="flex items-center space-x-2 flex-shrink-0">
+                          {/* Visibility toggle */}
                           <button
                             onClick={() => handleToggleVisibility(product.id, product.isActive)}
-                            className={`relative w-10 h-6 rounded-full transition-colors ${product.isActive ? 'bg-orange-500' : 'bg-gray-300'}`}
-                            title="Visibility"
+                            className={`relative w-8 h-5 rounded-full transition-colors ${product.isActive ? 'bg-orange-500' : 'bg-gray-300'}`}
+                            title={t('visibility')}
                             disabled={updatingProductId === product.id}
                           >
                             <span
-                              className={`absolute top-0.5 ${product.isActive ? 'right-0.5' : 'left-0.5'} w-5 h-5 bg-white rounded-full shadow transition-all`}
+                              className={`absolute top-0.5 ${product.isActive ? 'right-0.5' : 'left-0.5'} w-4 h-4 bg-white rounded-full shadow transition-all`}
                             />
                           </button>
                         </div>
                       </div>
 
-                      <div className="mt-1">
+                      <div className="space-y-2">
                         <div className="flex items-center space-x-2">
-                          <span className="text-lg font-bold text-orange-500">
+                          <span className="text-base font-bold text-orange-500">
                             {product.price?.toLocaleString()} {t('so_m')}
                           </span>
                           {product.originalPrice && product.originalPrice > product.price && (
-                            <span className="text-sm text-gray-400 line-through">
+                            <span className="text-xs text-gray-400 line-through">
                               {product.originalPrice.toLocaleString()} {t('so_m')}
                             </span>
                           )}
                         </div>
-                        <div className="mt-1 flex items-center space-x-3 text-sm text-gray-600">
-                          <span className={`px-2 py-0.5 rounded-full text-xs ${product.quantity > 5 ? 'bg-green-100 text-green-800' : product.quantity > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                            {product.quantity > 5 ? 'In Stock' : product.quantity > 0 ? 'Low Stock' : 'Out of Stock'}
-                          </span>
-                          <div className="flex items-center">
-                            <Calendar className="w-4 h-4 mr-1" />
-                            <span className="truncate">{String(product.category || '')}</span>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.quantity > 5 ? 'bg-green-100 text-green-800' : product.quantity > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                              {product.quantity > 5 ? t('inStock') : product.quantity > 0 ? t('lowStock') : t('outOfStock')}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {product.quantity} {t('quantityUnit')}
+                            </span>
+                          </div>
+                          
+                          {/* Action Buttons */}
+                          <div className="flex items-center space-x-1">
+                            <button
+                              onClick={() => handleEditProduct(product.id)}
+                              className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              title={t('editProduct')}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProduct(product.id)}
+                              className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title={t('deleteProduct')}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
+                        
+                        <div className="flex items-center text-xs text-gray-500">
+                          <Calendar className="w-3 h-3 mr-1" />
+                          <span className="truncate">{t(product.category || 'other')}</span>
+                        </div>
                       </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex flex-col space-y-2">
-                      <button
-                        onClick={() => handleEditProduct(product.id)}
-                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="Edit Product"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteProduct(product.id)}
-                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Delete Product"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -666,14 +745,14 @@ const SellerDashboard: React.FC = () => {
               {products.length === 0 && (
                 <div className="text-center py-12">
                   <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No products yet</h3>
-                  <p className="text-gray-500 mb-6">Start building your store by adding your first product</p>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">{t('noProductsYet')}</h3>
+                  <p className="text-gray-500 mb-6">{t('startBuildingStore')}</p>
                   <button
                     onClick={handleCreateProduct}
                     className="inline-flex items-center px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                   >
                     <Plus className="w-5 h-5 mr-2" />
-                    Add Your First Product
+                    {t('addFirstProduct')}
                   </button>
                 </div>
               )}

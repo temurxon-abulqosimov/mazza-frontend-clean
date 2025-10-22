@@ -3,6 +3,7 @@ import { MapPin, Clock, Star, Heart, Phone } from 'lucide-react';
 import { config } from '../config/env';
 import { Product } from '../types';
 import { useLocalization } from '../contexts/LocalizationContext';
+import { formatTime } from '../utils/timeFormat';
 
 interface ProductCardProps {
   product: Product;
@@ -17,7 +18,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onProductClick, 
   onSellerClick 
 }) => {
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
 
   const getBusinessTypeColor = (businessType: string) => {
     switch (businessType) {
@@ -32,15 +33,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
       default:
         return 'bg-gray-100 text-gray-800';
     }
-  };
-
-  const formatTime = (isoString: string) => {
-    const date = new Date(isoString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      hour12: true 
-    });
   };
 
   const getDiscountPercentage = (price: number, originalPrice?: number) => {
@@ -123,7 +115,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1" />
-            <span>Until {formatTime(product.availableUntil)}</span>
+            <span>{t('until')} {formatTime(product.availableUntil, language)}</span>
           </div>
           <div className="flex items-center">
             <Star className="w-4 h-4 mr-1 text-yellow-400" />

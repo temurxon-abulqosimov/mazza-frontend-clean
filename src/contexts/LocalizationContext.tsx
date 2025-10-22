@@ -31,11 +31,17 @@ const translations: Record<Language, TranslationKeys> = {
     save: 'Saqlash',
     cancel: 'Bekor qilish',
     available: 'Mavjud',
+    until: 'gacha',
+    up: 'Yuqori',
+    down: 'Past',
     
     // Dashboard
     dashboard: 'Boshqaruv paneli',
     analytics: 'Tahlil',
     products: 'Mahsulotlar',
+    welcome: 'Xush kelibsiz',
+    seller: 'Sotuvchi',
+    dashboardOverview: 'Sizning sotuvchi boshqaruv panelingiz.',
     
     // Messages
     success: 'Muvaffaqiyat',
@@ -79,7 +85,6 @@ const translations: Record<Language, TranslationKeys> = {
     
     // Product form
     addProduct: 'Mahsulot qo\'shish',
-    editProduct: 'Mahsulotni tahrirlash',
     productDescription: 'Mahsulot tavsifi',
     productDescriptionPlaceholder: 'Mahsulot tavsifini kiriting',
     salePrice: 'Sotish narxi',
@@ -127,6 +132,18 @@ const translations: Record<Language, TranslationKeys> = {
     quickActions: 'Tezkor amallar',
     viewOrders: 'Buyurtmalarni ko\'rish',
     recentOrders: 'So\'nggi buyurtmalar',
+    
+    // Product status
+    inStock: 'Omborda',
+    lowStock: 'Kam miqdor',
+    outOfStock: 'Tugagan',
+    visibility: 'Ko\'rinish',
+    editProduct: 'Mahsulotni tahrirlash',
+    deleteProduct: 'Mahsulotni o\'chirish',
+    noProductsYet: 'Hali mahsulot yo\'q',
+    startBuildingStore: 'Do\'koningizni qurishni boshlang',
+    addFirstProduct: 'Birinchi mahsulotni qo\'shing',
+    quantityUnit: 'ta',
     
     // Order statuses
     filterByStatus: 'Holat bo\'yicha filtr',
@@ -220,7 +237,6 @@ const translations: Record<Language, TranslationKeys> = {
     
     // Roles
     user: 'Foydalanuvchi',
-    seller: 'Sotuvchi',
     admin: 'Administrator',
     
     // Business Types
@@ -331,7 +347,6 @@ const translations: Record<Language, TranslationKeys> = {
     
     // Search Results and Product Cards
     viewDetails: 'Tafsilotlarni ko\'rish',
-    until: 'gacha',
     discount: 'Chegirma',
     
     // Order Notifications
@@ -370,6 +385,7 @@ const translations: Record<Language, TranslationKeys> = {
     contactSeller: 'Sotuvchi bilan bog\'lanish',
     reorder: 'Qayta buyurtma berish',
     loadingOrders: 'Buyurtmalar yuklanmoqda...',
+    reserveNow: 'Hozir buyurtma berish',
   },
   ru: {
     // Navigation
@@ -383,11 +399,17 @@ const translations: Record<Language, TranslationKeys> = {
     save: 'Сохранить',
     cancel: 'Отмена',
     available: 'Доступно',
+    until: 'до',
+    up: 'Вверх',
+    down: 'Вниз',
     
     // Dashboard
     dashboard: 'Панель управления',
     analytics: 'Аналитика',
     products: 'Товары',
+    welcome: 'Добро пожаловать',
+    seller: 'Продавец',
+    dashboardOverview: 'Ваша панель управления продавца.',
     
     // Messages
     success: 'Успех',
@@ -431,7 +453,6 @@ const translations: Record<Language, TranslationKeys> = {
     
     // Product form
     addProduct: 'Добавить товар',
-    editProduct: 'Редактировать товар',
     productDescription: 'Описание товара',
     productDescriptionPlaceholder: 'Введите описание товара',
     salePrice: 'Цена продажи',
@@ -479,6 +500,18 @@ const translations: Record<Language, TranslationKeys> = {
     quickActions: 'Быстрые действия',
     viewOrders: 'Просмотр заказов',
     recentOrders: 'Последние заказы',
+    
+    // Product status
+    inStock: 'В наличии',
+    lowStock: 'Мало',
+    outOfStock: 'Нет в наличии',
+    visibility: 'Видимость',
+    editProduct: 'Редактировать продукт',
+    deleteProduct: 'Удалить продукт',
+    noProductsYet: 'Пока нет продуктов',
+    startBuildingStore: 'Начните создавать свой магазин',
+    addFirstProduct: 'Добавить первый продукт',
+    quantityUnit: 'шт',
     
     // Order statuses
     filterByStatus: 'Фильтр по статусу',
@@ -573,7 +606,6 @@ const translations: Record<Language, TranslationKeys> = {
     
     // Roles
     user: 'Пользователь',
-    seller: 'Продавец',
     admin: 'Администратор',
     
     // Business Types
@@ -684,7 +716,6 @@ const translations: Record<Language, TranslationKeys> = {
     
     // Search Results and Product Cards
     viewDetails: 'Просмотр деталей',
-    until: 'до',
     discount: 'Скидка',
     
     // Order Notifications
@@ -723,6 +754,7 @@ const translations: Record<Language, TranslationKeys> = {
     contactSeller: 'Связаться с продавцом',
     reorder: 'Повторить заказ',
     loadingOrders: 'Загрузка заказов...',
+    reserveNow: 'Заказать сейчас',
   }
 };
 

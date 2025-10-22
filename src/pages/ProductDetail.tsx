@@ -513,7 +513,7 @@ const ProductDetail: React.FC = () => {
                 {product.description} x {quantity}
               </p>
               <div className="text-xl font-bold text-gray-900 mb-6">
-                {totalPrice.toLocaleString()} so'm
+                {totalPrice.toLocaleString()} {t('so_m')}
               </div>
               <div className="flex space-x-3">
                 <button
@@ -537,7 +537,7 @@ const ProductDetail: React.FC = () => {
       {/* Sticky CTA */}
       <div className="fixed bottom-0 left-0 right-0 bg-transparent" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="max-w-md mx-auto px-4 py-3">
-          <button onClick={() => setShowOrderSheet(true)} className="w-full bg-orange-500 text-white py-3 rounded-full font-semibold shadow-md">Reserve Now</button>
+          <button onClick={() => setShowOrderSheet(true)} className="w-full bg-orange-500 text-white py-3 rounded-full font-semibold shadow-md">{t('reserveNow')}</button>
         </div>
       </div>
 
