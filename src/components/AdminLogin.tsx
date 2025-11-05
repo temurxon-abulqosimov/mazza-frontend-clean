@@ -15,15 +15,9 @@ const AdminLogin: React.FC = () => {
     setError('');
 
     try {
-      const adminId = (config.ADMIN_TELEGRAM_ID || '').trim();
-      const currentId = user?.id?.toString() || '';
-      if (!adminId || currentId !== adminId) {
-        setError('Access denied. You are not authorized as admin.');
-        return;
-      }
       // Use proper API authentication
       const response = await login({
-        telegramId: user?.id.toString() || '',
+        telegramId: (config.ADMIN_TELEGRAM_ID || '').trim() || user?.id.toString() || '',
         role: 'ADMIN',
         password: password
       });
