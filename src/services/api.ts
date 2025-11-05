@@ -835,10 +835,9 @@ export const ratingsApi = {
 
 export const adminApi = {
   getDashboard: async () => {
+    // Always fetch fresh admin dashboard data (no cache)
     const cacheKey = `get:${api.defaults.baseURL}/webapp/admin/dashboard`;
-    const cachedData = getCachedData(cacheKey);
-    if (cachedData) return Promise.resolve({ data: cachedData });
-    
+    cache.delete(cacheKey);
     try {
       const response = await api.get('/webapp/admin/dashboard');
       return response;
