@@ -279,17 +279,46 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             console.log(`🔐 Authenticating user with their actual role: ${userRole}`);
             console.log(`🔐 Backend user object:`, backendUser);
             
+            // If backend claims ADMIN role, do NOT auto-login (password required). Show admin login screen instead.
+            if (userRole === 'ADMIN') {
+              console.log('🛑 Backend indicates ADMIN role; skipping auto-login to require password');
+
+              const profile: UserProfile = {
+                id: backendUser?.id || telegramUser?.id || 0,
+                telegramId: backendUser?.telegramId || telegramUser?.id.toString() || '',
+                firstName: telegramUser?.first_name || '',
+                lastName: telegramUser?.last_name,
+                username: telegramUser?.username,
+                role: 'ADMIN',
+                isRegistered: true,
+                needsPassword: true
+              };
+
+              setUser(telegramUser);
+              setUserProfileState(profile);
+              setUserRole('ADMIN');
+              localStorage.setItem('userProfile', JSON.stringify(profile));
+              localStorage.setItem('userRole', 'ADMIN');
+              setTimeout(() => {
+                setIsReady(true);
+                setIsLoading(false);
+                console.log('TelegramContext: Admin detected, prompting for password');
+              }, 0);
+
+              return;
+            }
+
             const loginData = {
               telegramId: telegramUser.id.toString(),
               role: userRole
             };
-            
+
             console.log(`🔐 Login data:`, loginData);
             const authResponse = await authApi.login(loginData);
             console.log('🔐 Auth response received:', authResponse);
             console.log('🔐 Auth response data:', authResponse.data);
             console.log('🔐 Access token exists:', !!authResponse.data?.access_token);
-            
+
             if (authResponse.data && authResponse.data.access_token) {
               // Use backend role directly (already uppercase)
               const backendRole = userRole as "USER" | "SELLER" | "ADMIN" || "USER";
@@ -421,9 +450,38 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             };
             
             console.log(`🔐 Login data:`, loginData);
+            // If backend claims ADMIN role, do NOT auto-login (password required). Show admin login screen instead.
+            if (userRole === 'ADMIN') {
+              console.log('🛑 Backend indicates ADMIN role (no WebApp); skipping auto-login to require password');
+
+              const profile: UserProfile = {
+                id: backendUser?.id || telegramUser?.id || 0,
+                telegramId: backendUser?.telegramId || telegramUser?.id.toString() || '',
+                firstName: telegramUser?.first_name || '',
+                lastName: telegramUser?.last_name,
+                username: telegramUser?.username,
+                role: 'ADMIN',
+                isRegistered: true,
+                needsPassword: true
+              };
+
+              setUser(telegramUser);
+              setUserProfileState(profile);
+              setUserRole('ADMIN');
+              localStorage.setItem('userProfile', JSON.stringify(profile));
+              localStorage.setItem('userRole', 'ADMIN');
+              setTimeout(() => {
+                setIsReady(true);
+                setIsLoading(false);
+                console.log('TelegramContext: Admin detected (no WebApp), prompting for password');
+              }, 0);
+
+              return;
+            }
+
             const authResponse = await authApi.login(loginData);
             console.log('🔐 Auth response received:', authResponse);
-            
+
             if (authResponse.data && authResponse.data.access_token) {
               const backendRole = userRole as "USER" | "SELLER" | "ADMIN" || "USER";
               
