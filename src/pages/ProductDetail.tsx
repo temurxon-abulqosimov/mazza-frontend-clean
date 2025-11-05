@@ -436,7 +436,7 @@ const ProductDetail: React.FC = () => {
             </div>
               <div className="bg-white rounded-b-2xl -mt-2 px-4 py-3 flex items-center text-gray-700">
               <svg className="w-4 h-4 mr-2 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 1 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-              <span className="text-[14px]">{product?.seller?.address || '—'}</span>
+              <span className="text-[14px]">{product?.seller?.address || (product as any)?.store?.address || '—'}</span>
             </div>
           </div>
         )}
