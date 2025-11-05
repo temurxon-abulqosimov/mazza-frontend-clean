@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTelegram } from '../contexts/TelegramContext';
 import { authApi } from '../services/api';
+import { config } from '../config/env';
 
 const AdminLogin: React.FC = () => {
   const { user, setUserProfile, setUserRole, login } = useTelegram();
@@ -14,6 +15,12 @@ const AdminLogin: React.FC = () => {
     setError('');
 
     try {
+      const adminId = (config.ADMIN_TELEGRAM_ID || '').trim();
+      const currentId = user?.id?.toString() || '';
+      if (!adminId || currentId !== adminId) {
+        setError('Access denied. You are not authorized as admin.');
+        return;
+      }
       // Use proper API authentication
       const response = await login({
         telegramId: user?.id.toString() || '',

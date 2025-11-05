@@ -1,13 +1,40 @@
-﻿import React from 'react';
+﻿import React, { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useTelegram } from '../contexts/TelegramContext';
 import RegistrationRequired from './RegistrationRequired';
 import LoadingScreen from './LoadingScreen';
 import BrowserFallback from './BrowserFallback';
 import AdminLogin from './AdminLogin';
+import { config } from '../config/env';
 
 const RoleBasedRedirect: React.FC = () => {
-  const { userRole, userProfile, isLoading, isReady, webApp } = useTelegram();
+  const { userRole, userProfile, isLoading, isReady, webApp, user, setUserProfile, setUserRole } = useTelegram();
+
+  // Auto-detect admin based on Telegram ID from env and require password
+  useEffect(() => {
+    if (!isReady || !user) return;
+    const adminId = (config.ADMIN_TELEGRAM_ID || '').trim();
+    if (!adminId) return;
+    const currentId = user.id?.toString();
+    if (currentId === adminId) {
+      // If not already marked as admin, set minimal admin profile and require password
+      if (!userProfile || userProfile.role !== 'ADMIN') {
+        const adminProfile = {
+          id: user.id,
+          telegramId: currentId,
+          firstName: user.first_name || 'Admin',
+          lastName: user.last_name,
+          username: user.username,
+          role: 'ADMIN' as const,
+          isRegistered: true,
+          needsPassword: true
+        } as const;
+        setUserProfile(adminProfile as any);
+        setUserRole('ADMIN');
+        localStorage.setItem('userProfile', JSON.stringify(adminProfile));
+      }
+    }
+  }, [isReady, user, userProfile, setUserProfile, setUserRole]);
 
   console.log('RoleBasedRedirect: Current state:', {
     userRole,

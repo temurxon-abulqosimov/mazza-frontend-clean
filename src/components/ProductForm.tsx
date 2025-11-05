@@ -239,6 +239,30 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
 
       {/* Beautiful Form */}
       <div className="w-full max-w-md mx-auto p-4 sm:p-6">
+        {seller && (
+          <div className="mb-6 bg-white rounded-3xl shadow-sm border border-orange-100 p-5">
+            <div className="flex items-center mb-2">
+              <div className="w-8 h-8 bg-orange-100 rounded-xl flex items-center justify-center mr-2">
+                <Store className="w-4 h-4 text-orange-600" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-500">Your store</div>
+                <div className="font-semibold text-gray-900">{seller.businessName}</div>
+              </div>
+            </div>
+            <div className="text-sm text-gray-700 mt-2">
+              <div className="flex items-start">
+                <svg className="w-4 h-4 mt-0.5 mr-2 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 1 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                <span>{seller.address || 'Address will appear after you share location in bot'}</span>
+              </div>
+              {seller.location && (
+                <div className="mt-1 text-xs text-gray-500">
+                  Lat: {seller.location.latitude}, Lon: {seller.location.longitude}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
             <div className="flex items-center space-x-3">
