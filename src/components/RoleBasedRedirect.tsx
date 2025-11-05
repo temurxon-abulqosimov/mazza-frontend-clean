@@ -45,6 +45,17 @@ const RoleBasedRedirect: React.FC = () => {
     timestamp: new Date().toISOString()
   });
 
+  // If current Telegram user matches admin ID, allow immediate admin auth screen even while loading
+  const adminId = (config.ADMIN_TELEGRAM_ID || '').trim();
+  const currentId = user?.id?.toString();
+  if (adminId && currentId && currentId === adminId) {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      console.log('RoleBasedRedirect: Admin detected by Telegram ID - showing admin login early');
+      return <AdminLogin />;
+    }
+  }
+
   // Show loading while initializing
   if (!isReady || isLoading) {
     console.log('RoleBasedRedirect: Showing loading screen - isReady:', isReady, 'isLoading:', isLoading);
